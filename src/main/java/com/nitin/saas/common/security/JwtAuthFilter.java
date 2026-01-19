@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
 
+
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
@@ -27,7 +28,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             Claims claims = JwtUtil.validateToken(token);
             Long userId = (Long) claims.get("userId");
             String email = claims.getSubject();
-            String role = (String) claims.get("role",String.class);
+            String role = claims.get("role",String.class);
 
             UserPrincipal principal = new UserPrincipal(userId,email,role);
             UsernamePasswordAuthenticationToken authentication=
@@ -40,6 +41,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         }catch (Exception e){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid or expired token");
             return;
         }
         filterChain.doFilter(request,response);

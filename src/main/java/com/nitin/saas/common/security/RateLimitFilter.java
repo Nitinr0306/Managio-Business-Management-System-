@@ -3,10 +3,12 @@ package com.nitin.saas.common.security;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 public class RateLimitFilter implements Filter {
 
@@ -53,7 +55,7 @@ public class RateLimitFilter implements Filter {
 
     private boolean isSensitiveEndpoint(String path) {
         return path.contains("/login")
-                || path.contains("/forgot-password")
+                || path.contains("/forget-password")
                 || path.contains("/refresh");
     }
 

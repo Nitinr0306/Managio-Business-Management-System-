@@ -50,9 +50,8 @@ public class SecurityConfig {
                 .oauth2Login(oauth ->
                         oauth.successHandler(oAuth2SuccessHandler)
                 )
-                .addFilterBefore(rateLimitFilter, JwtAuthFilter.class)
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 }

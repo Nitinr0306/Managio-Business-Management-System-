@@ -19,14 +19,18 @@ public class Business {
     @Column(nullable = false, unique = true)
     private String slug;
 
+    @Column(nullable=false,unique=true)
+    private String code;
+
     @ManyToOne(optional = false)
     private User owner;
 
     protected Business() {}
 
-    public Business(String name, String slug, User owner) {
+    public Business(String name, String slug,String code, User owner) {
         this.name = name;
         this.slug = slug;
+        this.code = code;
         this.owner = owner;
     }
 }

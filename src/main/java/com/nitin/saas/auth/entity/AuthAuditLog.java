@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 
 @Entity
-public class AuditLog {
+public class AuthAuditLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,9 +19,9 @@ public class AuditLog {
     private String ipAddress;
     private LocalDateTime timestamp;
 
-    public AuditLog() {}
+    public AuthAuditLog() {}
 
-    public AuditLog(Long userId, String action, String ipAddress) {
+    public AuthAuditLog(Long userId, String action, String ipAddress) {
         this.userId = userId;
         this.action = action;
         this.ipAddress = ipAddress;

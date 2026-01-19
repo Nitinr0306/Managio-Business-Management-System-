@@ -1,20 +1,17 @@
 package com.nitin.saas.auth.controller;
 
 import com.nitin.saas.auth.dto.AuthTokenResponse;
-import com.nitin.saas.auth.dto.LoginResponse;
 import com.nitin.saas.auth.dto.UserResponse;
-import com.nitin.saas.auth.entity.AuditLog;
+import com.nitin.saas.auth.entity.AuthAuditLog;
 import com.nitin.saas.auth.entity.RefreshToken;
 import com.nitin.saas.auth.entity.User;
-import com.nitin.saas.auth.repository.AuditLogRepository;
+import com.nitin.saas.auth.repository.AuthAuditLogRepository;
 import com.nitin.saas.auth.repository.RefreshTokenRepository;
 import com.nitin.saas.auth.repository.UserRepository;
 import com.nitin.saas.auth.service.AuthService;
 import com.nitin.saas.common.exception.BadRequestException;
 import com.nitin.saas.common.security.JwtUtil;
-import com.nitin.saas.common.security.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -26,9 +23,9 @@ public class AuthController {
     private final AuthService authService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
-    private final AuditLogRepository auditLogRepository;
+    private final AuthAuditLogRepository auditLogRepository;
 
-    public AuthController(AuthService authService, RefreshTokenRepository refreshTokenRepository, UserRepository userRepository, AuditLogRepository auditLogRepository) {
+    public AuthController(AuthService authService, RefreshTokenRepository refreshTokenRepository, UserRepository userRepository, AuthAuditLogRepository auditLogRepository) {
         this.authService = authService;
         this.refreshTokenRepository = refreshTokenRepository;
         this.userRepository = userRepository;
@@ -57,7 +54,7 @@ public class AuthController {
         String refreshToken = authService.createRefreshToken(user);
 
         auditLogRepository.save(
-                new AuditLog(user.getId(), "LOGIN_SUCCESS", request.getRemoteAddr())
+                new AuthAuditLog(user.getId(), "LOGIN_SUCCESS", request.getRemoteAddr())
         );
 
         return new AuthTokenResponse(accessToken, refreshToken);
