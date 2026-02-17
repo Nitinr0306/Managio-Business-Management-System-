@@ -37,3 +37,7 @@ build/
 .env.local
 application-local.properties
 *.log
+com_nitin_saas_code.txt
+structure1.txt
+application-dev.properties
+application-test.properties
