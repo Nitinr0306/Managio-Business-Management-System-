@@ -1,26 +1,36 @@
 package com.nitin.saas.subscription.entity;
 
-import com.nitin.saas.subscription.enums.SubscriptionStatus;
-import com.nitin.saas.member.entity.Member;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-@Getter
 @Entity
-@Table(name = "member_subscriptions")
+@Table(name = "member_subscriptions", indexes = {
+        @Index(name = "idx_sub_member", columnList = "memberId"),
+        @Index(name = "idx_sub_status", columnList = "status"),
+        @Index(name = "idx_sub_end_date", columnList = "endDate")
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MemberSubscription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
-    private Member member;
+    @Column(nullable = false)
+    private Long memberId;
 
-    @ManyToOne(optional = false)
-    private SubscriptionPlan plan;
+    @Column(nullable = false)
+    private Long planId;
 
     @Column(nullable = false)
     private LocalDate startDate;
@@ -28,46 +38,33 @@ public class MemberSubscription {
     @Column(nullable = false)
     private LocalDate endDate;
 
-    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private String status = "ACTIVE";
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
     @Column(nullable = false)
-    private SubscriptionStatus status;
+    private LocalDateTime updatedAt;
 
+    @Version
+    private Long version;
 
-    @Column
-    private String actionReason;
-
-    protected MemberSubscription() {}
-
-    public MemberSubscription(
-            Member member,
-            SubscriptionPlan plan,
-            LocalDate startDate
-    ) {
-        this.member = member;
-        this.plan = plan;
-        this.startDate = startDate;
-        this.endDate = startDate.plusDays(plan.getDurationInDays());
-        this.status = SubscriptionStatus.PENDING;
+    public boolean isExpired() {
+        return LocalDate.now().isAfter(endDate);
     }
 
-    public void markExpired() {
-        this.status = SubscriptionStatus.EXPIRED;
+    public void expire() {
+        this.status = "EXPIRED";
     }
 
-    public void expire(LocalDate endDate, String reason) {
-        this.status = SubscriptionStatus.EXPIRED;
-        this.endDate = endDate;
-        this.actionReason = reason;
+    public boolean isActive() {
+        return "ACTIVE".equals(status) && !isExpired();
     }
-
-    public void cancel(LocalDate endDate, String reason) {
-        this.status = SubscriptionStatus.CANCELLED;
-        this.endDate = endDate;
-        this.actionReason = reason;
-    }
-    public void activate() {
-        this.status = SubscriptionStatus.ACTIVE;
-    }
-
 }
-

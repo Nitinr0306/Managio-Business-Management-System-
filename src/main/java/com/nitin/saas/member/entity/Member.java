@@ -1,70 +1,103 @@
 package com.nitin.saas.member.entity;
 
-import com.nitin.saas.auth.entity.User;
-import com.nitin.saas.business.entity.Business;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Getter
 @Entity
-@Table(name = "members")
+@Table(name = "members", indexes = {
+        @Index(name = "idx_member_business", columnList = "businessId"),
+        @Index(name = "idx_member_name", columnList = "firstName, lastName"),
+        @Index(name = "idx_member_phone", columnList = "phone"),
+        @Index(name = "idx_member_status", columnList = "status")
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
-
-    @ManyToOne(optional = false)
-    private Business business;
-
     @Column(nullable = false)
-    private String name;
+    private Long businessId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
+    private String firstName;
+
+    @Column(nullable = false, length = 100)
+    private String lastName;
+
+    @Column(length = 20)
     private String phone;
 
-    @Column(nullable = false)
-    private boolean active = true;
+    @Column(length = 255)
+    private String email;
 
+    private LocalDate dateOfBirth;
+
+    @Column(length = 10)
+    private String gender;
+
+    @Column(length = 500)
+    private String address;
+
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private String status = "ACTIVE";
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    protected Member() {}
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 
-    public Member(User user,Business business, String name, String phone) {
-        this.user = user;
-        this.business = business;
-        this.name = name;
-        this.phone = phone;
-    }
-    public void updateDetails(String name, String phone) {
-        this.name = name;
-        this.phone = phone;
+    private LocalDateTime deletedAt;
+
+    @Version
+    private Long version;
+
+
+    @Column(length = 255)
+    private String password;  // For member authentication
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean accountEnabled = true;  // Can member login?
+
+    private LocalDateTime lastLoginAt;  // Track last login time
+
+    // ADD THIS HELPER METHOD
+    public void setPasswordHash(String hashedPassword) {
+        this.password = hashedPassword;
     }
 
-    public Long getId() {
-        return id;
+    public String getFullName() {
+        return firstName + " " + lastName;
     }
 
-    public Business getBusiness() {
-        return business;
+    public void activate() {
+        this.status = "ACTIVE";
     }
+
     public void deactivate() {
-        this.active = false;
+        this.status = "INACTIVE";
+        this.deletedAt = LocalDateTime.now();
     }
 
-    public void reactivate() {
-        this.active = true;
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 }

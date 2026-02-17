@@ -1,12 +1,22 @@
 package com.nitin.saas.business.entity;
 
-import com.nitin.saas.auth.entity.User;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-@Getter
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "businesses")
+@Table(name = "businesses", indexes = {
+        @Index(name = "idx_business_owner", columnList = "ownerId"),
+        @Index(name = "idx_business_status", columnList = "status")
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Business {
 
     @Id
@@ -14,23 +24,56 @@ public class Business {
     private Long id;
 
     @Column(nullable = false)
+    private Long ownerId;
+
+    @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(nullable = false, unique = true)
-    private String slug;
+    @Column(length = 500)
+    private String address;
 
-    @Column(nullable=false,unique=true)
-    private String code;
+    @Column(length = 20)
+    private String phone;
 
-    @ManyToOne(optional = false)
-    private User owner;
+    @Column(length = 255)
+    private String email;
 
-    protected Business() {}
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private String status = "ACTIVE";
 
-    public Business(String name, String slug,String code, User owner) {
-        this.name = name;
-        this.slug = slug;
-        this.code = code;
-        this.owner = owner;
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer memberCount = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer staffCount = 0;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
+    private LocalDateTime deletedAt;
+
+    @Version
+    private Long version;
+
+    public void incrementMemberCount() {
+        this.memberCount++;
+    }
+
+    public void decrementMemberCount() {
+        if (this.memberCount > 0) {
+            this.memberCount--;
+        }
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 }

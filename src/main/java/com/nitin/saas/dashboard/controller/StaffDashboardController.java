@@ -1,38 +1,25 @@
 package com.nitin.saas.dashboard.controller;
 
-import com.nitin.saas.business.entity.Business;
-import com.nitin.saas.business.repository.BusinessRepository;
-import com.nitin.saas.common.security.UserPrincipal;
 import com.nitin.saas.dashboard.dto.StaffDashboardResponse;
 import com.nitin.saas.dashboard.service.StaffDashboardService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/dashboard/staff")
+@RequestMapping("/api/v1/businesses/{businessId}/dashboard/staff")
+@RequiredArgsConstructor
+@Tag(name = "Staff Dashboard", description = "Staff dashboard endpoints")
 public class StaffDashboardController {
 
-    private final StaffDashboardService service;
-    private final BusinessRepository businessRepository;
-
-    public StaffDashboardController(StaffDashboardService service, BusinessRepository businessRepository) {
-        this.service = service;
-        this.businessRepository = businessRepository;
-
-    }
+    private final StaffDashboardService dashboardService;
 
     @GetMapping
-    public StaffDashboardResponse dashboard(
-            @PathVariable String businessCode,
-            @AuthenticationPrincipal UserPrincipal principal
-    ) {
-        Business business =
-                businessRepository.findByCode(businessCode)
-                        .orElseThrow(() -> new IllegalArgumentException("Business not found"));
-
-        return service.getDashboard(business);
+    @Operation(summary = "Get staff dashboard")
+    public ResponseEntity<StaffDashboardResponse> getStaffDashboard(@PathVariable Long businessId) {
+        StaffDashboardResponse response = dashboardService.getStaffDashboard(businessId);
+        return ResponseEntity.ok(response);
     }
 }

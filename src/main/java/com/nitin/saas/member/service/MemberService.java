@@ -1,103 +1,158 @@
 package com.nitin.saas.member.service;
 
-import com.nitin.saas.auth.entity.User;
 import com.nitin.saas.business.entity.Business;
-import com.nitin.saas.business.entity.BusinessMembership;
-import com.nitin.saas.business.enums.BusinessRole;
-import com.nitin.saas.business.repository.BusinessMembershipRepository;
-import com.nitin.saas.business.service.BusinessAuthorizationService;
+import com.nitin.saas.business.repository.BusinessRepository;
+import com.nitin.saas.business.service.BusinessService;
+import com.nitin.saas.common.exception.ResourceNotFoundException;
+import com.nitin.saas.member.dto.CreateMemberRequest;
+import com.nitin.saas.member.dto.MemberResponse;
 import com.nitin.saas.member.entity.Member;
 import com.nitin.saas.member.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class MemberService {
 
-    private final MemberRepository memberRepository;
-    private final BusinessMembershipRepository membershipRepository;
-    private final BusinessAuthorizationService authorizationService;
+        private final MemberRepository memberRepository;
+        private final BusinessService businessService;
+        private final BusinessRepository businessRepository;
+        private final com.nitin.saas.audit.service.AuditLogService auditLogService;
 
-    public MemberService(
-            MemberRepository memberRepository,
-            BusinessMembershipRepository membershipRepository,
-            BusinessAuthorizationService authorizationService
-    ) {
-        this.memberRepository = memberRepository;
-        this.membershipRepository = membershipRepository;
-        this.authorizationService = authorizationService;
-    }
+        @Transactional
+        public MemberResponse createMember(Long businessId, CreateMemberRequest request) {
+                businessService.requireAccess(businessId);
 
+                Member member = Member.builder()
+                        .businessId(businessId)
+                        .firstName(request.getFirstName())
+                        .lastName(request.getLastName())
+                        .phone(request.getPhone())
+                        .email(request.getEmail())
+                        .dateOfBirth(request.getDateOfBirth())
+                        .gender(request.getGender())
+                        .address(request.getAddress())
+                        .notes(request.getNotes())
+                        .status("ACTIVE")
+                        .build();
 
+                member = memberRepository.save(member);
 
-    public Member addMember(
-            Business business,
-            User requester,
-            User memberUser,
-            String name,
-            String phone
-    ) {
+                businessRepository.findById(businessId).ifPresent(business -> {
+                        business.incrementMemberCount();
+                        businessRepository.save(business);
+                });
 
-        BusinessMembership membership =
-                membershipRepository.findByBusinessAndUser(business, requester)
-                        .orElseThrow(() ->
-                                new IllegalStateException("Not part of business")
-                        );
-
-
-        if (membership.getRole() != BusinessRole.OWNER &&
-                membership.getRole() != BusinessRole.STAFF) {
-            throw new IllegalStateException("Not allowed to add members");
+                log.info("Member created: {} for business: {}", member.getId(), businessId);
+                return mapToResponse(member);
         }
 
-
-        if (memberRepository.existsByBusinessAndPhone(business, phone)) {
-            throw new IllegalStateException("Member already exists");
+        @Transactional(readOnly = true)
+        public MemberResponse getMemberById(Long id) {
+                Member member = findActiveMemberById(id);
+                businessService.requireAccess(member.getBusinessId());
+                return mapToResponse(member);
         }
 
+        @Transactional(readOnly = true)
+        public Page<MemberResponse> getMembers(Long businessId, Pageable pageable) {
+                businessService.requireAccess(businessId);
+                return memberRepository.findActiveByBusinessId(businessId, pageable)
+                        .map(this::mapToResponse);
+        }
 
-        Member member = new Member(
-                memberUser,
-                business,
-                name,
-                phone
-        );
+        @Transactional(readOnly = true)
+        public Page<MemberResponse> searchMembers(Long businessId, String query, Pageable pageable) {
+                businessService.requireAccess(businessId);
+                return memberRepository.searchMembers(businessId, query, pageable)
+                        .map(this::mapToResponse);
+        }
 
-        return memberRepository.save(member);
-    }
+        @Transactional(readOnly = true)
+        public Page<MemberResponse> getMembersByStatus(Long businessId, String status, Pageable pageable) {
+                businessService.requireAccess(businessId);
+                return memberRepository.findByBusinessIdAndStatus(businessId, status, pageable)
+                        .map(this::mapToResponse);
+        }
 
+        @Transactional
+        public MemberResponse updateMember(Long id, CreateMemberRequest request) {
+                Member member = findActiveMemberById(id);
+                businessService.requireAccess(member.getBusinessId());
 
-    public Member updateMember(
-            Business business,
-            User requester,
-            Long memberId,
-            String name,
-            String phone
-    ) {
-        authorizationService.authorizeOwnerOrStaff(business, requester);
+                member.setFirstName(request.getFirstName());
+                member.setLastName(request.getLastName());
+                member.setPhone(request.getPhone());
+                member.setEmail(request.getEmail());
+                member.setDateOfBirth(request.getDateOfBirth());
+                member.setGender(request.getGender());
+                member.setAddress(request.getAddress());
+                member.setNotes(request.getNotes());
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Member not found")
-                );
+                member = memberRepository.save(member);
+                log.info("Member updated: {}", id);
 
-        member.updateDetails(name, phone);
-        return memberRepository.save(member);
-    }
+                return mapToResponse(member);
+        }
 
+        @Transactional
+        public void deactivateMember(Long id) {
+                Member member = findActiveMemberById(id);
+                businessService.requireAccess(member.getBusinessId());
 
-    public void deactivateMember(
-            Business business,
-            User requester,
-            Long memberId
-    ) {
-        authorizationService.authorizeOwnerOrStaff(business, requester);
+                member.deactivate();
+                memberRepository.save(member);
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Member not found")
-                );
+                businessRepository.findById(member.getBusinessId()).ifPresent(business -> {
+                        business.decrementMemberCount();
+                        businessRepository.save(business);
+                });
 
-        member.deactivate();
-        memberRepository.save(member);
-    }
+                // Audit log
+                auditLogService.logMemberDeactivation(member.getBusinessId(), member.getId(), member.getFullName());
+
+                log.info("Member deactivated: {}", id);
+        }
+
+        @Transactional(readOnly = true)
+        public Long countMembers(Long businessId) {
+                businessService.requireAccess(businessId);
+                return memberRepository.countActiveByBusinessId(businessId);
+        }
+
+        @Transactional(readOnly = true)
+        public Long countActiveMembers(Long businessId) {
+                businessService.requireAccess(businessId);
+                return memberRepository.countActiveMembers(businessId);
+        }
+
+        private Member findActiveMemberById(Long id) {
+                return memberRepository.findActiveById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Member not found: " + id));
+        }
+
+        private MemberResponse mapToResponse(Member member) {
+                return MemberResponse.builder()
+                        .id(member.getId())
+                        .businessId(member.getBusinessId())
+                        .firstName(member.getFirstName())
+                        .lastName(member.getLastName())
+                        .fullName(member.getFullName())
+                        .phone(member.getPhone())
+                        .email(member.getEmail())
+                        .dateOfBirth(member.getDateOfBirth())
+                        .gender(member.getGender())
+                        .address(member.getAddress())
+                        .status(member.getStatus())
+                        .notes(member.getNotes())
+                        .createdAt(member.getCreatedAt())
+                        .updatedAt(member.getUpdatedAt())
+                        .build();
+        }
 }

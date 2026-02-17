@@ -1,62 +1,30 @@
 package com.nitin.saas.subscription.repository;
 
-import com.nitin.saas.business.entity.Business;
-import com.nitin.saas.member.entity.Member;
 import com.nitin.saas.subscription.entity.MemberSubscription;
-import com.nitin.saas.subscription.enums.SubscriptionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberSubscriptionRepository
-        extends JpaRepository<MemberSubscription, Long> {
+@Repository
+public interface MemberSubscriptionRepository extends JpaRepository<MemberSubscription, Long> {
 
-    boolean existsByMemberAndStatus(
-            Member member,
-            SubscriptionStatus status
-    );
-    List<MemberSubscription> findAllByStatusAndEndDateBefore(
-            SubscriptionStatus status,
-            LocalDate date
-    );
-    @Query("""
-        SELECT COUNT(s)
-        FROM MemberSubscription s
-        WHERE s.member.business = :business
-          AND s.status = :status
-    """)
-    long countByBusinessAndStatus(
-            Business business,
-            SubscriptionStatus status
-    );
+  @Query("SELECT ms FROM MemberSubscription ms WHERE ms.memberId = :memberId AND ms.status = 'ACTIVE'")
+  Optional<MemberSubscription> findActiveSubscriptionByMemberId(@Param("memberId") Long memberId);
 
-    @Query("""
-        SELECT COUNT(s)
-        FROM MemberSubscription s
-        WHERE s.member.business = :business
-          AND s.status = 'ACTIVE'
-          AND s.endDate <= :date
-    """)
-    long countExpiringSoon(
-            Business business,
-            LocalDate date
-    );
+  @Query("SELECT ms FROM MemberSubscription ms WHERE ms.memberId = :memberId ORDER BY ms.createdAt DESC")
+  List<MemberSubscription> findByMemberId(@Param("memberId") Long memberId);
 
-    @Query("""
-SELECT s.plan.name, COALESCE(SUM(p.amount),0)
-FROM Payment p
-JOIN p.subscription s
-WHERE p.business = :business
-AND p.status = 'SUCCESS'
-GROUP BY s.plan.name
-""")
-    List<Object[]> revenueByPlan(Business business);
+  @Query("SELECT ms FROM MemberSubscription ms WHERE ms.endDate < :date AND ms.status = 'ACTIVE'")
+  List<MemberSubscription> findExpiredSubscriptions(@Param("date") LocalDate date);
 
-    Optional<MemberSubscription> findByMemberAndStatus(
-            Member member,
-            SubscriptionStatus status
-    );
+  @Query("SELECT ms FROM MemberSubscription ms WHERE ms.endDate BETWEEN :start AND :end AND ms.status = 'ACTIVE'")
+  List<MemberSubscription> findExpiringSubscriptions(@Param("start") LocalDate start, @Param("end") LocalDate end);
+
+  @Query("SELECT COUNT(ms) FROM MemberSubscription ms JOIN Member m ON ms.memberId = m.id WHERE m.businessId = :businessId AND ms.status = 'ACTIVE'")
+  Long countActiveByBusinessId(@Param("businessId") Long businessId);
 }

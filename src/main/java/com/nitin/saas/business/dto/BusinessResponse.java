@@ -1,18 +1,26 @@
 package com.nitin.saas.business.dto;
 
-import com.nitin.saas.business.entity.Business;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class BusinessResponse {
-
     private Long id;
+    private Long ownerId;
     private String name;
-    private String slug;
-
-    public static BusinessResponse from(Business business) {
-        BusinessResponse r = new BusinessResponse();
-        r.id = business.getId();
-        r.name = business.getName();
-        r.slug = business.getSlug();
-        return r;
-    }
+    private String address;
+    private String phone;
+    private String email;
+    private String status;
+    private Integer memberCount;
+    private Integer staffCount;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

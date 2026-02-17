@@ -1,146 +1,139 @@
 package com.nitin.saas.subscription.service;
 
-import com.nitin.saas.auth.entity.User;
-import com.nitin.saas.business.entity.*;
-import com.nitin.saas.business.enums.BusinessRole;
-import com.nitin.saas.business.service.BusinessAuthorizationService;
-import com.nitin.saas.common.audit.service.AuditService;
-import com.nitin.saas.subscription.enums.SubscriptionStatus;
-import com.nitin.saas.business.repository.BusinessMembershipRepository;
-import com.nitin.saas.subscription.repository.MemberSubscriptionRepository;
-import com.nitin.saas.subscription.repository.SubscriptionPlanRepository;
+import com.nitin.saas.business.service.BusinessService;
+import com.nitin.saas.common.exception.BadRequestException;
+import com.nitin.saas.common.exception.ResourceNotFoundException;
 import com.nitin.saas.member.entity.Member;
+import com.nitin.saas.member.repository.MemberRepository;
+import com.nitin.saas.subscription.dto.AssignSubscriptionRequest;
+import com.nitin.saas.subscription.dto.CreateSubscriptionPlanRequest;
+import com.nitin.saas.subscription.dto.SubscriptionPlanResponse;
 import com.nitin.saas.subscription.entity.MemberSubscription;
 import com.nitin.saas.subscription.entity.SubscriptionPlan;
-import jakarta.transaction.Transactional;
+import com.nitin.saas.subscription.repository.MemberSubscriptionRepository;
+import com.nitin.saas.subscription.repository.SubscriptionPlanRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class SubscriptionService {
 
-    private final MemberSubscriptionRepository subscriptionRepository;
-    private final SubscriptionPlanRepository planRepository;
-    private final BusinessMembershipRepository membershipRepository;
-    private final BusinessAuthorizationService authorizationService;
-    private final AuditService auditService;
+        private final SubscriptionPlanRepository planRepository;
+        private final MemberSubscriptionRepository subscriptionRepository;
+        private final MemberRepository memberRepository;
+        private final BusinessService businessService;
 
-    public SubscriptionService(
-            MemberSubscriptionRepository subscriptionRepository,
-            SubscriptionPlanRepository planRepository,
-            BusinessMembershipRepository membershipRepository,
-            BusinessAuthorizationService authorizationService,
-            AuditService auditService
-    ) {
-        this.subscriptionRepository = subscriptionRepository;
-        this.planRepository = planRepository;
-        this.membershipRepository = membershipRepository;
-        this.authorizationService = authorizationService;
-        this.auditService = auditService;
-    }
+        @Transactional
+        public SubscriptionPlanResponse createPlan(Long businessId, CreateSubscriptionPlanRequest request) {
+                businessService.requireAccess(businessId);
 
-    public MemberSubscription assignSubscription(
-            Business business,
-            User requester,
-            Member member,
-            String planCode
-    ) {
+                SubscriptionPlan plan = SubscriptionPlan.builder()
+                        .businessId(businessId)
+                        .name(request.getName())
+                        .description(request.getDescription())
+                        .price(request.getPrice())
+                        .durationDays(request.getDurationDays())
+                        .isActive(true)
+                        .build();
 
-        BusinessMembership membership =
-                membershipRepository.findByBusinessAndUser(business, requester)
-                        .orElseThrow(() ->
-                                new IllegalStateException("Not part of business")
-                        );
+                plan = planRepository.save(plan);
+                log.info("Subscription plan created: {}", plan.getId());
 
-        if (membership.getRole() != BusinessRole.OWNER &&
-                membership.getRole() != BusinessRole.STAFF) {
-            throw new IllegalStateException("Not allowed to assign subscription");
+                return mapPlanToResponse(plan);
         }
 
-        if (!member.getBusiness().equals(business)) {
-            throw new IllegalStateException("Member does not belong to business");
+        @Transactional(readOnly = true)
+        public List<SubscriptionPlanResponse> getActivePlans(Long businessId) {
+                businessService.requireAccess(businessId);
+                return planRepository.findActiveByBusinessId(businessId).stream()
+                        .map(this::mapPlanToResponse)
+                        .collect(Collectors.toList());
         }
 
-        boolean hasActive =
-                subscriptionRepository.existsByMemberAndStatus(
-                        member,
-                        SubscriptionStatus.ACTIVE
-                );
+        @Transactional
+        public void assignSubscription(Long businessId, AssignSubscriptionRequest request) {
+                businessService.requireAccess(businessId);
 
-        if (hasActive) {
-            throw new IllegalStateException("Member already has active subscription");
+                Member member = memberRepository.findById(request.getMemberId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
+
+                if (!member.getBusinessId().equals(businessId)) {
+                        throw new BadRequestException("Member does not belong to this business");
+                }
+
+                subscriptionRepository.findActiveSubscriptionByMemberId(member.getId())
+                        .ifPresent(existingSub -> {
+                                throw new BadRequestException("Member already has an active subscription");
+                        });
+
+                SubscriptionPlan plan = planRepository.findById(request.getPlanId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Plan not found"));
+
+                if (!plan.getBusinessId().equals(businessId)) {
+                        throw new BadRequestException("Plan does not belong to this business");
+                }
+
+                LocalDate startDate = LocalDate.now();
+                LocalDate endDate = startDate.plusDays(plan.getDurationDays());
+
+                MemberSubscription subscription = MemberSubscription.builder()
+                        .memberId(member.getId())
+                        .planId(plan.getId())
+                        .startDate(startDate)
+                        .endDate(endDate)
+                        .status("ACTIVE")
+                        .amount(plan.getPrice())
+                        .build();
+
+                subscriptionRepository.save(subscription);
+                log.info("Subscription assigned: member={}, plan={}", member.getId(), plan.getId());
         }
 
-        SubscriptionPlan plan =
-                planRepository.findByBusinessAndCode(business,planCode)
-                        .orElseThrow(() ->
-                                new IllegalStateException("Subscription plan not found")
-                        );
+        @Transactional
+        public void expireSubscriptions() {
+                List<MemberSubscription> expiredSubs = subscriptionRepository
+                        .findExpiredSubscriptions(LocalDate.now());
 
-        MemberSubscription subscription =
-                new MemberSubscription(
-                        member,
-                        plan,
-                        LocalDate.now()
-                );
+                expiredSubs.forEach(sub -> {
+                        sub.expire();
+                        subscriptionRepository.save(sub);
+                });
 
-        return subscriptionRepository.save(subscription);
-    }
-
-    public void expireSubscriptions() {
-
-        List<MemberSubscription> expiredSubscriptions =
-                subscriptionRepository.findAllByStatusAndEndDateBefore(
-                        SubscriptionStatus.ACTIVE,
-                        LocalDate.now()
-                );
-
-        for (MemberSubscription subscription : expiredSubscriptions) {
-            subscription.markExpired();
+                log.info("Expired {} subscriptions", expiredSubs.size());
         }
 
-        subscriptionRepository.saveAll(expiredSubscriptions);
-    }
-    public void cancelSubscription(
-            Business business,
-            User requester,
-            MemberSubscription subscription,
-            String reason
-    ) {
-        authorizationService.authorizeOwnerOrStaff(business, requester);
-
-        subscription.cancel(LocalDate.now(),reason);
-        subscriptionRepository.save(subscription);
-        auditService.log(
-                "CANCEL_SUBSCRIPTION",
-                "SUBSCRIPTION",
-                subscription.getId(),
-                requester.getId(),
-                reason
-        );
-    }
-
-    @Transactional
-    public void activateSubscriptionAfterPayment(
-            MemberSubscription subscription
-    ) {
-        boolean hasActive =
-                subscriptionRepository.existsByMemberAndStatus(
-                        subscription.getMember(),
-                        SubscriptionStatus.ACTIVE
-                );
-
-        if (hasActive) {
-            throw new IllegalStateException(
-                    "Member already has an active subscription"
-            );
+        @Transactional(readOnly = true)
+        public List<MemberSubscription> getExpiringSubscriptions(Long businessId, int days) {
+                businessService.requireAccess(businessId);
+                LocalDate start = LocalDate.now();
+                LocalDate end = start.plusDays(days);
+                return subscriptionRepository.findExpiringSubscriptions(start, end);
         }
 
-        subscription.activate();
-        subscriptionRepository.save(subscription);
-    }
+        @Transactional(readOnly = true)
+        public Long countActiveSubscriptions(Long businessId) {
+                businessService.requireAccess(businessId);
+                return subscriptionRepository.countActiveByBusinessId(businessId);
+        }
 
-
+        private SubscriptionPlanResponse mapPlanToResponse(SubscriptionPlan plan) {
+                return SubscriptionPlanResponse.builder()
+                        .id(plan.getId())
+                        .businessId(plan.getBusinessId())
+                        .name(plan.getName())
+                        .description(plan.getDescription())
+                        .price(plan.getPrice())
+                        .durationDays(plan.getDurationDays())
+                        .isActive(plan.getIsActive())
+                        .createdAt(plan.getCreatedAt())
+                        .build();
+        }
 }
