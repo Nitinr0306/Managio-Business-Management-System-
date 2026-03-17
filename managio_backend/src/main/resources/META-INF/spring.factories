@@ -1,0 +1,5 @@
+# DotEnvInitializer loads a .env file from the working directory into the
+# Spring Environment before any @Value / @ConfigurationProperties resolution.
+# Safe to leave in place even when no .env file is present ? the initializer
+# checks existence before reading.
+context.initializer.classes=com.nitin.saas.config.DotEnvInitializer

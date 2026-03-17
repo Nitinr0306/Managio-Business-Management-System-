@@ -1,10 +1,55 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# =====================================================
+# ENVIRONMENT / SECRETS
+# =====================================================
+.env
+.env.*
+*.env
+application-local.properties
 
-### STS ###
+# =====================================================
+# BACKEND - SPRING BOOT / MAVEN
+# =====================================================
+managio_backend/target/
+target/
+
+*.jar
+*.war
+*.log
+
+# Maven wrapper binary
+.mvn/wrapper/maven-wrapper.jar
+
+# =====================================================
+# FRONTEND - NEXTJS / NODE
+# =====================================================
+managio_frontend/node_modules/
+node_modules/
+
+managio_frontend/.next/
+.next/
+
+managio_frontend/out/
+out/
+
+managio_frontend/build/
+build/
+
+coverage/
+
+# Typescript build cache
+*.tsbuildinfo
+
+# =====================================================
+# IDE / EDITOR FILES
+# =====================================================
+.idea/
+.vscode/
+
+*.iml
+*.ipr
+*.iws
+
+# Eclipse / STS
 .apt_generated
 .classpath
 .factorypath
@@ -13,31 +58,28 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+# =====================================================
+# VERCEL
+# =====================================================
+.vercel
 
-### Environment & Security ###
-.env
-.env.local
-application-local.properties
-*.log
-com_nitin_saas_code.txt
-structure1.txt
-application-dev.properties
-application-test.properties
+# =====================================================
+# OS FILES
+# =====================================================
+.DS_Store
+Thumbs.db
+
+# =====================================================
+# DEBUG LOGS
+# =====================================================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
