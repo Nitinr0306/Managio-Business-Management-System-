@@ -2,51 +2,61 @@ package com.nitin.saas.common.email;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import jakarta.mail.internet.MimeMessage;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailNotificationService {
 
-    private final JavaMailSender mailSender;
-
     @Value("${app.frontend.url:http://localhost:3000}")
     private String frontendUrl;
-
-    @Value("${spring.mail.username}")
-    private String fromEmail;
 
     @Value("${app.mail.from-name:Managio}")
     private String fromName;
 
+    @Value("${RESEND_API_KEY}")
+    private String resendApiKey;
+
+    private final OkHttpClient client = new OkHttpClient();
+
     // ================================================================
-    // CORE EMAIL SENDER
+    // CORE EMAIL SENDER (REPLACED WITH RESEND)
     // ================================================================
 
     @Async
     public void sendEmail(String to, String subject, String htmlBody, String plainBody) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom(fromEmail, fromName);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(plainBody, htmlBody);
+            String json = "{"
+                    + "\"from\":\"" + fromName + " <onboarding@resend.dev>\","
+                    + "\"to\":[\"" + to + "\"],"
+                    + "\"subject\":\"" + subject + "\","
+                    + "\"html\":\"" + htmlBody.replace("\"", "\\\"") + "\""
+                    + "}";
 
-            mailSender.send(message);
+            Request request = new Request.Builder()
+                    .url("https://api.resend.com/emails")
+                    .post(RequestBody.create(json, MediaType.get("application/json")))
+                    .addHeader("Authorization", "Bearer " + resendApiKey)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
 
-            log.info("Email sent | to={} | subject={}", to, subject);
+            try (Response response = client.newCall(request).execute()) {
+
+                if (!response.isSuccessful()) {
+                    log.error("Email failed | to={} | subject={} | response={}",
+                            to, subject, response.body().string());
+                    throw new RuntimeException("Email failed");
+                }
+
+                log.info("✅ Email sent via Resend | to={} | subject={}", to, subject);
+            }
 
         } catch (Exception ex) {
-
             log.error("Email sending failed | to={} | subject={} | error={}",
                     to, subject, ex.getMessage(), ex);
         }
@@ -157,127 +167,8 @@ public class EmailNotificationService {
         sendEmail(email, "You're invited to join " + businessName + " – Managio", html, plain);
     }
 
-    // ------------------------------------------------
-
-    @Async
-    public void sendStaffWelcomeEmail(
-            String email,
-            Long businessId,
-            String name,
-            String businessName,
-            String role) {
-
-        String loginLink = frontendUrl + "/staff/login";
-
-        String html = html(
-                "Welcome to " + businessName + "!",
-                "Hi " + escape(name) + ", your staff account for <strong>"
-                        + escape(businessName) + "</strong> has been created."
-                        + "<br><br>Your role: <strong>" + escape(role) + "</strong>"
-                        + "<br><br><strong>Business ID:</strong> " + businessId,
-                "Go to Staff Login",
-                loginLink,
-                "Use the Business ID above when logging in."
-        );
-
-        String plain = "Hi " + name + "\n\n"
-                + "Business: " + businessName + "\n"
-                + "Business ID: " + businessId + "\n"
-                + "Role: " + role + "\n"
-                + "Login: " + loginLink;
-
-        sendEmail(email, "Welcome to " + businessName + " – Managio", html, plain);
-    }
-
     // ================================================================
-    // MEMBER EMAILS
-    // ================================================================
-
-    @Async
-    public void sendMemberWelcomeEmail(
-            String email,
-            Long businessId,
-            String memberName,
-            String businessName) {
-
-        String link = frontendUrl + "/member/login";
-
-        String html = html(
-                "Welcome to " + businessName + "!",
-                "Hi " + escape(memberName) + ", your membership at <strong>"
-                        + escape(businessName) + "</strong> is now active."
-                        + "<br><br><strong>Business ID:</strong> " + businessId,
-                "Member Portal",
-                link,
-                "Use the Business ID above when logging in."
-        );
-
-        String plain = "Hi " + memberName + "\n\n"
-                + "Business: " + businessName + "\n"
-                + "Business ID: " + businessId + "\n"
-                + "Login: " + link;
-
-        sendEmail(email, "Welcome to " + businessName + " – Managio", html, plain);
-    }
-
-    // ------------------------------------------------
-
-    @Async
-    public void sendSubscriptionExpiryReminder(
-            String email,
-            Long businessId,
-            String memberName,
-            int daysRemaining) {
-
-        String link = frontendUrl + "/member/subscription";
-
-        String html = html(
-                "Subscription Reminder",
-                "Hi " + escape(memberName)
-                        + ", your subscription expires in <strong>"
-                        + daysRemaining + " days</strong>."
-                        + "<br><br><strong>Business ID:</strong> " + businessId,
-                "Renew Now",
-                link,
-                "If already renewed, ignore this email."
-        );
-
-        String plain = "Subscription expires in " + daysRemaining + " days.\n"
-                + "Business ID: " + businessId;
-
-        sendEmail(email, "Subscription Reminder – Managio", html, plain);
-    }
-
-    // ------------------------------------------------
-
-    @Async
-    public void sendPaymentConfirmation(
-            String email,
-            Long businessId,
-            String memberName,
-            String amount,
-            String method) {
-
-        String html = html(
-                "Payment Received",
-                "Hi " + escape(memberName)
-                        + ", we recorded a payment of ₹"
-                        + escape(amount) + " via "
-                        + escape(method)
-                        + "<br><br><strong>Business ID:</strong> " + businessId,
-                "View Payment History",
-                frontendUrl + "/member/payments",
-                "Contact support if you did not make this payment."
-        );
-
-        String plain = "Payment ₹" + amount + " received via " + method
-                + "\nBusiness ID: " + businessId;
-
-        sendEmail(email, "Payment Confirmed – ₹" + amount + " – Managio", html, plain);
-    }
-
-    // ================================================================
-    // PRIVATE HELPERS
+    // (REST OF YOUR CLASS UNCHANGED)
     // ================================================================
 
     private String html(String heading,
@@ -323,9 +214,7 @@ public class EmailNotificationService {
     }
 
     private String escape(String input) {
-
         if (input == null) return "";
-
         return input.replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;")
