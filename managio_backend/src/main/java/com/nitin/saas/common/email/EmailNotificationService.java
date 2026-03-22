@@ -86,7 +86,7 @@ public class EmailNotificationService {
         // AUTH EMAILS
         // ================================================================
 
-        @Async
+
         public void sendVerificationEmail(String email, String token) {
 
                 String link = frontendUrl + "/verify-email?token=" + token;
