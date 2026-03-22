@@ -21,4 +21,11 @@ public class RegistrationListener {
                 event.getToken().getToken()
         );
     }
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleMember(MemberRegisteredEvent event) {
+        emailService.sendVerificationEmail(
+                event.getMember().getEmail(),
+                event.getToken()
+        );
+    }
 }

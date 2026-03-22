@@ -27,4 +27,6 @@ public interface MemberPasswordResetTokenRepository
     Long countRecentByMemberId(
             @Param("memberId") Long memberId,
             @Param("since")    LocalDateTime since);
+
+    void deleteAllByMemberId(Long id);
 }

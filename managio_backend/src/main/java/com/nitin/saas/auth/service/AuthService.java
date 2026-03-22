@@ -3,6 +3,8 @@ package com.nitin.saas.auth.service;
 import com.nitin.saas.auth.dto.*;
 import com.nitin.saas.auth.entity.*;
 import com.nitin.saas.auth.enums.Role;
+import com.nitin.saas.auth.event.UserRegisteredEvent;
+import com.nitin.saas.auth.listener.RegistrationListener;
 import com.nitin.saas.auth.repository.*;
 import com.nitin.saas.common.email.EmailNotificationService;
 import com.nitin.saas.common.exception.*;
@@ -13,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,8 @@ public class AuthService {
     private final AuthAuditLogRepository auditRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final ApplicationEventPublisher eventPublisher;
+
     private final EmailNotificationService emailService;
     private final TokenBlacklistService blacklistService;
     private final Environment environment;
@@ -79,22 +84,13 @@ public class AuthService {
 
         user = userRepository.save(user);
 
-// create token ONLY (no email yet)
+        // 🔴 DELETE OLD TOKENS (you missed this)
+        emailTokenRepo.deleteAllByUserId(user.getId());
+
         EmailVerificationToken token = createVerificationToken(user, request);
 
-// send email AFTER token is saved
-        emailService.sendVerificationEmail(user.getEmail(), token.getToken());
-
-        String ip = IpAddressUtil.getClientIp(request);
-        String ua = request.getHeader("User-Agent");
-        auditRepo.save(AuthAuditLog.builder()
-                .userId(user.getId()).email(user.getEmail())
-                .eventType(AuthAuditLog.EventType.REGISTER)
-                .status(AuthAuditLog.Status.SUCCESS)
-                .ipAddress(ip).userAgent(ua)
-                .build());
-
-        log.info("User registered: {}", user.getEmail());
+        // ✅ ONLY THIS (NO DIRECT EMAIL CALL)
+        eventPublisher.publishEvent(new UserRegisteredEvent(user, token));
 
         return mapToUserResponse(user);
     }
@@ -138,9 +134,11 @@ public class AuthService {
 
         if (!user.getEmailVerified()) {
 
+            emailTokenRepo.deleteAllByUserId(user.getId());
+
             EmailVerificationToken token = createVerificationToken(user, request);
 
-            emailService.sendVerificationEmail(user.getEmail(), token.getToken());
+            eventPublisher.publishEvent(new UserRegisteredEvent(user, token));
 
             throw new BusinessException(
                     "Email not verified. Verification email sent.",
@@ -299,7 +297,7 @@ public class AuthService {
 
         EmailVerificationToken token = createVerificationToken(user, request);
 
-        emailService.sendVerificationEmail(user.getEmail(), token.getToken());
+        eventPublisher.publishEvent(new UserRegisteredEvent(user, token));
     }
 
     // =========================================================
