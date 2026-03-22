@@ -125,7 +125,7 @@ public class SecurityConfig {
                         "http://localhost:3000",
                         "http://localhost:3001",
                         "https://*.vercel.app",
-                        "https://managio.me"   ✅
+                        "https://managio.me"   
                         ));
                 config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
                 config.setAllowedHeaders(List.of(
