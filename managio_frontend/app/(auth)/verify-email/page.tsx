@@ -21,8 +21,11 @@ function VerifyContent() {
     setStoredEmail(localStorage.getItem('pending_verification_email'))
   }, [])
 
-  const email = emailFromUrl || storedEmail
-
+  const email =
+      searchParams.get('email') ||
+      (typeof window !== 'undefined'
+          ? localStorage.getItem('pending_verification_email')
+          : null)
   const { resendVerification, isResendPending } = useAuth()
   const [resent, setResent] = useState(false)
 

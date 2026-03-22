@@ -59,7 +59,7 @@ export function useAuth() {
     if (errorCode === ERROR_CODES.EMAIL_NOT_VERIFIED) {
       const email = options?.loginEmail || localStorage.getItem('pending_verification_email')
 
-      toast.error('Email not verified. Check your inbox.')
+      toast.error('Email not verified. Redirecting to verification page...')
 
       router.push(
         email
@@ -192,11 +192,18 @@ export function useAuth() {
       toast.success(`Welcome, ${data.member.fullName}!`)
       router.replace('/member/dashboard')
     },
-    onError: (err) =>
+    onError: (err, variables) => {
+      // store email/identifier for redirect
+      if (variables?.identifier) {
+        localStorage.setItem('pending_verification_email', variables.identifier)
+      }
+
       handleAuthError(err, {
         invalidCredentialsMessage: 'Invalid phone/email or password.',
         defaultMessage: 'Login failed.',
-      }),
+        loginEmail: variables?.identifier, // 🔥 THIS IS THE FIX
+      })
+    },
   })
 
   // ───────── REGISTER ─────────

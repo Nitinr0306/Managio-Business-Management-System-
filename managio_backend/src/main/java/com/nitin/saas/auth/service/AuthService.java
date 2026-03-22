@@ -79,7 +79,11 @@ public class AuthService {
 
         user = userRepository.save(user);
 
-        createAndSendVerification(user, request);
+// create token ONLY (no email yet)
+        EmailVerificationToken token = createVerificationToken(user, request);
+
+// send email AFTER token is saved
+        emailService.sendVerificationEmail(user.getEmail(), token.getToken());
 
         String ip = IpAddressUtil.getClientIp(request);
         String ua = request.getHeader("User-Agent");
@@ -133,7 +137,11 @@ public class AuthService {
         }
 
         if (!user.getEmailVerified()) {
-            createAndSendVerification(user, request);
+
+            EmailVerificationToken token = createVerificationToken(user, request);
+
+            emailService.sendVerificationEmail(user.getEmail(), token.getToken());
+
             throw new BusinessException(
                     "Email not verified. Verification email sent.",
                     ErrorCode.EMAIL_NOT_VERIFIED
@@ -280,16 +288,18 @@ public class AuthService {
     @Transactional
     public void resendVerificationEmail(String email, HttpServletRequest request) {
 
-        // Silent return for non-existent users (anti-enumeration)
         var userOpt = userRepository.findByEmail(email.toLowerCase());
         if (userOpt.isEmpty()) return;
 
         User user = userOpt.get();
         if (user.getEmailVerified()) return;
 
-        // Invalidate all existing verification tokens before creating a new one
-        emailTokenRepo.findByToken(email); // no-op query to warm cache
-        createAndSendVerification(user, request);
+        // invalidate old tokens (IMPORTANT)
+        emailTokenRepo.deleteAllByUserId(user.getId());
+
+        EmailVerificationToken token = createVerificationToken(user, request);
+
+        emailService.sendVerificationEmail(user.getEmail(), token.getToken());
     }
 
     // =========================================================
@@ -426,7 +436,7 @@ public class AuthService {
                 .isBefore(LocalDateTime.now());
     }
 
-    private void createAndSendVerification(User user, HttpServletRequest request) {
+    private EmailVerificationToken createVerificationToken(User user, HttpServletRequest request) {
 
         String token = UUID.randomUUID().toString();
 
@@ -441,11 +451,7 @@ public class AuthService {
                 .requestUserAgent(ua)
                 .build();
 
-        emailTokenRepo.save(vt);
-
-        emailService.sendVerificationEmail(user.getEmail(), token);
-
-        log.debug("Verification email sent to: {}", user.getEmail());
+        return emailTokenRepo.save(vt);
     }
 
     private RefreshToken createRefreshToken(User user, HttpServletRequest request) {

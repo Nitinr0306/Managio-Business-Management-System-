@@ -29,4 +29,5 @@ public interface EmailVerificationTokenRepository extends JpaRepository<EmailVer
     Long countActiveTokensByUserId(@Param("userId") Long userId, @Param("now") LocalDateTime now);
 
     Optional<EmailVerificationToken> findTopByUserIdOrderByCreatedAtDesc(Long userId);
+    void deleteAllByUserId(Long userId);
 }
