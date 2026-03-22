@@ -10,6 +10,7 @@ import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { staffApi } from '@/lib/api/staff'
+import { getErrorMessage } from '@/lib/utils/errors'
 
 const schema = z.object({
   firstName:       z.string().min(1, 'First name required').max(100),
@@ -33,7 +34,7 @@ function AcceptForm() {
   const router = useRouter()
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
-    console.log("FORM ERRORS:", errors)
+
   const mutation = useMutation({
     mutationFn: ({ firstName, lastName, password }: Pick<FormData, 'firstName'|'lastName'|'password'>) =>
       staffApi.acceptInvitation({ token, firstName, lastName, password }),
@@ -42,8 +43,8 @@ function AcceptForm() {
       toast.success('Account created! Redirecting to login…')
       setTimeout(() => router.replace('/staff/login'), 2000)
     },
-    onError: (err: any) =>
-      toast.error(err?.response?.data?.message || 'Failed to accept invitation. The link may have expired.'),
+    onError: (err: unknown) =>
+      toast.error(getErrorMessage(err, 'Failed to accept invitation. The link may have expired.')),
   })
 
   if (accepted) {
@@ -81,11 +82,7 @@ function AcceptForm() {
   return (
     <form onSubmit={handleSubmit(
     (d) => {
-      console.log("SUBMIT DATA:", d)
       mutation.mutate(d)
-    },
-    (e) => {
-      console.log("VALIDATION ERRORS:", e)
     }
   )} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">

@@ -27,4 +27,6 @@ public interface EmailVerificationTokenRepository extends JpaRepository<EmailVer
     @Query("SELECT COUNT(e) FROM EmailVerificationToken e " +
             "WHERE e.userId = :userId AND e.used = false AND e.expiresAt > :now")
     Long countActiveTokensByUserId(@Param("userId") Long userId, @Param("now") LocalDateTime now);
+
+    Optional<EmailVerificationToken> findTopByUserIdOrderByCreatedAtDesc(Long userId);
 }

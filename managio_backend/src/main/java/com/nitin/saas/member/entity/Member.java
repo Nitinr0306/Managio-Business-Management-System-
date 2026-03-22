@@ -79,6 +79,8 @@ public class Member {
 
     private LocalDateTime lastLoginAt;  // Track last login time
 
+    @Column(nullable = false)
+    private Boolean emailVerified = false;
     // ADD THIS HELPER METHOD
     public void setPasswordHash(String hashedPassword) {
         this.password = hashedPassword;

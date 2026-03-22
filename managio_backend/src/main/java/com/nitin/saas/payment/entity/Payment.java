@@ -37,11 +37,17 @@ public class Payment {
         @Column(nullable = false, length = 20)
         private PaymentMethod paymentMethod;
 
+        @Column(length = 100)
+        private String referenceNumber;
+
         @Column(length = 500)
         private String notes;
 
         @Column(nullable = false)
         private Long recordedBy;
+
+        // Business-supplied "paid at" date (defaults to now if not provided)
+        private LocalDateTime paidAt;
 
         @CreationTimestamp
         @Column(nullable = false, updatable = false)

@@ -60,8 +60,12 @@ export default function InviteStaffPage() {
       >
         <form
           onSubmit={handleSubmit(async (d) => {
-            await inviteMutation.mutateAsync(d)
-            router.push(`/businesses/${businessId}/staff`)
+            try {
+              await inviteMutation.mutateAsync(d)
+              router.push(`/businesses/${businessId}/staff`)
+            } catch {
+              // error toast handled by useInviteStaff onError
+            }
           })}
           className="space-y-4"
         >

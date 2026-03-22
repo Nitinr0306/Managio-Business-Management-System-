@@ -11,9 +11,7 @@ import com.nitin.saas.auth.repository.RefreshTokenRepository;
 import com.nitin.saas.auth.repository.UserRepository;
 import com.nitin.saas.business.entity.Business;
 import com.nitin.saas.business.repository.BusinessRepository;
-import com.nitin.saas.common.exception.AccountLockedException;
-import com.nitin.saas.common.exception.BadRequestException;
-import com.nitin.saas.common.exception.ResourceNotFoundException;
+import com.nitin.saas.common.exception.*;
 import com.nitin.saas.common.security.JwtUtil;
 import com.nitin.saas.common.utils.IpAddressUtil;
 import com.nitin.saas.staff.entity.Staff;
@@ -65,7 +63,7 @@ public class StaffAuthService {
 
         User user = userRepository.findByEmail(email).orElseThrow(() -> {
             logFailed(email, ip, ua, "User not found");
-            return new BadCredentialsException("Invalid credentials");
+            return new BusinessException("Invalid credentials", ErrorCode.INVALID_CREDENTIALS);
         });
 
         // Check account lock
@@ -81,31 +79,41 @@ public class StaffAuthService {
 
         if (!user.getEnabled()) {
             logFailed(email, ip, ua, "Account disabled");
-            throw new BadCredentialsException("Account is disabled");
+            throw new BusinessException("Account is disabled", ErrorCode.ACCOUNT_DISABLED);
+        }
+        if (!Boolean.TRUE.equals(user.getEmailVerified())) {
+            logFailed(email, ip, ua, "Email not verified");
+            throw new BusinessException(
+                    "Email not verified",
+                    ErrorCode.EMAIL_NOT_VERIFIED
+            );
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             handleFailedLogin(user, ip, ua);
-            throw new BadCredentialsException("Invalid credentials");
+            throw new BusinessException(
+                    "Invalid credentials",
+                    ErrorCode.INVALID_CREDENTIALS
+            );
         }
 
         Staff staff = staffRepository.findByBusinessIdAndUserId(request.getBusinessId(), user.getId())
                 .orElseThrow(() -> {
                     logFailed(email, ip, ua, "Not staff in business " + request.getBusinessId());
-                    return new BadCredentialsException("You are not staff in this business");
+                    return new BusinessException("Invalid credentials", ErrorCode.INVALID_CREDENTIALS);
                 });
 
         if (!staff.isActive()) {
             logFailed(email, ip, ua, "Staff status=" + staff.getStatus());
-            throw new BadCredentialsException("Your staff account is not active");
+            throw new BusinessException("Your staff account is not active", ErrorCode.ACCOUNT_DISABLED);
         }
         if (!staff.getCanLogin()) {
             logFailed(email, ip, ua, "Staff canLogin=false");
-            throw new BadCredentialsException("You do not have login permission");
+            throw new BusinessException("You do not have login permission", ErrorCode.AUTHORIZATION_ERROR);
         }
         if (staff.isDeleted()) {
             logFailed(email, ip, ua, "Staff record deleted");
-            throw new BadCredentialsException("Your staff account has been removed");
+            throw new BusinessException("Your staff account has been removed", ErrorCode.ACCOUNT_DISABLED);
         }
 
         // 2FA stub

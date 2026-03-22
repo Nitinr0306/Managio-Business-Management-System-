@@ -81,9 +81,11 @@ export const authApi = {
   memberLogin: (data: MemberLoginRequest): Promise<MemberLoginResponse> =>
     apiClient.post<MemberLoginResponse>(`${MEMBER_AUTH}/login`, data).then((r) => r.data),
 
-  memberRegister: (data: MemberRegisterRequest): Promise<MemberLoginResponse> =>
-    apiClient.post<MemberLoginResponse>(`${MEMBER_AUTH}/register`, data).then((r) => r.data),
-
+  memberRegister: (data: MemberRegisterRequest): Promise<{
+  requiresVerification: boolean
+  email: string
+}> =>
+  apiClient.post(`${MEMBER_AUTH}/register`, data).then((r) => r.data),
   memberForgotPassword: (identifier: string) =>
     apiClient
       .post<void>(`${MEMBER_AUTH}/forgot-password`, null, { params: { identifier } })
@@ -98,4 +100,14 @@ export const authApi = {
     apiClient
       .post<void>(`${MEMBER_AUTH}/change-password`, { currentPassword, newPassword, confirmPassword })
       .then((r) => r.data),
+
+  // ADD THIS inside authApi object
+
+resendVerification: (email: string) =>
+  apiClient
+    .post<void>(`${AUTH}/resend-verification-email`, null, {
+      params: { email },
+    })
+    .then((r) => r.data),
+  
 }

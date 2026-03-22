@@ -39,13 +39,17 @@ export default function NewBusinessPage() {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-6 rounded-2xl border border-white/6 bg-white/[0.02]"
+        className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02]"
       >
         <BusinessForm
           onSubmit={async (data) => {
-            const biz = await createMutation.mutateAsync({ ...data, type: data.type ?? 'GYM' })
-            setCurrentBusiness(biz)
-            router.push(`/businesses/${biz.id}`)
+            try {
+              const biz = await createMutation.mutateAsync({ ...data, type: data.type ?? 'GYM' })
+              setCurrentBusiness(biz)
+              router.push(`/businesses/${biz.id}`)
+            } catch {
+              // error toast handled by useCreateBusiness onError
+            }
           }}
           loading={createMutation.isPending}
           submitLabel="Create Business"

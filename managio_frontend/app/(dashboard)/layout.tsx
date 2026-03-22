@@ -38,8 +38,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [isMobile])
 
-  // On mobile: sidebar is an overlay (not shifting content)
-  // On desktop: sidebar shifts the main content
   const mainMarginLeft = isMobile ? 0 : collapsed ? OWNER_SIDEBAR_MINI : OWNER_SIDEBAR_FULL
 
   const tabs: BottomTabItem[] = currentBusiness?.id
@@ -59,11 +57,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       ]
 
   return (
-    <div className="min-h-screen bg-[#070710]">
+    <div className="min-h-screen bg-[hsl(var(--background))]">
       {/* Mobile overlay */}
       {isMobile && mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-30 md:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -74,16 +72,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         mobileOpen={!isMobile ? false : mobileOpen}
       />
 
-      {/* Fixed header spans from sidebar edge to right */}
       <Header
         sidebarCollapsed={collapsed}
         isMobile={isMobile}
         onMobileMenu={() => setMobileOpen(true)}
       />
 
-      {/* Main content area */}
       <main
-        className="transition-[margin-left] duration-300 ease-out min-h-screen"
+        className="transition-[margin-left] duration-300 ease-out-expo min-h-screen"
         style={{
           marginLeft: mainMarginLeft,
           paddingTop: HEADER_H,

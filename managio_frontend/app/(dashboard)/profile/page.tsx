@@ -37,11 +37,15 @@ export default function ProfilePage() {
   const changePwMutation = useMutation({
     mutationFn: ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) =>
       authApi.changePassword(currentPassword, newPassword),
-    onSuccess: () => { toast.success('Password changed!'); pwForm.reset() },
-    onError: (err: any) => toast.error(err?.response?.data?.message || 'Failed to change password'),
+    onSuccess: () => { toast.success('Password changed successfully!'); pwForm.reset() },
+    onError: (err: unknown) => {
+      import('@/lib/utils/errors').then(({ getErrorMessage }) => {
+        toast.error(getErrorMessage(err, 'Failed to change password. Check your current password.'))
+      })
+    },
   })
 
-  const inp = 'w-full bg-white/4 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/25 focus:outline-none focus:border-indigo-500/60 transition-all'
+  const inp = 'w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/25 focus:outline-none focus:border-indigo-500/60 transition-all'
   const lbl = 'block text-xs font-medium text-white/50 mb-1.5'
 
   return (
@@ -49,7 +53,7 @@ export default function ProfilePage() {
       <PageHeader title="Profile" description="Manage your account settings" icon={Settings} />
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 bg-white/4 border border-white/8 rounded-xl p-1 w-fit mb-6">
+      <div className="flex items-center gap-1 bg-white/[0.04] border border-white/[0.08] rounded-xl p-1 w-fit mb-6">
         {(['profile', 'security'] as const).map(tab => (
           <button
             key={tab}
@@ -64,8 +68,8 @@ export default function ProfilePage() {
       </div>
 
       {activeTab === 'profile' && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 rounded-2xl border border-white/6 bg-white/[0.02]">
-          <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/5">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+          <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/[0.05]">
             <div className="w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/20 flex items-center justify-center text-xl font-display font-700 text-indigo-300">
               {user ? getInitials(user.fullName || `${user.firstName} ${user.lastName}` || user.email) : '?'}
             </div>
@@ -91,7 +95,7 @@ export default function ProfilePage() {
             ].map(field => (
               <div key={field.label}>
                 <label className={lbl}>{field.label}</label>
-                <div className="w-full bg-white/[0.02] border border-white/6 rounded-xl px-4 py-2.5 text-sm text-white/60">
+                <div className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/60">
                   {field.value}
                 </div>
               </div>
@@ -101,7 +105,7 @@ export default function ProfilePage() {
       )}
 
       {activeTab === 'security' && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 rounded-2xl border border-white/6 bg-white/[0.02]">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
           <div className="flex items-center gap-2 mb-5">
             <Lock className="w-4 h-4 text-indigo-400" />
             <h3 className="text-sm font-display font-600 text-white/80">Change Password</h3>

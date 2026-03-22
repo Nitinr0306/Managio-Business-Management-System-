@@ -28,5 +28,10 @@ public class RecordPaymentRequest {
     @NotNull(message = "Payment method is required")
     private PaymentMethod paymentMethod;
 
+    private String referenceNumber;
+
     private String notes;
+
+    // ISO date string from frontend, e.g. "2025-03-20"
+    private String paidAt;
 }

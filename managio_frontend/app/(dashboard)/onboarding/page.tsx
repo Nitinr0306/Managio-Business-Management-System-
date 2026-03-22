@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useCreateBusiness } from '@/lib/hooks/useBusiness'
 import { useBusinessStore } from '@/lib/store/businessStore'
+import Link from 'next/link'
 
 const STEPS = [
   { id: 1, label: 'Welcome', icon: Sparkles },
@@ -91,7 +92,7 @@ export default function OnboardingPage() {
   }
 
   const inp =
-    'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-indigo-500/70 transition-all'
+    'w-full bg-white/5 border border-white/[0.1] rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-indigo-500/70 transition-all'
 
   const variants = {
     enter: { opacity: 0, x: 30 },
@@ -135,7 +136,7 @@ export default function OnboardingPage() {
                 </button>
                 <button
                   onClick={() => router.replace('/dashboard')}
-                  className="inline-flex items-center justify-center px-8 py-4 border border-white/10 text-white/60 hover:text-white hover:bg-white/5 rounded-2xl transition-all"
+                  className="inline-flex items-center justify-center px-8 py-4 border border-white/[0.1] text-white/60 hover:text-white hover:bg-white/[0.04] rounded-2xl transition-all"
                 >
                   Skip for now
                 </button>
@@ -146,7 +147,7 @@ export default function OnboardingPage() {
           {/* ── Step 1: Business Name & Contact ─────────────────────────── */}
           {step === 1 && (
             <motion.div key="name" variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
-              <div className="glass rounded-3xl p-8 border border-white/8">
+              <div className="glass rounded-3xl p-8 border border-white/[0.08]">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 flex items-center justify-center">
                     <Building2 className="w-5 h-5 text-indigo-400" />
@@ -187,7 +188,7 @@ export default function OnboardingPage() {
                   </div>
                 </div>
                 <div className="flex gap-3 mt-6">
-                  <button onClick={prev} className="flex items-center gap-2 px-5 py-3 border border-white/10 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                  <button onClick={prev} className="flex items-center gap-2 px-5 py-3 border border-white/[0.1] text-white/60 hover:text-white hover:bg-white/[0.04] rounded-xl transition-all">
                     <ArrowLeft className="w-4 h-4" /> Back
                   </button>
                   <button
@@ -204,7 +205,7 @@ export default function OnboardingPage() {
           {/* ── Step 2: Business Type ──────────────────────────────────── */}
           {step === 2 && (
             <motion.div key="type" variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
-              <div className="glass rounded-3xl p-8 border border-white/8">
+              <div className="glass rounded-3xl p-8 border border-white/[0.08]">
                 <div className="mb-6">
                   <h2 className="text-xl font-display font-700 mb-1">What kind of business?</h2>
                   <p className="text-sm text-white/40">This helps us tailor your dashboard experience</p>
@@ -217,7 +218,7 @@ export default function OnboardingPage() {
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all ${
                         selectedType === bt.value
                           ? 'border-indigo-500/60 bg-indigo-500/10'
-                          : 'border-white/8 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/15'
+                          : 'border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/15'
                       }`}
                     >
                       <span className="text-xl">{bt.emoji}</span>
@@ -228,7 +229,7 @@ export default function OnboardingPage() {
                   ))}
                 </div>
                 <div className="flex gap-3">
-                  <button onClick={prev} className="flex items-center gap-2 px-5 py-3 border border-white/10 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                  <button onClick={prev} className="flex items-center gap-2 px-5 py-3 border border-white/[0.1] text-white/60 hover:text-white hover:bg-white/[0.04] rounded-xl transition-all">
                     <ArrowLeft className="w-4 h-4" /> Back
                   </button>
                   <button
@@ -264,17 +265,18 @@ export default function OnboardingPage() {
               </p>
               <div className="grid sm:grid-cols-3 gap-3 max-w-md mx-auto mb-8">
                 {[
-                  { icon: Users, label: 'Add Members', href: '/members' },
-                  { icon: CreditCard, label: 'Create Plans', href: '/subscriptions/plans' },
+                  { icon: Users, label: 'Add Members', href: `/businesses/${createMutation.data?.id}/members/new` },
+                  { icon: CreditCard, label: 'Create Plans', href: `/businesses/${createMutation.data?.id}/subscriptions/plans` },
                   { icon: Building2, label: 'View Dashboard', href: '/dashboard' },
                 ].map((item) => (
-                  <button
+                  <Link
                     key={item.label}
-                    className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/15 transition-all"
+                    href={item.href}
+                    className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/15 transition-all"
                   >
                     <item.icon className="w-5 h-5 text-indigo-400" />
                     <span className="text-xs text-white/60">{item.label}</span>
-                  </button>
+                  </Link>
                 ))}
               </div>
               <button

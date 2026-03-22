@@ -58,6 +58,7 @@ public class SecurityConfig {
                                         "/api/v1/auth/forgot-password",
                                         "/api/v1/auth/reset-password",
                                         "/api/v1/auth/verify-email",
+                                        "/api/v1/auth/resend-verification-email",
                                         "/api/v1/auth/staff/login"
                                 ).permitAll()
 
@@ -100,6 +101,7 @@ public class SecurityConfig {
                         body.put("status",  403);
                         body.put("error",   "Forbidden");
                         body.put("message", "Access denied");
+                        body.put("errorCode", "AUTH_002");
                         body.put("path",    request.getServletPath());
                         objectMapper.writeValue(response.getOutputStream(), body);
                 };

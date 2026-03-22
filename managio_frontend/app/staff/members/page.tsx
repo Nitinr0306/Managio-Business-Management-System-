@@ -406,11 +406,10 @@ export default function StaffMembersPage() {
       <ConfirmDialog
         open={!!deactivateTarget}
         onClose={() => setDeactivateTarget(null)}
-        onConfirm={() => {
-          if (deactivateTarget) {
-            deactivateMutation.mutate(deactivateTarget.id)
-            setDeactivateTarget(null)
-          }
+        onConfirm={async () => {
+          if (!deactivateTarget) return
+          try { await deactivateMutation.mutateAsync(deactivateTarget.id) }
+          finally { setDeactivateTarget(null) }
         }}
         title="Deactivate Member"
         description={`Are you sure you want to deactivate ${deactivateTarget?.fullName}? Their data will be preserved.`}
@@ -420,4 +419,3 @@ export default function StaffMembersPage() {
     </div>
   )
 }
-

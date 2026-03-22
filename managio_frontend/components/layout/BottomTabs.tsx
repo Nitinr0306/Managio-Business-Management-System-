@@ -14,7 +14,6 @@ export type BottomTabItem = {
 
 export function BottomTabs({ items }: { items: BottomTabItem[] }) {
   const pathname = usePathname()
-
   const cols = Math.min(5, Math.max(3, items.length))
 
   const isActive = (href?: string) => {
@@ -26,7 +25,7 @@ export function BottomTabs({ items }: { items: BottomTabItem[] }) {
     <nav
       className={cn(
         'fixed bottom-0 left-0 right-0 z-30 md:hidden',
-        'bg-[#080811]/90 backdrop-blur-xl border-t border-white/8'
+        'bg-[hsl(var(--surface-1))]/90 backdrop-blur-xl border-t border-white/[0.06]'
       )}
       aria-label="Primary navigation"
     >
@@ -39,11 +38,13 @@ export function BottomTabs({ items }: { items: BottomTabItem[] }) {
             const content = (
               <div
                 className={cn(
-                  'h-full w-full rounded-xl flex flex-col items-center justify-center gap-1',
-                  active ? 'bg-indigo-500/10 text-indigo-200' : 'text-white/55 hover:text-white/85 hover:bg-white/5'
+                  'h-full w-full rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200',
+                  active
+                    ? 'bg-indigo-500/[0.08] text-indigo-200'
+                    : 'text-white/45 hover:text-white/70 active:bg-white/[0.04]'
                 )}
               >
-                <Icon className={cn('w-4 h-4', active && 'text-indigo-300')} />
+                <Icon className={cn('w-[18px] h-[18px]', active && 'text-indigo-300')} />
                 <div className="text-[10px] font-600 leading-none">{item.label}</div>
               </div>
             )
@@ -57,7 +58,7 @@ export function BottomTabs({ items }: { items: BottomTabItem[] }) {
             }
 
             return (
-              <button key={item.key} onClick={item.onClick} className="h-full">
+              <button key={item.key} onClick={item.onClick} className="h-full w-full">
                 {content}
               </button>
             )
@@ -67,4 +68,3 @@ export function BottomTabs({ items }: { items: BottomTabItem[] }) {
     </nav>
   )
 }
-

@@ -81,9 +81,13 @@ export default function PlansPage() {
   const lbl = 'block text-xs font-medium text-white/50 mb-1.5'
 
   const onSubmit = async (data: PlanFormData) => {
-    await createMutation.mutateAsync(data)
-    reset()
-    setShowForm(false)
+    try {
+      await createMutation.mutateAsync(data)
+      reset()
+      setShowForm(false)
+    } catch {
+      // Error toast is handled by useCreatePlan hook — keep form open for retry
+    }
   }
 
   return (

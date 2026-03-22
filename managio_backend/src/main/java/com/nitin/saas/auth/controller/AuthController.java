@@ -82,6 +82,14 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/resend-verification-email")
+    @Operation(summary = "resend verification email",
+               description = "Resends a verification email to the user to confirm the email address.")
+    public ResponseEntity<Void> resendVerificationEmail(@RequestParam String email, HttpServletRequest httpRequest) {
+        authService.resendVerificationEmail(email, httpRequest);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/forgot-password")
     @Operation(summary = "Request password reset email",
             description = "Always returns 200 regardless of whether the email exists (prevents enumeration).")

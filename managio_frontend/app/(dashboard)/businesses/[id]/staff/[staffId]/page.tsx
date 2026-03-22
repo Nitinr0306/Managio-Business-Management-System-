@@ -240,7 +240,10 @@ export default function StaffDetailPage() {
       <ConfirmDialog
         open={confirmSuspend}
         onClose={() => setConfirmSuspend(false)}
-        onConfirm={() => { suspendMutation.mutate(staffId); setConfirmSuspend(false) }}
+        onConfirm={async () => {
+          try { await suspendMutation.mutateAsync(staffId) }
+          finally { setConfirmSuspend(false) }
+        }}
         title="Suspend Staff Member"
         description={`Suspend ${staff.userName}? They will lose system access.`}
         confirmLabel="Suspend"
@@ -250,7 +253,10 @@ export default function StaffDetailPage() {
       <ConfirmDialog
         open={confirmActivate}
         onClose={() => setConfirmActivate(false)}
-        onConfirm={() => { activateMutation.mutate(staffId); setConfirmActivate(false) }}
+        onConfirm={async () => {
+          try { await activateMutation.mutateAsync(staffId) }
+          finally { setConfirmActivate(false) }
+        }}
         title="Activate Staff Member"
         description={`Reactivate ${staff.userName}? They will regain access.`}
         confirmLabel="Activate"
@@ -260,10 +266,12 @@ export default function StaffDetailPage() {
       <ConfirmDialog
         open={confirmTerminate}
         onClose={() => setConfirmTerminate(false)}
-        onConfirm={() => {
-          // Backend expects ISO.DATE (YYYY-MM-DD)
-          terminateMutation.mutate({ staffId, terminationDate: new Date().toISOString().slice(0, 10) })
-          setConfirmTerminate(false)
+        onConfirm={async () => {
+          try {
+            await terminateMutation.mutateAsync({ staffId, terminationDate: new Date().toISOString().slice(0, 10) })
+          } finally {
+            setConfirmTerminate(false)
+          }
         }}
         title="Terminate Staff Member"
         description={`Permanently terminate ${staff.userName}? This cannot be undone.`}

@@ -19,8 +19,7 @@ export function getErrorMessage(error: unknown, fallback = 'Something went wrong
     const data = error.response?.data as any
     const status = error.response?.status
 
-    // Handle specific status codes
-    if (status === 401) return 'Your session has expired. Please sign in again.'
+    // Handle specific status codes — let backend messages pass through for 401
     if (status === 403) return 'You don\'t have permission to perform this action.'
     if (status === 429) return 'Too many requests. Please wait a moment and try again.'
     if (status === 503) return 'Service temporarily unavailable. Please try again later.'
@@ -40,6 +39,15 @@ export function getErrorMessage(error: unknown, fallback = 'Something went wrong
   if (error instanceof Error) return error.message
 
   return fallback
+}
+
+/**
+ * Extracts the machine-readable error code from backend responses.
+ * Returns codes like "AUTH_003", "AUTH_004", "VAL_001", etc.
+ */
+export function getErrorCode(error: unknown): string | null {
+  if (!isAxiosError(error)) return null
+  return (error.response?.data as any)?.errorCode || null
 }
 
 /**

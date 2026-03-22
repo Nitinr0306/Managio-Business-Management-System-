@@ -60,7 +60,7 @@ export default function TeamPage() {
             </Link>
             <button
               onClick={() => { staffQuery.refetch(); pendingInvitesQuery.refetch() }}
-              className="w-9 h-9 flex items-center justify-center rounded-xl border border-white/8 text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
+              className="w-9 h-9 flex items-center justify-center rounded-xl border border-white/[0.08] text-white/40 hover:text-white/80 hover:bg-white/[0.04] transition-all"
               title="Refresh"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -76,13 +76,13 @@ export default function TeamPage() {
           description="Choose a business from the sidebar to manage its team."
         />
       ) : staffQuery.isLoading ? (
-        <div className="rounded-2xl border border-white/6 overflow-hidden bg-white/[0.01] p-4">
+        <div className="rounded-2xl border border-white/[0.06] overflow-hidden bg-white/[0.01] p-4">
           <TableSkeleton rows={8} cols={6} />
         </div>
       ) : (
         <div className="space-y-6">
           {/* Pending invitations */}
-          <div className="p-5 rounded-2xl border border-white/6 bg-white/[0.01]">
+          <div className="p-5 rounded-2xl border border-white/[0.06] bg-white/[0.01]">
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-display font-700 text-white/80 flex items-center gap-2">
                 <Mail className="w-4 h-4 text-indigo-400" /> Pending invitations
@@ -96,7 +96,7 @@ export default function TeamPage() {
             ) : (
               <div className="space-y-2">
                 {pendingInvites.slice(0, 5).map((inv) => (
-                  <div key={inv.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.02] border border-white/6">
+                  <div key={inv.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                     <div>
                       <div className="text-sm text-white/75">{inv.email}</div>
                       <div className="text-xs text-white/35">{inv.role} • expires {new Date(inv.expiresAt).toLocaleString()}</div>
@@ -115,7 +115,7 @@ export default function TeamPage() {
                         }
                       }}
                       disabled={busy === `invite:${inv.id}`}
-                      className="text-xs px-3 py-2 rounded-xl border border-white/10 text-white/60 hover:text-white hover:bg-white/5 disabled:opacity-50 transition-all"
+                      className="text-xs px-3 py-2 rounded-xl border border-white/[0.1] text-white/60 hover:text-white hover:bg-white/[0.04] disabled:opacity-50 transition-all"
                     >
                       Resend
                     </button>
@@ -126,7 +126,7 @@ export default function TeamPage() {
           </div>
 
           {/* Staff table */}
-          <div className="rounded-2xl border border-white/6 overflow-hidden bg-white/[0.01]">
+          <div className="rounded-2xl border border-white/[0.06] overflow-hidden bg-white/[0.01]">
             {staff.length === 0 ? (
               <EmptyState
                 icon={Users}
@@ -137,7 +137,7 @@ export default function TeamPage() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-white/5 bg-white/[0.02]">
+                    <tr className="border-b border-white/[0.05] bg-white/[0.02]">
                       {['Name', 'Email', 'Role', 'Status', 'Access', 'Actions'].map((h) => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-medium text-white/40 whitespace-nowrap">
                           {h}
@@ -191,7 +191,7 @@ export default function TeamPage() {
                                     'text-[10px] px-2 py-1 rounded-full border transition-all inline-flex items-center gap-1',
                                     has
                                       ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15'
-                                      : 'border-white/10 bg-white/[0.01] text-white/45 hover:bg-white/[0.03]'
+                                      : 'border-white/[0.1] bg-white/[0.01] text-white/45 hover:bg-white/[0.03]'
                                   )}
                                 >
                                   <Shield className="w-3 h-3" /> {label}

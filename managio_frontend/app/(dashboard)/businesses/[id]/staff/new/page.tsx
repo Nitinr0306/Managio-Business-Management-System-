@@ -59,8 +59,12 @@ export default function NewStaffPage() {
       >
         <form
           onSubmit={handleSubmit(async (d) => {
-            await createMutation.mutateAsync({ email: d.email, role: d.role, department: d.department, designation: d.designation })
-            router.push(`/businesses/${businessId}/staff`)
+            try {
+              await createMutation.mutateAsync({ email: d.email, role: d.role, department: d.department, designation: d.designation })
+              router.push(`/businesses/${businessId}/staff`)
+            } catch {
+              // error toast handled by useCreateStaff onError
+            }
           })}
           className="space-y-4"
         >

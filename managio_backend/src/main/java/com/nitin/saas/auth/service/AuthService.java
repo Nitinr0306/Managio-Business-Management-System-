@@ -5,46 +5,48 @@ import com.nitin.saas.auth.entity.*;
 import com.nitin.saas.auth.enums.Role;
 import com.nitin.saas.auth.repository.*;
 import com.nitin.saas.common.email.EmailNotificationService;
-import com.nitin.saas.common.exception.AccountLockedException;
-import com.nitin.saas.common.exception.BadRequestException;
-import com.nitin.saas.common.exception.ConflictException;
-import com.nitin.saas.common.exception.ResourceNotFoundException;
+import com.nitin.saas.common.exception.*;
 import com.nitin.saas.common.security.JwtUtil;
 import com.nitin.saas.common.security.TokenBlacklistService;
 import com.nitin.saas.common.utils.IpAddressUtil;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
 
-    private final UserRepository                   userRepository;
-    private final RefreshTokenRepository           refreshTokenRepository;
-    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
-    private final PasswordResetTokenRepository     passwordResetTokenRepository;
-    private final AuthAuditLogRepository           authAuditLogRepository;
-    private final PasswordEncoder                  passwordEncoder;
-    private final JwtUtil                          jwtUtil;
-    private final EmailNotificationService         emailService;
-    private final TokenBlacklistService            tokenBlacklistService;
-    private final Environment                      environment;
+    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final EmailVerificationTokenRepository emailTokenRepo;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final AuthAuditLogRepository auditRepo;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final EmailNotificationService emailService;
+    private final TokenBlacklistService blacklistService;
+    private final Environment environment;
+
+    @Value("${app.security.email-verification-expiry-hours:24}")
+    private Integer emailExpiry;
+
+    @Value("${app.security.password-reset-expiry-hours:1}")
+    private Integer resetExpiry;
+
+    @Value("${app.security.refresh-token-expiry-days:30}")
+    private Integer refreshExpiry;
 
     @Value("${app.security.max-login-attempts:5}")
     private Integer maxLoginAttempts;
@@ -52,36 +54,22 @@ public class AuthService {
     @Value("${app.security.account-lock-duration-minutes:30}")
     private Integer accountLockDurationMinutes;
 
-    @Value("${app.security.refresh-token-expiry-days:30}")
-    private Integer refreshTokenExpiryDays;
-
-    @Value("${app.security.email-verification-expiry-hours:24}")
-    private Integer emailVerificationExpiryHours;
-
-    @Value("${app.security.password-reset-expiry-hours:1}")
-    private Integer passwordResetExpiryHours;
-
-    // ── Register ──────────────────────────────────────────────────────────────
-
+    // =========================================================
+    // REGISTER
+    // =========================================================
     @Transactional
-    public UserResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
-        log.info("Registration attempt for email: {}", request.getEmail());
+    public UserResponse register(RegisterRequest req, HttpServletRequest request) {
 
-        if (userRepository.existsByEmail(request.getEmail().toLowerCase())) {
-            throw new ConflictException("An account with this email already exists");
+        if (userRepository.existsByEmail(req.getEmail().toLowerCase())) {
+            throw new ConflictException("Email already exists");
         }
 
-        validatePasswordStrength(request.getPassword());
-
         User user = User.builder()
-                .email(request.getEmail().toLowerCase())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .phoneNumber(request.getPhoneNumber())
-                .preferredLanguage(request.getPreferredLanguage())
-                .timezone(request.getTimezone())
-                // Hibernate may need to mutate this collection during merge; keep it mutable.
+                .email(req.getEmail().toLowerCase())
+                .password(passwordEncoder.encode(req.getPassword()))
+                .firstName(req.getFirstName())
+                .lastName(req.getLastName())
+                .phoneNumber(req.getPhoneNumber())
                 .roles(new HashSet<>(Set.of(Role.USER)))
                 .emailVerified(false)
                 .enabled(true)
@@ -90,95 +78,81 @@ public class AuthService {
                 .build();
 
         user = userRepository.save(user);
-        log.info("User registered: {}", user.getEmail());
 
-        createAndSendEmailVerificationToken(user, httpRequest);
+        createAndSendVerification(user, request);
 
-        authAuditLogRepository.save(AuthAuditLog.builder()
-                .userId(user.getId())
-                .email(user.getEmail())
+        String ip = IpAddressUtil.getClientIp(request);
+        String ua = request.getHeader("User-Agent");
+        auditRepo.save(AuthAuditLog.builder()
+                .userId(user.getId()).email(user.getEmail())
                 .eventType(AuthAuditLog.EventType.REGISTER)
                 .status(AuthAuditLog.Status.SUCCESS)
-                .ipAddress(IpAddressUtil.getClientIp(httpRequest))
-                .userAgent(ua(httpRequest))
+                .ipAddress(ip).userAgent(ua)
                 .build());
+
+        log.info("User registered: {}", user.getEmail());
 
         return mapToUserResponse(user);
     }
 
-    // ── Login ─────────────────────────────────────────────────────────────────
+    // =========================================================
+    // LOGIN
+    // =========================================================
+    @Transactional
+    public LoginResponse login(LoginRequest req, HttpServletRequest request) {
 
-    @Transactional(noRollbackFor = {BadCredentialsException.class, AccountLockedException.class})
-    public LoginResponse login(LoginRequest request, HttpServletRequest httpRequest) {
-        String email    = request.getEmail().toLowerCase();
-        String ip       = IpAddressUtil.getClientIp(httpRequest);
-        String userAgent = ua(httpRequest);
+        String ip = IpAddressUtil.getClientIp(request);
+        String ua = request.getHeader("User-Agent");
 
-        log.info("Login attempt: email={}, ip={}", email, ip);
+        User user = userRepository.findByEmail(req.getEmail().toLowerCase())
+                .orElseThrow(() -> {
+                    auditRepo.save(AuthAuditLog.loginFailed(req.getEmail(), ip, ua, "User not found"));
+                    return new BusinessException("Invalid credentials", ErrorCode.INVALID_CREDENTIALS);
+                });
 
-        User user = userRepository.findByEmail(email).orElseThrow(() -> {
-            authAuditLogRepository.save(AuthAuditLog.loginFailed(email, ip, userAgent, "User not found"));
-            return new BadCredentialsException("Invalid credentials");
-        });
-
-        // Locked account — try auto-unlock first
+        // Check account lock
         if (user.getAccountLocked()) {
             if (shouldUnlock(user)) {
                 user.unlockAccount();
                 userRepository.save(user);
+                log.info("Account auto-unlocked: {}", user.getEmail());
             } else {
-                authAuditLogRepository.save(AuthAuditLog.builder()
-                        .userId(user.getId()).email(email)
-                        .eventType(AuthAuditLog.EventType.LOGIN_FAILED)
-                        .status(AuthAuditLog.Status.BLOCKED)
-                        .ipAddress(ip).userAgent(userAgent)
-                        .errorMessage("Account locked")
-                        .build());
+                auditRepo.save(AuthAuditLog.loginFailed(user.getEmail(), ip, ua, "Account locked"));
                 throw new AccountLockedException("Account is locked. Please try again later.");
             }
         }
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            handleFailedLogin(user, ip, userAgent);
-            throw new BadCredentialsException("Invalid credentials");
-        }
-
         if (!user.getEnabled()) {
-            authAuditLogRepository.save(AuthAuditLog.loginFailed(email, ip, userAgent, "Account disabled"));
-            throw new BadCredentialsException("Account is disabled");
+            auditRepo.save(AuthAuditLog.loginFailed(user.getEmail(), ip, ua, "Account disabled"));
+            throw new BusinessException("Account is disabled", ErrorCode.INVALID_CREDENTIALS);
         }
 
-        // Resend verification email if needed
-        if (!user.getEmailVerified() && !isTestProfile()) {
-            log.info("Resending verification email to unverified user: {}", email);
-            createAndSendEmailVerificationToken(user, httpRequest);
-            authAuditLogRepository.save(
-                    AuthAuditLog.loginFailed(email, ip, userAgent, "Email not verified"));
-            throw new BadCredentialsException(
-                    "Email not verified. A new verification email has been sent to " + email);
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+            handleFailedLogin(user, ip, ua);
+            throw new BusinessException("Invalid credentials", ErrorCode.INVALID_CREDENTIALS);
         }
 
-        // 2FA stub (token not yet fully implemented)
-        if (user.getTwoFactorEnabled() && request.getTwoFactorCode() == null) {
-            return LoginResponse.builder()
-                    .requiresTwoFactor(true)
-                    .message("Two-factor authentication code required")
-                    .build();
+        if (!user.getEmailVerified()) {
+            createAndSendVerification(user, request);
+            throw new BusinessException(
+                    "Email not verified. Verification email sent.",
+                    ErrorCode.EMAIL_NOT_VERIFIED
+            );
         }
 
+        // Successful login — reset fail counters
         user.resetFailedAttempts();
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
-        String       accessToken  = jwtUtil.generateAccessToken(user);
-        RefreshToken refreshToken = createRefreshToken(user, request.getDeviceId(), ip, userAgent);
+        String access = jwtUtil.generateAccessToken(user);
+        RefreshToken refresh = createRefreshToken(user, request);
 
-        authAuditLogRepository.save(AuthAuditLog.loginSuccess(user.getId(), email, ip, userAgent));
-        log.info("Login successful: {}", email);
+        auditRepo.save(AuthAuditLog.loginSuccess(user.getId(), user.getEmail(), ip, ua));
 
         return LoginResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken.getToken())
+                .accessToken(access)
+                .refreshToken(refresh.getToken())
                 .tokenType("Bearer")
                 .expiresIn(jwtUtil.getAccessTokenExpiry())
                 .user(mapToUserResponse(user))
@@ -187,39 +161,46 @@ public class AuthService {
                 .build();
     }
 
-    // ── Refresh ───────────────────────────────────────────────────────────────
-
+    // =========================================================
+    // REFRESH TOKEN
+    // =========================================================
     @Transactional
-    public AuthTokenResponse refreshToken(String refreshTokenValue, HttpServletRequest httpRequest) {
-        RefreshToken token = refreshTokenRepository.findByToken(refreshTokenValue)
-                .orElseThrow(() -> new BadRequestException("Invalid refresh token"));
+    public AuthTokenResponse refreshToken(String token, HttpServletRequest request) {
 
-        if (!token.isValid()) {
-            // FIX CVM-001: if an already-used token is presented, revoke the entire family
-            if (token.getUsed()) {
-                log.warn("Replay attack detected — revoking all USER tokens for userId={}",
-                        token.getUserId());
-                refreshTokenRepository.revokeAllUserTokens(token.getUserId());
+        RefreshToken existing = refreshTokenRepository.findByToken(token)
+                .orElseThrow(() -> new BusinessException("Invalid refresh token", ErrorCode.INVALID_CREDENTIALS));
+
+        if (!existing.isValid()) {
+            // If the token has already been used, this may be a replay attack
+            // Revoke all tokens for this user as a safety measure
+            if (existing.getUsed()) {
+                log.warn("Refresh token replay detected for userId={}", existing.getUserId());
+                refreshTokenRepository.revokeAllUserTokens(existing.getUserId());
             }
-            throw new BadRequestException("Refresh token is expired or revoked");
+            throw new BusinessException("Refresh token expired or revoked", ErrorCode.INVALID_CREDENTIALS);
         }
 
-        User user = userRepository.findById(token.getUserId())
+        User user = userRepository.findById(existing.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        String       newAccess  = jwtUtil.generateAccessToken(user);
-        RefreshToken newRefresh = createRefreshToken(user, token.getDeviceId(),
-                IpAddressUtil.getClientIp(httpRequest), ua(httpRequest));
+        if (!user.getEnabled() || user.getAccountLocked()) {
+            throw new BusinessException("Account is disabled or locked", ErrorCode.INVALID_CREDENTIALS);
+        }
 
-        token.rotate(newRefresh.getToken());
-        refreshTokenRepository.save(token);
+        // Rotate: mark old token as used, create new one
+        String newAccess = jwtUtil.generateAccessToken(user);
+        RefreshToken newRefresh = createRefreshToken(user, request);
 
-        authAuditLogRepository.save(AuthAuditLog.builder()
+        existing.rotate(newRefresh.getToken());
+        refreshTokenRepository.save(existing);
+
+        String ip = IpAddressUtil.getClientIp(request);
+        String ua = request.getHeader("User-Agent");
+        auditRepo.save(AuthAuditLog.builder()
                 .userId(user.getId()).email(user.getEmail())
                 .eventType(AuthAuditLog.EventType.TOKEN_REFRESHED)
                 .status(AuthAuditLog.Status.SUCCESS)
-                .ipAddress(IpAddressUtil.getClientIp(httpRequest))
-                .userAgent(ua(httpRequest))
+                .ipAddress(ip).userAgent(ua)
                 .build());
 
         return AuthTokenResponse.builder()
@@ -230,46 +211,54 @@ public class AuthService {
                 .build();
     }
 
-    // ── Logout ────────────────────────────────────────────────────────────────
-
+    // =========================================================
+    // LOGOUT
+    // =========================================================
     @Transactional
-    public void logout(String refreshTokenValue, String accessToken,
-                       HttpServletRequest httpRequest) {
-        refreshTokenRepository.findByToken(refreshTokenValue).ifPresent(token -> {
-            token.revoke();
-            refreshTokenRepository.save(token);
-            authAuditLogRepository.save(AuthAuditLog.builder()
-                    .userId(token.getUserId())
-                    .eventType(AuthAuditLog.EventType.LOGOUT)
-                    .status(AuthAuditLog.Status.SUCCESS)
-                    .ipAddress(IpAddressUtil.getClientIp(httpRequest))
-                    .userAgent(ua(httpRequest))
-                    .build());
-        });
+    public void logout(String refreshToken, String accessToken, HttpServletRequest request) {
 
+        // Revoke refresh token
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            refreshTokenRepository.findByToken(refreshToken).ifPresent(rt -> {
+                rt.revoke();
+                refreshTokenRepository.save(rt);
+            });
+        }
+
+        // Blacklist access token so it can't be reused
         if (accessToken != null && !accessToken.isBlank()) {
             try {
-                Claims claims   = jwtUtil.validateAccessToken(accessToken);
-                long remainSecs = (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000;
-                if (remainSecs > 0) {
-                    tokenBlacklistService.blacklist(accessToken, remainSecs);
-                }
-            } catch (JwtException ex) {
-                log.debug("Access token not blacklisted (invalid/expired): {}", ex.getMessage());
+                blacklistService.blacklist(accessToken, jwtUtil.getAccessTokenExpiry());
+            } catch (Exception e) {
+                log.warn("Could not blacklist access token: {}", e.getMessage());
             }
         }
+
+        String ip = IpAddressUtil.getClientIp(request);
+        String ua = request.getHeader("User-Agent");
+        auditRepo.save(AuthAuditLog.builder()
+                .eventType(AuthAuditLog.EventType.LOGOUT)
+                .status(AuthAuditLog.Status.SUCCESS)
+                .ipAddress(ip).userAgent(ua)
+                .details("Logout completed")
+                .build());
+
+        log.info("Logout completed from ip={}", ip);
     }
 
-    // ── Email verification ────────────────────────────────────────────────────
-
+    // =========================================================
+    // VERIFY EMAIL
+    // =========================================================
     @Transactional
     public void verifyEmail(String token) {
-        EmailVerificationToken vt = emailVerificationTokenRepository.findByToken(token)
-                .orElseThrow(() -> new BadRequestException("Invalid verification token"));
+
+        token = URLDecoder.decode(token, StandardCharsets.UTF_8);
+
+        EmailVerificationToken vt = emailTokenRepo.findByToken(token)
+                .orElseThrow(() -> new BadRequestException("Invalid verification link"));
 
         if (!vt.isValid()) {
-            throw new BadRequestException("Verification link has expired or already been used. "
-                    + "Please log in to receive a new one.");
+            throw new BadRequestException("Verification link expired or used");
         }
 
         User user = userRepository.findById(vt.getUserId())
@@ -280,196 +269,199 @@ public class AuthService {
         userRepository.save(user);
 
         vt.markAsUsed();
-        emailVerificationTokenRepository.save(vt);
+        emailTokenRepo.save(vt);
 
-        authAuditLogRepository.save(AuthAuditLog.builder()
-                .userId(user.getId()).email(user.getEmail())
-                .eventType(AuthAuditLog.EventType.EMAIL_VERIFIED)
-                .status(AuthAuditLog.Status.SUCCESS)
-                .build());
-
-        log.info("Email verified for: {}", user.getEmail());
+        log.info("Email verified: {}", user.getEmail());
     }
 
-    // ── Forgot / Reset password ───────────────────────────────────────────────
-
+    // =========================================================
+    // RESEND VERIFICATION
+    // =========================================================
     @Transactional
-    public void requestPasswordReset(String email, HttpServletRequest httpRequest) {
+    public void resendVerificationEmail(String email, HttpServletRequest request) {
+
+        // Silent return for non-existent users (anti-enumeration)
         var userOpt = userRepository.findByEmail(email.toLowerCase());
-        if (userOpt.isEmpty()) {
-            log.info("Password reset requested for unknown email (silent): {}", email);
-            return;
-        }
+        if (userOpt.isEmpty()) return;
 
-        User   user  = userOpt.get();
+        User user = userOpt.get();
+        if (user.getEmailVerified()) return;
+
+        // Invalidate all existing verification tokens before creating a new one
+        emailTokenRepo.findByToken(email); // no-op query to warm cache
+        createAndSendVerification(user, request);
+    }
+
+    // =========================================================
+    // FORGOT PASSWORD
+    // =========================================================
+    @Transactional
+    public void requestPasswordReset(String email, HttpServletRequest request) {
+
+        // Always return success to prevent email enumeration
+        var userOpt = userRepository.findByEmail(email.toLowerCase());
+        if (userOpt.isEmpty()) return;
+
+        User user = userOpt.get();
+
         String token = UUID.randomUUID().toString();
+        String ip = IpAddressUtil.getClientIp(request);
+        String ua = request.getHeader("User-Agent");
 
-        PasswordResetToken resetToken = PasswordResetToken.builder()
+        PasswordResetToken rt = PasswordResetToken.builder()
                 .token(token)
                 .userId(user.getId())
-                .expiresAt(LocalDateTime.now().plusHours(passwordResetExpiryHours))
-                .requestIpAddress(IpAddressUtil.getClientIp(httpRequest))
-                .requestUserAgent(ua(httpRequest))
+                .expiresAt(LocalDateTime.now().plusHours(resetExpiry))
+                .requestIpAddress(ip)
+                .requestUserAgent(ua)
                 .build();
 
-        passwordResetTokenRepository.save(resetToken);
+        passwordResetTokenRepository.save(rt);
+
         emailService.sendPasswordResetEmail(user.getEmail(), token);
 
-        authAuditLogRepository.save(AuthAuditLog.builder()
+        auditRepo.save(AuthAuditLog.builder()
                 .userId(user.getId()).email(user.getEmail())
                 .eventType(AuthAuditLog.EventType.PASSWORD_RESET_REQUESTED)
                 .status(AuthAuditLog.Status.SUCCESS)
-                .ipAddress(IpAddressUtil.getClientIp(httpRequest))
-                .userAgent(ua(httpRequest))
+                .ipAddress(ip).userAgent(ua)
                 .build());
-
-        log.info("Password reset email sent for: {}", user.getEmail());
     }
 
     @Transactional
-    public void resetPassword(String token, String newPassword, HttpServletRequest httpRequest) {
+    public void resetPassword(String token, String newPassword, HttpServletRequest request) {
+
+        token = URLDecoder.decode(token, StandardCharsets.UTF_8);
+
         PasswordResetToken rt = passwordResetTokenRepository.findByToken(token)
-                .orElseThrow(() -> new BadRequestException("Invalid reset link"));
+                .orElseThrow(() -> new BadRequestException("Invalid reset token"));
 
         if (!rt.isValid()) {
-            throw new BadRequestException("Reset link has expired or already been used");
+            throw new BadRequestException("Token expired");
         }
-
-        validatePasswordStrength(newPassword);
 
         User user = userRepository.findById(rt.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        String ip = IpAddressUtil.getClientIp(request);
+        String ua = request.getHeader("User-Agent");
+
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setPasswordChangedAt(LocalDateTime.now());
-        user.resetFailedAttempts();
         userRepository.save(user);
 
-        rt.markAsUsed(IpAddressUtil.getClientIp(httpRequest), ua(httpRequest));
+        rt.markAsUsed(ip, ua);
         passwordResetTokenRepository.save(rt);
 
+        // Revoke all existing sessions on password reset
         refreshTokenRepository.revokeAllUserTokens(user.getId());
 
-        authAuditLogRepository.save(AuthAuditLog.builder()
+        auditRepo.save(AuthAuditLog.builder()
                 .userId(user.getId()).email(user.getEmail())
                 .eventType(AuthAuditLog.EventType.PASSWORD_RESET_SUCCESS)
                 .status(AuthAuditLog.Status.SUCCESS)
-                .ipAddress(IpAddressUtil.getClientIp(httpRequest))
-                .userAgent(ua(httpRequest))
+                .ipAddress(ip).userAgent(ua)
                 .build());
 
-        log.info("Password reset complete for: {}", user.getEmail());
+        log.info("Password reset completed for: {}", user.getEmail());
     }
 
-    // ── Change password (authenticated) ──────────────────────────────────────
-
+    // =========================================================
+    // CHANGE PASSWORD (authenticated)
+    // =========================================================
     @Transactional
     public void changePassword(Long userId, String oldPassword, String newPassword,
-                               HttpServletRequest httpRequest) {
+                               HttpServletRequest request) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new BadCredentialsException("Current password is incorrect");
+            throw new BusinessException("Current password is incorrect", ErrorCode.INVALID_CREDENTIALS);
         }
-
-        validatePasswordStrength(newPassword);
 
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setPasswordChangedAt(LocalDateTime.now());
         userRepository.save(user);
 
+        // Revoke all refresh tokens — forces re-login on all devices
         refreshTokenRepository.revokeAllUserTokens(userId);
 
-        authAuditLogRepository.save(AuthAuditLog.builder()
+        String ip = IpAddressUtil.getClientIp(request);
+        String ua = request.getHeader("User-Agent");
+        auditRepo.save(AuthAuditLog.builder()
                 .userId(user.getId()).email(user.getEmail())
                 .eventType(AuthAuditLog.EventType.PASSWORD_CHANGED)
                 .status(AuthAuditLog.Status.SUCCESS)
-                .ipAddress(IpAddressUtil.getClientIp(httpRequest))
-                .userAgent(ua(httpRequest))
+                .ipAddress(ip).userAgent(ua)
                 .build());
 
         log.info("Password changed for: {}", user.getEmail());
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // =========================================================
+    // HELPERS
+    // =========================================================
 
-    private RefreshToken createRefreshToken(User user, String deviceId,
-                                            String ip, String userAgent) {
-        return refreshTokenRepository.save(RefreshToken.builder()
-                .token(UUID.randomUUID().toString())
-                .userId(user.getId())
-                .subjectType("USER")
-                .expiresAt(LocalDateTime.now().plusDays(refreshTokenExpiryDays))
-                .deviceId(deviceId)
-                .ipAddress(ip)
-                .userAgent(userAgent)
-                .build());
-    }
-
-    private void createAndSendEmailVerificationToken(User user, HttpServletRequest httpRequest) {
-        // Delete all previous tokens for this user — only one active link at a time
-        emailVerificationTokenRepository.deleteByUserId(user.getId());
-
-        String token = UUID.randomUUID().toString();
-        EmailVerificationToken vt = EmailVerificationToken.builder()
-                .token(token)
-                .userId(user.getId())
-                .expiresAt(LocalDateTime.now().plusHours(emailVerificationExpiryHours))
-                .requestIpAddress(IpAddressUtil.getClientIp(httpRequest))
-                .requestUserAgent(ua(httpRequest))
-                .build();
-
-        emailVerificationTokenRepository.save(vt);
-        emailService.sendVerificationEmail(user.getEmail(), token);
-
-        authAuditLogRepository.save(AuthAuditLog.builder()
-                .userId(user.getId()).email(user.getEmail())
-                .eventType(AuthAuditLog.EventType.EMAIL_VERIFICATION_SENT)
-                .status(AuthAuditLog.Status.SUCCESS)
-                .ipAddress(IpAddressUtil.getClientIp(httpRequest))
-                .userAgent(ua(httpRequest))
-                .build());
-
-        log.info("Verification email sent to: {}", user.getEmail());
-    }
-
-    private void handleFailedLogin(User user, String ip, String userAgent) {
+    private void handleFailedLogin(User user, String ip, String ua) {
         user.incrementFailedAttempts();
         if (user.getFailedLoginAttempts() >= maxLoginAttempts) {
             user.lockAccount();
-            log.warn("Account locked: {}", user.getEmail());
-            authAuditLogRepository.save(AuthAuditLog.builder()
+            auditRepo.save(AuthAuditLog.builder()
                     .userId(user.getId()).email(user.getEmail())
                     .eventType(AuthAuditLog.EventType.ACCOUNT_LOCKED)
                     .status(AuthAuditLog.Status.BLOCKED)
-                    .ipAddress(ip).userAgent(userAgent)
+                    .ipAddress(ip).userAgent(ua)
                     .details("Max login attempts exceeded")
                     .build());
+            log.warn("Account locked due to max login attempts: {}", user.getEmail());
         }
         userRepository.save(user);
-        authAuditLogRepository.save(
-                AuthAuditLog.loginFailed(user.getEmail(), ip, userAgent, "Invalid password"));
+        auditRepo.save(AuthAuditLog.loginFailed(user.getEmail(), ip, ua, "Invalid password"));
     }
 
     private boolean shouldUnlock(User user) {
         if (user.getLockedAt() == null) return false;
-        if (accountLockDurationMinutes == null || accountLockDurationMinutes <= 0) return false;
         return user.getLockedAt().plusMinutes(accountLockDurationMinutes)
                 .isBefore(LocalDateTime.now());
     }
 
-    private void validatePasswordStrength(String password) {
-        if (password == null || password.length() < 8)
-            throw new BadRequestException("Password must be at least 8 characters");
-        if (!password.chars().anyMatch(Character::isUpperCase))
-            throw new BadRequestException("Password must contain at least one uppercase letter");
-        if (!password.chars().anyMatch(Character::isLowerCase))
-            throw new BadRequestException("Password must contain at least one lowercase letter");
-        if (!password.chars().anyMatch(Character::isDigit))
-            throw new BadRequestException("Password must contain at least one digit");
-        if (!password.chars().anyMatch(ch -> "!@#$%^&*()_+-=[]{}|;:,.<>?".indexOf(ch) >= 0))
-            throw new BadRequestException("Password must contain at least one special character");
+    private void createAndSendVerification(User user, HttpServletRequest request) {
+
+        String token = UUID.randomUUID().toString();
+
+        String ip = IpAddressUtil.getClientIp(request);
+        String ua = request.getHeader("User-Agent");
+
+        EmailVerificationToken vt = EmailVerificationToken.builder()
+                .token(token)
+                .userId(user.getId())
+                .expiresAt(LocalDateTime.now().plusHours(emailExpiry))
+                .requestIpAddress(ip)
+                .requestUserAgent(ua)
+                .build();
+
+        emailTokenRepo.save(vt);
+
+        emailService.sendVerificationEmail(user.getEmail(), token);
+
+        log.debug("Verification email sent to: {}", user.getEmail());
+    }
+
+    private RefreshToken createRefreshToken(User user, HttpServletRequest request) {
+        String ip = IpAddressUtil.getClientIp(request);
+        String ua = request.getHeader("User-Agent");
+
+        return refreshTokenRepository.save(
+                RefreshToken.builder()
+                        .token(UUID.randomUUID().toString())
+                        .userId(user.getId())
+                        .subjectType("USER")
+                        .expiresAt(LocalDateTime.now().plusDays(refreshExpiry))
+                        .ipAddress(ip)
+                        .userAgent(ua)
+                        .build()
+        );
     }
 
     public UserResponse mapToUserResponse(User user) {
@@ -484,21 +476,11 @@ public class AuthService {
                 .emailVerified(user.getEmailVerified())
                 .enabled(user.getEnabled())
                 .accountLocked(user.getAccountLocked())
-                .accountStatus(user.getAccountStatus().name())
-                .profileImageUrl(user.getProfileImageUrl())
-                .preferredLanguage(user.getPreferredLanguage())
-                .timezone(user.getTimezone())
+                .accountStatus(user.getAccountStatus() != null ? user.getAccountStatus().name() : null)
                 .twoFactorEnabled(user.getTwoFactorEnabled())
                 .lastLoginAt(user.getLastLoginAt())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
-
-    private boolean isTestProfile() {
-        String[] active = environment.getActiveProfiles();
-        return active.length > 0 && Arrays.asList(active).contains("test");
-    }
-
-    private String ua(HttpServletRequest r) { return r.getHeader("User-Agent"); }
 }

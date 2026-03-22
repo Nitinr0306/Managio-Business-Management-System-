@@ -38,7 +38,7 @@ export default function NotificationsPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
-                className="group relative p-4 rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-200"
+                className="group relative p-4 rounded-2xl border border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-200"
               >
                 <div className="flex items-start gap-3">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 bg-indigo-500/15">

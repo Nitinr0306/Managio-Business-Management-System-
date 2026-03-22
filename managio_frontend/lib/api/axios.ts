@@ -47,8 +47,15 @@ apiClient.interceptors.response.use(
       original.url?.includes('/auth/login') ||
       original.url?.includes('/auth/register') ||
       original.url?.includes('/auth/refresh') ||
+      original.url?.includes('/auth/verify-email') ||
+      original.url?.includes('/auth/forgot-password') ||
+      original.url?.includes('/auth/reset-password') ||
+      original.url?.includes('/auth/resend-verification-email') ||
       original.url?.includes('/members/auth/login') ||
       original.url?.includes('/members/auth/register') ||
+      original.url?.includes('/members/auth/forgot-password') ||
+      original.url?.includes('/members/auth/reset-password') ||
+      original.url?.includes('/members/auth/verify-email') ||
       original.url?.includes('/staff/accept-invitation')
 
     if (error.response?.status !== 401 || isAuthEndpoint) {

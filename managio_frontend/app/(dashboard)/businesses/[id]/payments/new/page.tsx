@@ -62,16 +62,20 @@ export default function RecordPaymentPage() {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="p-6 rounded-2xl border border-white/6 bg-white/[0.02]">
         <form
           onSubmit={handleSubmit(async (data) => {
-            await recordMutation.mutateAsync({
-              memberId: Number(data.memberId),
-              subscriptionId: data.subscriptionId ? Number(data.subscriptionId) : undefined,
-              amount: data.amount,
-              paymentMethod: data.paymentMethod,
-              referenceNumber: data.referenceNumber,
-              notes: data.notes,
-              paidAt: data.paidAt,
-            })
-            router.push(`/businesses/${businessId}/payments`)
+            try {
+              await recordMutation.mutateAsync({
+                memberId: Number(data.memberId),
+                subscriptionId: data.subscriptionId ? Number(data.subscriptionId) : undefined,
+                amount: data.amount,
+                paymentMethod: data.paymentMethod,
+                referenceNumber: data.referenceNumber,
+                notes: data.notes,
+                paidAt: data.paidAt,
+              })
+              router.push(`/businesses/${businessId}/payments`)
+            } catch {
+              // Error toast is handled by useRecordPayment hook — stay on form for retry
+            }
           })}
           className="space-y-4"
         >

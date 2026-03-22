@@ -148,18 +148,28 @@ export function useDeactivateMember(businessId: string) {
   })
 }
 
-export function useDisableMemberPortal() {
+export function useDisableMemberPortal(businessId: string, memberId: string) {
+  const qc = useQueryClient()
   return useMutation({
-    mutationFn: (memberId: string) => membersApi.disableMemberPortal(memberId),
-    onSuccess: () => toast.success('Member portal access disabled.'),
+    mutationFn: () => membersApi.disableMemberPortal(memberId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['member', businessId, memberId] })
+      qc.invalidateQueries({ queryKey: ['members', businessId] })
+      toast.success('Member portal access disabled.')
+    },
     onError: (err: unknown) => toast.error(getErrorMessage(err, 'Failed to disable member portal.')),
   })
 }
 
-export function useEnableMemberPortal() {
+export function useEnableMemberPortal(businessId: string, memberId: string) {
+  const qc = useQueryClient()
   return useMutation({
-    mutationFn: (memberId: string) => membersApi.enableMemberPortal(memberId),
-    onSuccess: () => toast.success('Member portal access enabled.'),
+    mutationFn: () => membersApi.enableMemberPortal(memberId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['member', businessId, memberId] })
+      qc.invalidateQueries({ queryKey: ['members', businessId] })
+      toast.success('Member portal access enabled.')
+    },
     onError: (err: unknown) => toast.error(getErrorMessage(err, 'Failed to enable member portal.')),
   })
 }

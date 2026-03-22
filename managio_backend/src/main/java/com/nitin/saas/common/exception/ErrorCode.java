@@ -4,6 +4,12 @@ public enum ErrorCode {
     VALIDATION_ERROR("VAL_001","Validation error"),
     AUTHENTICATION_ERROR("AUTH_001","Authentication failed"),
     AUTHORIZATION_ERROR("AUTH_002","Authorization failed"),
+    EMAIL_NOT_VERIFIED("AUTH_003", "Email not verified"),
+    INVALID_CREDENTIALS("AUTH_004", "Invalid credentials"),
+    ACCOUNT_LOCKED("AUTH_005", "Account locked"),
+    TOKEN_EXPIRED("AUTH_006", "Token expired"),
+    TOKEN_INVALID("AUTH_007", "Token invalid"),
+    ACCOUNT_DISABLED("AUTH_008", "Account disabled"),
     RESOURCE_NOT_FOUND("RES_001","Resource not found"),
     DUPLICATE_RESOURCE("RES_002","Already exists"),
     FEATURE_NOT_AVAILABLE("FEAT_001","Feature not available"),
@@ -13,7 +19,15 @@ public enum ErrorCode {
     RATE_LIMIT_EXCEEDED("RATE_001","Rate limit exceeded"),
     INTERNAL_ERROR("INT_001","Internal server error"),
     EXTERNAL_SERVICE_ERROR("EXT_001","External service error");
-    private final String code; private final String description;
-    ErrorCode(String c,String d){code=c;description=d;}
-    public String getCode(){return code;} public String getDescription(){return description;}
+
+    private final String code;
+    private final String description;
+
+    ErrorCode(String code, String description) {
+        this.code = code;
+        this.description = description;
+    }
+
+    public String getCode() { return code; }
+    public String getDescription() { return description; }
 }

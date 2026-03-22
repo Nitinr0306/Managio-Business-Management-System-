@@ -17,11 +17,15 @@ public class PaymentResponse {
     private Long id;
     private Long memberId;
     private String memberName;
+    private String memberPhone;
     private Long subscriptionId;
+    private String planName;
     private BigDecimal amount;
     private PaymentMethod paymentMethod;
     private String paymentMethodDisplay;
+    private String referenceNumber;
     private String notes;
     private Long recordedBy;
+    private LocalDateTime paidAt;
     private LocalDateTime createdAt;
 }

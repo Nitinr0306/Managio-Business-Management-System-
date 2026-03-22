@@ -10,6 +10,7 @@ import { useMutation } from '@tanstack/react-query'
 import { authApi } from '@/lib/api/auth'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { getErrorMessage } from '@/lib/utils/errors'
 
 const schema = z.object({
   businessId: z.string().min(1, 'Business ID is required'),
@@ -52,8 +53,8 @@ export default function MemberRegisterPage() {
       toast.success('Account created! Please sign in.')
       router.push('/member/login')
     },
-    onError: (err: any) =>
-      toast.error(err?.response?.data?.message || 'Registration failed. Please try again.'),
+    onError: (err: unknown) =>
+      toast.error(getErrorMessage(err, 'Registration failed. Please try again.')),
   })
 
   const inp = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-500/70 transition-all'

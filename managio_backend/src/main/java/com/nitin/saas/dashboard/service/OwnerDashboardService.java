@@ -9,7 +9,9 @@ import com.nitin.saas.payment.entity.Payment;
 import com.nitin.saas.payment.repository.PaymentRepository;
 import com.nitin.saas.payment.service.PaymentStatsService;
 import com.nitin.saas.subscription.entity.MemberSubscription;
+import com.nitin.saas.subscription.entity.SubscriptionPlan;
 import com.nitin.saas.subscription.repository.MemberSubscriptionRepository;
+import com.nitin.saas.subscription.repository.SubscriptionPlanRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,7 @@ public class OwnerDashboardService {
     private final PaymentRepository            paymentRepository;
     private final PaymentStatsService          paymentStatsService;
     private final BusinessService              businessService;
+    private final SubscriptionPlanRepository   planRepository;
 
     @Transactional(readOnly = true)
     public OwnerDashboardResponse getOwnerDashboard(Long businessId) {
@@ -119,17 +122,23 @@ public class OwnerDashboardService {
 
     private List<ExpiringSubscription> buildExpiringSubscriptions(List<MemberSubscription> subs) {
         if (subs.isEmpty()) return Collections.emptyList();
-        Set<Long> ids = subs.stream().map(MemberSubscription::getMemberId).collect(Collectors.toSet());
-        Map<Long, Member> memberMap = memberRepository.findAllById(ids).stream()
+        Set<Long> memberIds = subs.stream().map(MemberSubscription::getMemberId).collect(Collectors.toSet());
+        Map<Long, Member> memberMap = memberRepository.findAllById(memberIds).stream()
                 .collect(Collectors.toMap(Member::getId, m -> m));
+
+        // Batch-load plan names to avoid N+1 and show real plan name on dashboard
+        Set<Long> planIds = subs.stream().map(MemberSubscription::getPlanId).collect(Collectors.toSet());
+        Map<Long, String> planNameMap = planRepository.findAllById(planIds).stream()
+                .collect(Collectors.toMap(SubscriptionPlan::getId, SubscriptionPlan::getName));
 
         return subs.stream().map(sub -> {
             Member m = memberMap.get(sub.getMemberId());
             long days = ChronoUnit.DAYS.between(LocalDate.now(), sub.getEndDate());
+            String planName = planNameMap.getOrDefault(sub.getPlanId(), "Plan #" + sub.getPlanId());
             return ExpiringSubscription.builder()
                     .memberId(sub.getMemberId())
                     .memberName(m != null ? m.getFullName() : "Unknown")
-                    .planName("Plan #" + sub.getPlanId())
+                    .planName(planName)
                     .endDate(sub.getEndDate())
                     .daysRemaining((int) days)
                     .phone(m != null ? m.getPhone() : null)

@@ -44,8 +44,12 @@ export default function EditBusinessPage() {
         <BusinessForm
           defaultValues={business}
           onSubmit={async (data) => {
-            await updateMutation.mutateAsync(data)
-            router.push(`/businesses/${id}`)
+            try {
+              await updateMutation.mutateAsync(data)
+              router.push(`/businesses/${id}`)
+            } catch {
+              // Error toast is handled by useUpdateBusiness hook — stay on form for retry
+            }
           }}
           loading={updateMutation.isPending}
           submitLabel="Update Business"

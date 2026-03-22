@@ -10,6 +10,7 @@ import { staffApi } from '@/lib/api/staff'
 import { toast } from 'sonner'
 import { formatDateTime, formatRelative } from '@/lib/utils/formatters'
 import { cn } from '@/lib/utils/cn'
+import { getErrorMessage } from '@/lib/utils/errors'
 
 export default function StaffInvitationsPage() {
   const { id: businessId } = useParams<{ id: string }>()
@@ -34,8 +35,8 @@ export default function StaffInvitationsPage() {
       toast.success('Invitation resent')
       pendingQuery.refetch()
       allQuery.refetch()
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to resend invitation')
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, 'Failed to resend invitation'))
     } finally {
       setBusyId(null)
     }
@@ -48,8 +49,8 @@ export default function StaffInvitationsPage() {
       toast.success('Invitation cancelled')
       pendingQuery.refetch()
       allQuery.refetch()
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to cancel invitation')
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, 'Failed to cancel invitation'))
     } finally {
       setBusyId(null)
     }

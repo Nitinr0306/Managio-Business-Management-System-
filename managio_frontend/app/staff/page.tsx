@@ -256,7 +256,11 @@ export default function StaffPage() {
       <ConfirmDialog
         open={!!suspendTarget}
         onClose={() => setSuspendTarget(null)}
-        onConfirm={() => { if (suspendTarget) { suspendMutation.mutate(suspendTarget.id); setSuspendTarget(null) } }}
+        onConfirm={async () => {
+          if (!suspendTarget) return
+          try { await suspendMutation.mutateAsync(suspendTarget.id) }
+          finally { setSuspendTarget(null) }
+        }}
         title="Suspend Staff Member"
         description={`Are you sure you want to suspend ${suspendTarget?.userName}?`}
         confirmLabel="Suspend"
@@ -266,13 +270,14 @@ export default function StaffPage() {
       <ConfirmDialog
         open={!!terminateTarget}
         onClose={() => setTerminateTarget(null)}
-        onConfirm={() => {
-          if (terminateTarget) {
-            // FIX 1: was { staffId, data: { terminationDate } } — hook expected flat { staffId, terminationDate }
-            terminateMutation.mutate({
+        onConfirm={async () => {
+          if (!terminateTarget) return
+          try {
+            await terminateMutation.mutateAsync({
               staffId: terminateTarget.id,
               terminationDate: new Date().toISOString(),
             })
+          } finally {
             setTerminateTarget(null)
           }
         }}

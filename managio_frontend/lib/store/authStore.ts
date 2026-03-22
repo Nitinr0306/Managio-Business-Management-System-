@@ -135,6 +135,7 @@ export const useAuthStore = create<AuthState>()(
       storage,
       partialize: (state) => ({
         user: state.user,
+        accessToken: state.accessToken,
         refreshToken: state.refreshToken,
         userType: state.userType,
         staffContext: state.staffContext,

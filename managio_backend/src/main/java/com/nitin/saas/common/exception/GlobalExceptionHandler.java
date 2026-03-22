@@ -66,8 +66,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusiness(BusinessException ex,
                                                         HttpServletRequest req) {
+
         log.warn("Business exception [{}]: {}", req.getRequestURI(), ex.getMessage());
-        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), req, ex.getErrorCode());
+
+        HttpStatus status;
+
+        // ✅ AUTH-related errors → 401
+        if (
+                ex.getErrorCode() == ErrorCode.EMAIL_NOT_VERIFIED ||
+                        ex.getErrorCode() == ErrorCode.INVALID_CREDENTIALS
+        ) {
+            status = HttpStatus.UNAUTHORIZED;
+        } else {
+            status = HttpStatus.BAD_REQUEST;
+        }
+
+        return build(status, ex.getMessage(), req, ex.getErrorCode());
     }
 
     @ExceptionHandler(FeatureNotAvailableException.class)
@@ -116,7 +130,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAccountLocked(AccountLockedException ex,
                                                              HttpServletRequest req) {
         log.warn("Account locked [{}]: {}", req.getRequestURI(), ex.getMessage());
-        return build(HttpStatus.LOCKED, ex.getMessage(), req, ErrorCode.AUTHENTICATION_ERROR);
+        return build(HttpStatus.LOCKED, ex.getMessage(), req, ErrorCode.ACCOUNT_LOCKED);
     }
 
     @ExceptionHandler(LockedException.class)
