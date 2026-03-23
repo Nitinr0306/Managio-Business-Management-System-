@@ -12,10 +12,9 @@ import { useAuth } from '@/lib/hooks/useAuth'
 const schema = z.object({
   email: z.string().email('Valid email required'),
   password: z.string().min(1, 'Password required'),
-  businessId: z.coerce
-    .number({ required_error: 'Business ID required', invalid_type_error: 'Must be a number' })
-    .int('Must be a whole number')
-    .positive('Business ID must be positive'),
+  businessId: z.string()
+    .min(1, 'Business ID required')
+    .regex(/^([0-9]+|[0-9]{4}[A-Za-z]{4})$/, 'Use numeric ID or 4-digit+4-letter public ID (e.g. 1234ABCD)'),
 })
 type FormData = z.infer<typeof schema>
 
@@ -68,7 +67,7 @@ export default function StaffLoginPage() {
               <label className="block text-xs font-medium text-white/60 mb-1.5">Business ID</label>
               <input
                 {...register('businessId')}
-                placeholder="Enter your business ID (e.g. 1)"
+                placeholder="Enter Business ID or Public ID (e.g. 1 or 1234ABCD)"
                 className={inp}
               />
               {errors.businessId && (

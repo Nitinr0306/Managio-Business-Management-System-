@@ -1,5 +1,6 @@
 export interface User {
   id: string
+  publicId?: string
   email: string
   firstName?: string
   lastName?: string
@@ -47,7 +48,7 @@ export interface RegisterRequest {
 export interface StaffLoginRequest {
   email: string
   password: string
-  businessId: number
+  businessId: string
   deviceId?: string
   rememberMe?: boolean
   twoFactorCode?: string
@@ -65,12 +66,14 @@ export interface MemberRegisterRequest {
   email?: string
   phone?: string
   password: string
-  businessId: number
+  businessId: string
 }
 
 export interface StaffInfo {
   staffId: number
+  staffPublicId?: string
   businessId: number
+  businessPublicId?: string
   role: string
   roleDisplay: string
   status: string
@@ -87,6 +90,7 @@ export interface StaffInfo {
 
 export interface BusinessInfo {
   id: number
+  publicId?: string
   name: string
   address?: string
   phone?: string
@@ -108,7 +112,9 @@ export interface StaffLoginResponse {
 
 export interface MemberInfo {
   id: number
+  publicId?: string
   businessId: number
+  businessPublicId?: string
   firstName: string
   lastName: string
   fullName: string

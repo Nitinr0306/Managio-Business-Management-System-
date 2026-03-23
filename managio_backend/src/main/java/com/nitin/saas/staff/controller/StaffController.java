@@ -3,6 +3,7 @@ import com.nitin.saas.staff.dto.*;
 import com.nitin.saas.staff.entity.Staff;
 import com.nitin.saas.staff.enums.StaffRole;
 import com.nitin.saas.staff.service.StaffInvitationService;
+import com.nitin.saas.staff.service.StaffSalaryService;
 import com.nitin.saas.staff.service.StaffService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +26,7 @@ import java.util.Set;
 public class StaffController {
     private final StaffService staffService;
     private final StaffInvitationService invitationService;
+    private final StaffSalaryService staffSalaryService;
     // ── Staff CRUD ────────────────────────────────────────────────────────────
     @PostMapping
     @Operation(summary = "Add staff member to business")
@@ -135,6 +137,33 @@ public class StaffController {
     @Operation(summary = "Count active staff members")
     public ResponseEntity<Long> countActiveStaff(@PathVariable Long businessId) {
         return ResponseEntity.ok(staffService.countActiveStaff(businessId));
+    }
+
+    @GetMapping("/salary-payments")
+    @Operation(summary = "Get monthly staff salary payments")
+    public ResponseEntity<List<StaffSalaryPaymentResponse>> getMonthlySalaryPayments(
+            @PathVariable Long businessId,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month) {
+        return ResponseEntity.ok(staffSalaryService.getMonthlyPayments(businessId, month));
+    }
+
+    @GetMapping("/salary-payments/unpaid")
+    @Operation(summary = "Get unpaid staff salary records")
+    public ResponseEntity<List<StaffSalaryPaymentResponse>> getUnpaidSalaryPayments(
+            @PathVariable Long businessId,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month) {
+        return ResponseEntity.ok(staffSalaryService.getUnpaidPayments(businessId, month));
+    }
+
+    @PostMapping("/{id}/salary/mark-paid")
+    @Operation(summary = "Mark salary as paid for a month")
+    public ResponseEntity<StaffSalaryPaymentResponse> markSalaryPaid(
+            @PathVariable Long businessId,
+            @PathVariable Long id,
+            @Valid @RequestBody MarkSalaryPaidRequest request) {
+        return ResponseEntity.ok(staffSalaryService.markSalaryPaid(businessId, id, request));
     }
     // ── Invitations ───────────────────────────────────────────────────────────
     @PostMapping("/invite")

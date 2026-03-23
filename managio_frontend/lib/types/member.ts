@@ -3,7 +3,9 @@ export type MemberGender = 'MALE' | 'FEMALE' | 'OTHER'
 
 export interface Member {
   id: string
+  publicId?: string
   businessId: string
+  businessPublicId?: string
   firstName: string
   lastName: string
   fullName: string

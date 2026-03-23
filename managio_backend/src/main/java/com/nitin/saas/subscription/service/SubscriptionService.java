@@ -14,6 +14,7 @@ import com.nitin.saas.subscription.entity.MemberSubscription;
 import com.nitin.saas.subscription.entity.SubscriptionPlan;
 import com.nitin.saas.subscription.repository.MemberSubscriptionRepository;
 import com.nitin.saas.subscription.repository.SubscriptionPlanRepository;
+import com.nitin.saas.staff.enums.StaffRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -43,7 +44,7 @@ public class SubscriptionService {
 
         @Transactional
         public SubscriptionPlanResponse createPlan(Long businessId, CreateSubscriptionPlanRequest request) {
-                businessService.requireAccess(businessId);
+                businessService.requireBusinessPermission(businessId, StaffRole.Permission.MANAGE_SUBSCRIPTION_PLANS);
                 SubscriptionPlan plan = SubscriptionPlan.builder()
                         .businessId(businessId)
                         .name(request.getName())
@@ -59,14 +60,14 @@ public class SubscriptionService {
 
         @Transactional(readOnly = true)
         public List<SubscriptionPlanResponse> getActivePlans(Long businessId) {
-                businessService.requireAccess(businessId);
+                businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_SUBSCRIPTIONS);
                 return planRepository.findActiveByBusinessId(businessId).stream()
                         .map(this::mapPlanToResponse).collect(Collectors.toList());
         }
 
         @Transactional(readOnly = true)
         public Page<MemberSubscriptionResponse> getBusinessSubscriptions(Long businessId, Pageable pageable) {
-                businessService.requireAccess(businessId);
+                businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_SUBSCRIPTIONS);
                 Page<MemberSubscription> page = subscriptionRepository.findByBusinessId(businessId, pageable);
                 List<MemberSubscription> subs = page.getContent();
                 if (subs.isEmpty()) {
@@ -98,7 +99,7 @@ public class SubscriptionService {
 
         @Transactional
         public void assignSubscription(Long businessId, AssignSubscriptionRequest request) {
-                businessService.requireAccess(businessId);
+                businessService.requireBusinessPermission(businessId, StaffRole.Permission.ASSIGN_SUBSCRIPTIONS);
 
                 Member member = memberRepository.findById(request.getMemberId())
                         .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
@@ -134,7 +135,7 @@ public class SubscriptionService {
 
         @Transactional
         public void cancelSubscription(Long businessId, Long subscriptionId, String reason) {
-                businessService.requireAccess(businessId);
+                businessService.requireBusinessPermission(businessId, StaffRole.Permission.CANCEL_SUBSCRIPTIONS);
 
                 MemberSubscription sub = subscriptionRepository.findById(subscriptionId)
                         .orElseThrow(() -> new ResourceNotFoundException("Subscription not found"));
@@ -167,14 +168,14 @@ public class SubscriptionService {
 
         @Transactional(readOnly = true)
         public List<MemberSubscription> getExpiringSubscriptions(Long businessId, int days) {
-                businessService.requireAccess(businessId);
+                businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_SUBSCRIPTIONS);
                 LocalDate today = LocalDate.now();
                 return subscriptionRepository.findExpiringByBusinessId(businessId, today, today.plusDays(days));
         }
 
         @Transactional(readOnly = true)
         public Long countActiveSubscriptions(Long businessId) {
-                businessService.requireAccess(businessId);
+                businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_SUBSCRIPTIONS);
                 return subscriptionRepository.countActiveByBusinessId(businessId);
         }
 

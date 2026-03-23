@@ -1,5 +1,6 @@
 package com.nitin.saas.audit.entity;
 
+import com.nitin.saas.common.utils.PublicIdGenerator;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,11 +24,20 @@ public class AuditLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true, length = 20)
+    private String logId;
+
     @Column(nullable = false)
     private Long businessId;
 
     @Column(nullable = false)
     private Long userId;
+
+    @Column(length = 20)
+    private String actorType;
+
+    @Column(length = 20)
+    private String actorPublicId;
 
     @Column(nullable = false, length = 100)
     private String action;
@@ -40,7 +50,20 @@ public class AuditLog {
     @Column(columnDefinition = "TEXT")
     private String details;
 
+    @Column(length = 45)
+    private String ipAddress;
+
+    @Column(length = 500)
+    private String userAgent;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    private void assignLogIdIfMissing() {
+        if (logId == null || logId.isBlank()) {
+            logId = PublicIdGenerator.generate("L", 11);
+        }
+    }
 }

@@ -39,7 +39,9 @@ public class MemberLoginResponse {
     @Builder
     public static class MemberInfo {
         private Long id;
+        private String publicId;
         private Long businessId;
+        private String businessPublicId;
         private String firstName;
         private String lastName;
         private String fullName;
@@ -71,6 +73,7 @@ public class MemberLoginResponse {
     @Builder
     public static class BusinessInfo {
         private Long id;
+        private String publicId;
         private String name;
         private String address;
         private String phone;

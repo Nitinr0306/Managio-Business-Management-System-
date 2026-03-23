@@ -23,11 +23,16 @@ function ResetForm() {
   const [success, setSuccess] = useState(false)
   const searchParams = useSearchParams()
   const token = searchParams.get('token') || ''
+  const subject = searchParams.get('subject')
   const router = useRouter()
 
   const mutation = useMutation({
     mutationFn: ({ newPassword }: { newPassword: string }) =>
-      authApi.resetPassword({ token, newPassword }),
+      authApi.resetPassword({
+        token,
+        newPassword,
+        subject: subject === 'member' ? 'member' : 'user',
+      }),
     onSuccess: () => {
       setSuccess(true)
       toast.success('Password reset successfully!')

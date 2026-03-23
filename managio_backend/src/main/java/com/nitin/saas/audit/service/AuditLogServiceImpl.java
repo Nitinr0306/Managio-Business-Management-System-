@@ -3,7 +3,13 @@ package com.nitin.saas.audit.service;
 import com.nitin.saas.audit.dto.AuditLogResponse;
 import com.nitin.saas.audit.entity.AuditLog;
 import com.nitin.saas.audit.repository.AuditLogRepository;
+import com.nitin.saas.auth.repository.UserRepository;
 import com.nitin.saas.auth.service.RBACService;
+import com.nitin.saas.business.service.BusinessService;
+import com.nitin.saas.common.utils.IpAddressUtil;
+import com.nitin.saas.member.repository.MemberRepository;
+import com.nitin.saas.staff.enums.StaffRole;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -11,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +30,9 @@ public class AuditLogServiceImpl implements AuditLogService {
 
     private final AuditLogRepository auditLogRepository;
     private final RBACService rbacService;
+    private final BusinessService businessService;
+    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     /**
      * Core write method. Uses REQUIRES_NEW so the audit log entry is committed
@@ -34,13 +45,21 @@ public class AuditLogServiceImpl implements AuditLogService {
                           String entityType, Long entityId, String details) {
         try {
             Long userId = resolveUserId();
+                String actorType = resolveActorType();
+                String actorPublicId = resolveActorPublicId(actorType, userId);
+                HttpServletRequest request = currentRequest();
+
             AuditLog entry = AuditLog.builder()
                     .businessId(businessId)
                     .userId(userId)
+                    .actorType(actorType)
+                    .actorPublicId(actorPublicId)
                     .action(action)
                     .entityType(entityType)
                     .entityId(entityId)
                     .details(details)
+                    .ipAddress(request != null ? IpAddressUtil.getClientIp(request) : null)
+                    .userAgent(request != null ? request.getHeader("User-Agent") : null)
                     .build();
 
             auditLogRepository.save(entry);
@@ -95,9 +114,48 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
     }
 
+    private String resolveActorType() {
+        if (rbacService.isMemberPrincipal()) {
+            return "MEMBER";
+        }
+        if (rbacService.isAuthenticated()) {
+            return "USER";
+        }
+        return "SYSTEM";
+    }
+
+    private String resolveActorPublicId(String actorType, Long userId) {
+        if (userId == null || userId == 0L) {
+            return null;
+        }
+
+        if ("MEMBER".equals(actorType)) {
+            return memberRepository.findById(userId)
+                    .map(m -> m.getPublicId())
+                    .orElse(null);
+        }
+
+        if ("USER".equals(actorType)) {
+            return userRepository.findById(userId)
+                    .map(u -> u.getPublicId())
+                    .orElse(null);
+        }
+
+        return null;
+    }
+
+    private HttpServletRequest currentRequest() {
+        var attrs = RequestContextHolder.getRequestAttributes();
+        if (attrs instanceof ServletRequestAttributes servletAttrs) {
+            return servletAttrs.getRequest();
+        }
+        return null;
+    }
+
 
     @Override
     public Page<AuditLogResponse> getBusinessAuditLogs(Long businessId, Pageable pageable) {
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_AUDIT_LOGS);
         return auditLogRepository
                 .findByBusinessIdOrderByCreatedAtDesc(businessId, pageable)
                 .map(this::mapToResponse);
@@ -105,6 +163,7 @@ public class AuditLogServiceImpl implements AuditLogService {
 
     @Override
     public Page<AuditLogResponse> getAuditLogsByEntityType(Long businessId, String entityType, Pageable pageable) {
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_AUDIT_LOGS);
         return auditLogRepository
                 .findByBusinessIdAndEntityType(businessId, entityType, pageable)
                 .map(this::mapToResponse);
@@ -112,6 +171,7 @@ public class AuditLogServiceImpl implements AuditLogService {
 
     @Override
     public List<AuditLogResponse> getRecentAuditLogs(Long businessId, int days) {
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_AUDIT_LOGS);
 
         LocalDateTime since = LocalDateTime.now().minusDays(days);
 
@@ -125,12 +185,17 @@ public class AuditLogServiceImpl implements AuditLogService {
     private AuditLogResponse mapToResponse(AuditLog log) {
         return AuditLogResponse.builder()
                 .id(log.getId())
+                .logId(log.getLogId())
                 .businessId(log.getBusinessId())
                 .userId(log.getUserId())
+                .actorType(log.getActorType())
+                .actorPublicId(log.getActorPublicId())
                 .action(log.getAction())
                 .entityType(log.getEntityType())
                 .entityId(log.getEntityId())
                 .details(log.getDetails())
+                .ipAddress(log.getIpAddress())
+                .userAgent(log.getUserAgent())
                 .createdAt(log.getCreatedAt())
                 .build();
     }

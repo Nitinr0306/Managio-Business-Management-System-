@@ -47,6 +47,7 @@ function useNavGroups(businessId?: string): NavGroup[] {
         { label: 'Subscriptions', href: `${b}/subscriptions`, icon: CreditCard },
         { label: 'Plans',         href: `${b}/subscriptions/plans`, icon: Calendar },
         { label: 'Payments',      href: `${b}/payments`,      icon: BarChart3 },
+        { label: 'Staff Salaries', href: `${b}/staff/salary`, icon: CreditCard },
       ],
     },
     {

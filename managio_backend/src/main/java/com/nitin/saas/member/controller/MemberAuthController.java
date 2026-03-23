@@ -4,8 +4,10 @@ import com.nitin.saas.member.dto.MemberLoginRequest;
 import com.nitin.saas.member.dto.MemberLoginResponse;
 import com.nitin.saas.member.dto.MemberRegisterResponse;
 import com.nitin.saas.member.dto.MemberRegistrationRequest;
+import com.nitin.saas.common.dto.ResetPasswordRequest;
 import com.nitin.saas.member.service.MemberAuthService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,6 +65,13 @@ public class MemberAuthController {
             @RequestParam String token,
             @RequestParam String newPassword) {
         memberAuthService.resetPassword(token, newPassword);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/reset-password", consumes = "application/json")
+    public ResponseEntity<Void> resetPasswordBody(
+            @Valid @RequestBody ResetPasswordRequest request) {
+        memberAuthService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok().build();
     }
 }

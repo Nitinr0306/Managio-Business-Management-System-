@@ -17,6 +17,8 @@ import com.nitin.saas.subscription.entity.SubscriptionPlan;
 import com.nitin.saas.subscription.repository.MemberSubscriptionRepository;
 import com.nitin.saas.subscription.repository.SubscriptionPlanRepository;
 import com.nitin.saas.auth.service.RBACService;
+import com.nitin.saas.auth.repository.UserRepository;
+import com.nitin.saas.staff.enums.StaffRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -47,6 +49,7 @@ public class PaymentService {
     private final RBACService                  rbacService;
     private final EmailNotificationService     emailService;
     private final AuditLogService              auditLogService;
+    private final UserRepository               userRepository;
 
     // ── Record payment ────────────────────────────────────────────────────────
 
@@ -58,7 +61,7 @@ public class PaymentService {
      */
     @Transactional
     public PaymentResponse recordPayment(Long businessId, RecordPaymentRequest request) {
-        businessService.requireAccess(businessId);
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.RECORD_PAYMENTS);
 
         Member member = memberRepository.findById(request.getMemberId())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -129,7 +132,7 @@ public class PaymentService {
      */
     @Transactional(readOnly = true)
     public Page<PaymentResponse> getPaymentsByBusiness(Long businessId, Pageable pageable) {
-        businessService.requireAccess(businessId);
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_PAYMENTS);
 
         Page<Payment> paymentPage = paymentRepository.findByBusinessId(businessId, pageable);
         List<Payment> payments    = paymentPage.getContent();
@@ -163,7 +166,7 @@ public class PaymentService {
                 throw new AccessDeniedException("Members may only view their own payment history");
             }
         } else {
-            businessService.requireAccess(member.getBusinessId());
+            businessService.requireBusinessPermission(member.getBusinessId(), StaffRole.Permission.VIEW_PAYMENTS);
         }
 
         return paymentRepository.findByMemberId(memberId).stream()
@@ -173,14 +176,14 @@ public class PaymentService {
 
     @Transactional(readOnly = true)
     public BigDecimal calculateRevenue(Long businessId, LocalDateTime since) {
-        businessService.requireAccess(businessId);
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_REPORTS);
         BigDecimal revenue = paymentRepository.calculateRevenue(businessId, since);
         return revenue != null ? revenue : BigDecimal.ZERO;
     }
 
     @Transactional(readOnly = true)
     public List<PaymentResponse> getRecentPayments(Long businessId, int days) {
-        businessService.requireAccess(businessId);
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_PAYMENTS);
         LocalDateTime since    = LocalDateTime.now().minusDays(days);
         List<Payment> payments = paymentRepository.findRecentPayments(businessId, since);
 
@@ -222,7 +225,9 @@ public class PaymentService {
 
         return PaymentResponse.builder()
                 .id(payment.getId())
+            .publicId(payment.getPublicId())
                 .memberId(payment.getMemberId())
+            .memberPublicId(member != null ? member.getPublicId() : null)
                 .memberName(member != null ? member.getFullName() : "Unknown")
                 .memberPhone(member != null ? member.getPhone() : null)
                 .subscriptionId(payment.getSubscriptionId())
@@ -234,6 +239,9 @@ public class PaymentService {
                 .referenceNumber(payment.getReferenceNumber())
                 .notes(payment.getNotes())
                 .recordedBy(payment.getRecordedBy())
+                .recordedByPublicId(userRepository.findById(payment.getRecordedBy())
+                    .map(u -> u.getPublicId())
+                    .orElse(null))
                 .paidAt(payment.getPaidAt())
                 .createdAt(payment.getCreatedAt())
                 .build();

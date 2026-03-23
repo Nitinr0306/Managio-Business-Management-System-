@@ -11,6 +11,7 @@ import com.nitin.saas.payment.entity.Payment;
 import com.nitin.saas.payment.repository.PaymentRepository;
 import com.nitin.saas.payment.service.PaymentService;
 import com.nitin.saas.payment.service.PaymentStatsService;
+import com.nitin.saas.staff.enums.StaffRole;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -86,7 +87,7 @@ public class PaymentController {
     @GetMapping("/export")
     @Operation(summary = "Export payments to CSV")
     public ResponseEntity<byte[]> exportPayments(@PathVariable Long businessId) {
-        businessService.requireAccess(businessId);
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.EXPORT_PAYMENTS);
         List<Payment> payments = paymentRepository.findRecentPayments(
                 businessId, LocalDateTime.now().minusYears(10));
         List<Member> members = memberRepository

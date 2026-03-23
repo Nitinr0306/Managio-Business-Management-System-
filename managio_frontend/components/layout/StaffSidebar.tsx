@@ -10,6 +10,7 @@ import {
   ScrollText,
   LogOut,
   Dumbbell,
+  Wallet,
 } from 'lucide-react'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { cn } from '@/lib/utils/cn'
@@ -45,6 +46,12 @@ export function StaffSidebar({
       enabled: !!staffContext?.canManagePayments,
     },
     {
+      label: 'Salary Ledger',
+      href: '/staff/salary',
+      icon: Wallet,
+      enabled: !!staffContext?.canViewReports || !!staffContext?.canManagePayments,
+    },
+    {
       label: 'Subscriptions',
       href: '/staff/subscriptions',
       icon: CreditCard,
@@ -74,7 +81,7 @@ export function StaffSidebar({
         </Link>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-display font-700 truncate">Staff Portal</div>
-          <div className="text-[10px] text-white/35 truncate">Business ID: {businessId}</div>
+          <div className="text-[10px] text-white/35 truncate">Business: {staffContext?.businessPublicId || businessId}</div>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 package com.nitin.saas.member.entity;
 
+import com.nitin.saas.common.utils.PublicIdGenerator;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,6 +26,9 @@ public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String publicId;
 
     @Column(nullable = false)
     private Long businessId;
@@ -81,6 +85,23 @@ public class Member {
 
     @Column(nullable = false)
     private Boolean emailVerified = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer failedLoginAttempts = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean accountLocked = false;
+
+    private LocalDateTime lockedAt;
+
+    @PrePersist
+    private void assignPublicIdIfMissing() {
+        if (publicId == null || publicId.isBlank()) {
+            publicId = PublicIdGenerator.generate("MBR-", 8);
+        }
+    }
     // ADD THIS HELPER METHOD
     public void setPasswordHash(String hashedPassword) {
         this.password = hashedPassword;
@@ -97,6 +118,24 @@ public class Member {
     public void deactivate() {
         this.status = "INACTIVE";
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void incrementFailedAttempts() {
+        if (this.failedLoginAttempts == null) {
+            this.failedLoginAttempts = 0;
+        }
+        this.failedLoginAttempts++;
+    }
+
+    public void resetFailedAttempts() {
+        this.failedLoginAttempts = 0;
+        this.accountLocked = false;
+        this.lockedAt = null;
+    }
+
+    public void lockAccount() {
+        this.accountLocked = true;
+        this.lockedAt = LocalDateTime.now();
     }
 
     public boolean isDeleted() {

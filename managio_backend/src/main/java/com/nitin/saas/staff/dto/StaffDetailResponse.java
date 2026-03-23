@@ -19,9 +19,12 @@ import java.util.Set;
 public class StaffDetailResponse {
     // Basic Info
     private Long id;
+    private String publicId;
     private Long businessId;
+    private String businessPublicId;
     private String businessName;
     private Long userId;
+    private String userPublicId;
     private String userEmail;
     private String userName;
 

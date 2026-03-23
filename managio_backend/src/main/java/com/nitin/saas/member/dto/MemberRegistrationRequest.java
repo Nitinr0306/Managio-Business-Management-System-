@@ -14,8 +14,9 @@ import java.time.LocalDate;
 @Builder
 public class MemberRegistrationRequest {
 
-    @NotNull(message = "Business ID is required")
-    private Long businessId;
+    @NotBlank(message = "Business ID is required")
+    @Size(max = 32, message = "Business ID is invalid")
+    private String businessId;
 
     @NotBlank(message = "First name is required")
     @Size(max = 100, message = "First name must not exceed 100 characters")

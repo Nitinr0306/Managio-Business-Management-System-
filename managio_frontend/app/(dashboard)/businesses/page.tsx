@@ -48,6 +48,9 @@ function BusinessCard({ business, index }: { business: Business; index: number }
               </div>
               <div>
                 <h3 className="font-display font-600 text-white">{business.name}</h3>
+                {business.publicId && (
+                  <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">{business.publicId}</div>
+                )}
                 <span className={cn('text-[10px] px-2 py-0.5 rounded-full mt-0.5 inline-block', TYPE_COLORS[business.type] || 'bg-white/[0.04] text-white/40')}>
                   {business.type.replace(/_/g, ' ')}
                 </span>

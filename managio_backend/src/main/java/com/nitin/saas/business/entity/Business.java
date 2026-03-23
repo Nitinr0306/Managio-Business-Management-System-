@@ -1,5 +1,6 @@
 package com.nitin.saas.business.entity;
 
+import com.nitin.saas.common.utils.PublicIdGenerator;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -22,6 +23,9 @@ public class Business {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String publicId;
 
     @Column(nullable = false)
     private Long ownerId;
@@ -80,6 +84,13 @@ public class Business {
 
     @Version
     private Long version;
+
+    @PrePersist
+    private void assignPublicIdIfMissing() {
+        if (publicId == null || publicId.isBlank()) {
+            publicId = PublicIdGenerator.generateBusinessPublicId();
+        }
+    }
 
     public void incrementMemberCount() {
         this.memberCount++;

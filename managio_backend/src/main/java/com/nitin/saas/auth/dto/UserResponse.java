@@ -6,6 +6,7 @@ import java.util.Set;
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserResponse {
     private Long id;
+    private String publicId;
     private String email;
     private String firstName;
     private String lastName;

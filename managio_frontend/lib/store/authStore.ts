@@ -4,7 +4,9 @@ import type { User, ActiveSubscriptionInfo } from '@/lib/types/auth'
 
 export interface StaffContext {
   staffId: number
+  staffPublicId?: string
   businessId: number
+  businessPublicId?: string
   staffRole: string
   permissions: string[]
   canManageMembers: boolean
@@ -19,6 +21,7 @@ export interface StaffContext {
 
 export interface BusinessContext {
   id: number
+  publicId?: string
   name: string
   address?: string
   phone?: string

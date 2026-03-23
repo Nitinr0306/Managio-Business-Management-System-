@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 @Builder
 public class PaymentResponse {
     private Long id;
+    private String publicId;
     private Long memberId;
+    private String memberPublicId;
     private String memberName;
     private String memberPhone;
     private Long subscriptionId;
@@ -26,6 +28,7 @@ public class PaymentResponse {
     private String referenceNumber;
     private String notes;
     private Long recordedBy;
+    private String recordedByPublicId;
     private LocalDateTime paidAt;
     private LocalDateTime createdAt;
 }

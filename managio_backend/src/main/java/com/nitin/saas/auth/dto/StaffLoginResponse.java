@@ -42,7 +42,9 @@ public class StaffLoginResponse {
     @Builder
     public static class StaffInfo {
         private Long staffId;
+        private String staffPublicId;
         private Long businessId;
+        private String businessPublicId;
         private StaffRole role;
         private String roleDisplay;
         private Staff.StaffStatus status;
@@ -63,6 +65,7 @@ public class StaffLoginResponse {
     @Builder
     public static class BusinessInfo {
         private Long id;
+        private String publicId;
         private String name;
         private String address;
         private String phone;

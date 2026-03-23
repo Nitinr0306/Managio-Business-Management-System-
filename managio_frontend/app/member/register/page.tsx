@@ -13,7 +13,9 @@ import { toast } from 'sonner'
 import { getErrorMessage } from '@/lib/utils/errors'
 
 const schema = z.object({
-  businessId: z.coerce.number({ invalid_type_error: 'Business ID must be a number' }).int().positive('Business ID is required'),
+  businessId: z.string()
+    .min(1, 'Business ID is required')
+    .regex(/^([0-9]+|[0-9]{4}[A-Za-z]{4})$/, 'Use numeric ID or public ID (e.g. 1234ABCD)'),
   firstName:  z.string().min(1, 'First name required').max(100),
   lastName:   z.string().min(1, 'Last name required').max(100),
   email:      z.string().email('Valid email required').optional().or(z.literal('')),
@@ -67,13 +69,13 @@ export default function MemberRegisterPage() {
         <div className="glass rounded-2xl p-8 border border-white/8 shadow-2xl">
           <div className="mb-6">
             <h1 className="text-2xl font-display font-700 text-white mb-1">Join as Member</h1>
-            <p className="text-xs text-white/45">Ask your gym for the Business ID</p>
+            <p className="text-xs text-white/45">Ask your gym for the Business ID/Public ID</p>
           </div>
 
           <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="space-y-4">
             <div>
-              <label className={lbl}>Business ID <span className="text-red-400">*</span></label>
-              <input {...register('businessId')} placeholder="e.g. 42" className={inp} />
+              <label className={lbl}>Business ID / Public ID <span className="text-red-400">*</span></label>
+              <input {...register('businessId')} placeholder="e.g. 42 or 1234ABCD" className={inp} />
               {errors.businessId && <p className={err}>{errors.businessId.message}</p>}
             </div>
 

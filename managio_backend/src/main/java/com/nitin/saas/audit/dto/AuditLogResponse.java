@@ -13,11 +13,16 @@ import java.time.LocalDateTime;
 @Builder
 public class AuditLogResponse {
     private Long id;
+    private String logId;
     private Long businessId;
     private Long userId;
+    private String actorType;
+    private String actorPublicId;
     private String action;
     private String entityType;
     private Long entityId;
     private String details;
+    private String ipAddress;
+    private String userAgent;
     private LocalDateTime createdAt;
 }

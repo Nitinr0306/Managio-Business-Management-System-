@@ -63,10 +63,10 @@ export const authApi = {
       .post<void>(`${AUTH}/forgot-password`, null, { params: { email } })
       .then((r) => r.data),
 
-  resetPassword: (data: { token: string; newPassword: string }) =>
+  resetPassword: (data: { token: string; newPassword: string; subject?: 'user' | 'member' }) =>
     apiClient
       .post<void>(`${AUTH}/reset-password`, null, {
-        params: { token: data.token, newPassword: data.newPassword },
+        params: { token: data.token, newPassword: data.newPassword, subject: data.subject },
       })
       .then((r) => r.data),
 

@@ -20,6 +20,9 @@ public interface BusinessRepository extends JpaRepository<Business, Long> {
     @Query("SELECT b FROM Business b WHERE b.id = :id AND b.deletedAt IS NULL")
     Optional<Business> findActiveById(@Param("id") Long id);
 
+    @Query("SELECT b FROM Business b WHERE b.publicId = :publicId AND b.deletedAt IS NULL")
+    Optional<Business> findActiveByPublicId(@Param("publicId") String publicId);
+
     @Query("SELECT COUNT(b) FROM Business b WHERE b.ownerId = :ownerId AND b.deletedAt IS NULL")
     Long countActiveByOwnerId(@Param("ownerId") Long ownerId);
 

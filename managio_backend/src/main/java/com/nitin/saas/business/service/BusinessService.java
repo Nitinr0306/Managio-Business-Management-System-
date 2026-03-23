@@ -1,6 +1,8 @@
 package com.nitin.saas.business.service;
 
 import com.nitin.saas.auth.service.RBACService;
+import com.nitin.saas.auth.repository.UserRepository;
+import com.nitin.saas.auth.entity.User;
 import com.nitin.saas.business.dto.BusinessResponse;
 import com.nitin.saas.business.dto.CreateBusinessRequest;
 import com.nitin.saas.business.entity.Business;
@@ -8,6 +10,9 @@ import com.nitin.saas.business.repository.BusinessRepository;
 import com.nitin.saas.common.exception.BusinessAlreadyExistsException;
 import com.nitin.saas.common.exception.ResourceNotFoundException;
 import com.nitin.saas.staff.entity.Staff;
+import com.nitin.saas.staff.entity.StaffPermission;
+import com.nitin.saas.staff.enums.StaffRole;
+import com.nitin.saas.staff.repository.StaffPermissionRepository;
 import com.nitin.saas.staff.repository.StaffRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +32,8 @@ public class BusinessService {
     private final BusinessRepository businessRepository;
     private final RBACService        rbacService;
     private final StaffRepository    staffRepository;
+    private final UserRepository     userRepository;
+    private final StaffPermissionRepository permissionRepository;
 
     @Transactional
     public BusinessResponse createBusiness(CreateBusinessRequest request) {
@@ -127,6 +134,44 @@ public class BusinessService {
         throw new AccessDeniedException("Access denied to business: " + businessId);
     }
 
+    public void requireBusinessPermission(Long businessId, StaffRole.Permission permission) {
+        Business business = findActiveById(businessId);
+        Long userId = rbacService.getCurrentUserId();
+
+        if (business.getOwnerId().equals(userId)) {
+            return;
+        }
+
+        Staff staff = staffRepository.findByBusinessIdAndUserId(businessId, userId)
+                .filter(Staff::isActive)
+                .orElseThrow(() -> new AccessDeniedException("Access denied to business: " + businessId));
+
+        if (hasEffectivePermission(staff, permission)) {
+            return;
+        }
+
+        throw new AccessDeniedException("Missing required permission: " + permission);
+    }
+
+    private boolean hasEffectivePermission(Staff staff, StaffRole.Permission permission) {
+        if (staff.getRole().hasPermission(StaffRole.Permission.ALL_PERMISSIONS)
+                || staff.getRole().hasPermission(permission)) {
+            return true;
+        }
+
+        boolean explicitlyGranted = permissionRepository.findGrantedPermissions(staff.getId()).stream()
+                .map(StaffPermission::getPermission)
+                .anyMatch(p -> p == StaffRole.Permission.ALL_PERMISSIONS || p == permission);
+        if (explicitlyGranted) {
+            return true;
+        }
+
+        boolean explicitlyRevoked = permissionRepository.findRevokedPermissions(staff.getId()).stream()
+                .map(StaffPermission::getPermission)
+                .anyMatch(p -> p == permission || p == StaffRole.Permission.ALL_PERMISSIONS);
+        return !explicitlyRevoked && staff.getRole().hasPermission(permission);
+    }
+
     // ── Private helpers ───────────────────────────────────────────────────────
 
     private Business findActiveById(Long id) {
@@ -141,8 +186,13 @@ public class BusinessService {
     }
 
     public BusinessResponse mapToResponse(Business b) {
+        String ownerPublicId = userRepository.findById(b.getOwnerId())
+            .map(User::getPublicId)
+            .orElse(null);
+
         return BusinessResponse.builder()
-                .id(b.getId()).ownerId(b.getOwnerId()).name(b.getName())
+            .id(b.getId()).publicId(b.getPublicId())
+            .ownerId(b.getOwnerId()).ownerPublicId(ownerPublicId).name(b.getName())
                 .type(b.getType()).description(b.getDescription()).address(b.getAddress())
                 .city(b.getCity()).state(b.getState()).country(b.getCountry())
                 .phone(b.getPhone()).email(b.getEmail()).status(b.getStatus())

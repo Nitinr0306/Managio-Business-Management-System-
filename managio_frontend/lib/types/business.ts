@@ -6,7 +6,9 @@ export type BusinessType =
 
 export interface Business {
   id: string
+  publicId?: string
   ownerId: string
+  ownerPublicId?: string
   name: string
   description?: string
   type: BusinessType

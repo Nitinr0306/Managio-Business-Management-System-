@@ -1,5 +1,6 @@
 package com.nitin.saas.payment.entity;
 
+import com.nitin.saas.common.utils.PublicIdGenerator;
 import com.nitin.saas.payment.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,6 +25,9 @@ public class Payment {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
+
+        @Column(nullable = false, unique = true, length = 20)
+        private String publicId;
 
         @Column(nullable = false)
         private Long memberId;
@@ -52,4 +56,11 @@ public class Payment {
         @CreationTimestamp
         @Column(nullable = false, updatable = false)
         private LocalDateTime createdAt;
+
+        @PrePersist
+        private void assignPublicIdIfMissing() {
+                if (publicId == null || publicId.isBlank()) {
+                        publicId = PublicIdGenerator.generate("PAY-", 8);
+                }
+        }
 }

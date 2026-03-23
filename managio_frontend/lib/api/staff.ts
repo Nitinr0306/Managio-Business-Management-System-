@@ -2,7 +2,7 @@ import apiClient from './axios'
 import type {
   Staff, StaffDetail, StaffInvitation,
   CreateStaffRequest, InviteStaffRequest, UpdateStaffRequest,
-  Permission, AcceptInvitationRequest,
+  Permission, AcceptInvitationRequest, StaffSalaryPayment, MarkSalaryPaidRequest,
 } from '@/lib/types/staff'
 import type { PageResponse } from '@/lib/types/business'
 
@@ -54,6 +54,19 @@ export const staffApi = {
 
   countActiveStaff: (bid: string) =>
     apiClient.get<number>(`${sbase(bid)}/count`).then((r) => r.data),
+
+  getMonthlySalaryPayments: (bid: string, month?: string) =>
+    apiClient
+      .get<StaffSalaryPayment[]>(`${sbase(bid)}/salary-payments`, { params: month ? { month } : undefined })
+      .then((r) => r.data),
+
+  getUnpaidSalaryPayments: (bid: string, month?: string) =>
+    apiClient
+      .get<StaffSalaryPayment[]>(`${sbase(bid)}/salary-payments/unpaid`, { params: month ? { month } : undefined })
+      .then((r) => r.data),
+
+  markSalaryPaid: (bid: string, staffId: string, data: MarkSalaryPaidRequest) =>
+    apiClient.post<StaffSalaryPayment>(`${sbase(bid)}/${staffId}/salary/mark-paid`, data).then((r) => r.data),
 
   searchStaff: (bid: string, query: string, params?: { page?: number; size?: number }) =>
     apiClient.get<PageResponse<Staff>>(`${sbase(bid)}/search`, { params: { query, ...params } }).then((r) => r.data),

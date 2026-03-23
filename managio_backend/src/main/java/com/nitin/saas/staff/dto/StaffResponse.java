@@ -17,8 +17,11 @@ import java.time.LocalDateTime;
 @Builder
 public class StaffResponse {
     private Long id;
+    private String publicId;
     private Long businessId;
+    private String businessPublicId;
     private Long userId;
+    private String userPublicId;
     private String userEmail;
     private String userName;
     private StaffRole role;

@@ -39,6 +39,11 @@ export default function BusinessOverviewPage() {
         ]}
         actions={
           <div className="flex items-center gap-2">
+            {business?.publicId && (
+              <span className="text-xs px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                {business.publicId}
+              </span>
+            )}
             <StatusBadge status={business?.status || 'UNKNOWN'} size="md" />
           </div>
         }

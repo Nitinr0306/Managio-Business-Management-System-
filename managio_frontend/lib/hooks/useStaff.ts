@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tansta
 import { toast } from 'sonner'
 import { staffApi } from '@/lib/api/staff'
 import { getErrorMessage, getErrorStatus, isNetworkError, isConflictError, isNotFoundError } from '@/lib/utils/errors'
-import type { CreateStaffRequest, InviteStaffRequest, UpdateStaffRequest } from '@/lib/types/staff'
+import type { CreateStaffRequest, InviteStaffRequest, UpdateStaffRequest, MarkSalaryPaidRequest } from '@/lib/types/staff'
 
 export function useStaff(
   bid: string,
@@ -270,6 +270,53 @@ export function useActivateStaff(bid: string) {
       qc.invalidateQueries({ queryKey: ['staff-member', bid, staffId] })
       qc.invalidateQueries({ queryKey: ['staff-detail', bid, staffId] })
       toast.success('Staff member activated successfully.')
+    },
+  })
+}
+
+export function useMonthlySalaryPayments(bid: string, month?: string) {
+  return useQuery({
+    queryKey: ['staff-salary-payments', bid, month],
+    queryFn: () => staffApi.getMonthlySalaryPayments(bid, month),
+    enabled: !!bid,
+  })
+}
+
+export function useUnpaidSalaryPayments(bid: string, month?: string) {
+  return useQuery({
+    queryKey: ['staff-salary-unpaid', bid, month],
+    queryFn: () => staffApi.getUnpaidSalaryPayments(bid, month),
+    enabled: !!bid,
+  })
+}
+
+export function useMarkSalaryPaid(bid: string, staffId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: MarkSalaryPaidRequest) => staffApi.markSalaryPaid(bid, staffId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['staff-salary-payments', bid] })
+      qc.invalidateQueries({ queryKey: ['staff-salary-unpaid', bid] })
+      toast.success('Salary marked as paid.')
+    },
+    onError: (err: unknown) => {
+      toast.error(getErrorMessage(err, 'Failed to mark salary as paid.'))
+    },
+  })
+}
+
+export function useMarkSalaryPaidForBusiness(bid: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ staffId, payload }: { staffId: string; payload: MarkSalaryPaidRequest }) =>
+      staffApi.markSalaryPaid(bid, staffId, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['staff-salary-payments', bid] })
+      qc.invalidateQueries({ queryKey: ['staff-salary-unpaid', bid] })
+      toast.success('Salary marked as paid.')
+    },
+    onError: (err: unknown) => {
+      toast.error(getErrorMessage(err, 'Failed to mark salary as paid.'))
     },
   })
 }

@@ -4,6 +4,7 @@ import com.nitin.saas.business.service.BusinessService;
 import com.nitin.saas.payment.dto.PaymentMethodStats;
 import com.nitin.saas.payment.enums.PaymentMethod;
 import com.nitin.saas.payment.repository.PaymentRepository;
+import com.nitin.saas.staff.enums.StaffRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class PaymentStatsService {
      */
     @Transactional(readOnly = true)
     public PaymentMethodStats getPaymentMethodStats(Long businessId) {
-        businessService.requireAccess(businessId);
+                businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_PAYMENTS);
 
         List<Object[]> rows = paymentRepository.getPaymentStatsGroupedByMethod(businessId);
 

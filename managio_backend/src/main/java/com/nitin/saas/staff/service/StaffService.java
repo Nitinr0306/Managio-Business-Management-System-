@@ -41,12 +41,13 @@ public class StaffService {
     private final BusinessService           businessService;
     private final RBACService               rbacService;
     private final AuditLogService           auditLogService;
+    private final StaffSalaryService        staffSalaryService;
 
     // ── Add Staff ─────────────────────────────────────────────────────────────
 
     @Transactional
     public StaffResponse addStaff(Long businessId, CreateStaffRequest request) {
-        businessService.requireAccess(businessId);
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.ADD_STAFF);
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -89,6 +90,8 @@ public class StaffService {
 
         staff = staffRepository.save(staff);
 
+        staffSalaryService.ensureMonthlyLedger(staff.getId(), LocalDate.now());
+
         businessRepository.findById(businessId).ifPresent(b -> {
             b.setStaffCount(b.getStaffCount() + 1);
             businessRepository.save(b);
@@ -108,7 +111,7 @@ public class StaffService {
     @Transactional(readOnly = true)
     public StaffResponse getStaffById(Long id) {
         Staff staff = findActiveStaffById(id);
-        businessService.requireAccess(staff.getBusinessId());
+        businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.VIEW_STAFF);
         User user = userRepository.findById(staff.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return mapToResponse(staff, user);
@@ -117,7 +120,7 @@ public class StaffService {
     @Transactional(readOnly = true)
     public StaffDetailResponse getStaffDetail(Long id) {
         Staff staff = findActiveStaffById(id);
-        businessService.requireAccess(staff.getBusinessId());
+        businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.VIEW_STAFF);
         User user = userRepository.findById(staff.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Business business = businessRepository.findById(staff.getBusinessId())
@@ -130,7 +133,7 @@ public class StaffService {
      */
     @Transactional(readOnly = true)
     public Page<StaffResponse> getBusinessStaff(Long businessId, Pageable pageable) {
-        businessService.requireAccess(businessId);
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_STAFF);
 
         Page<Staff> page = staffRepository.findActiveByBusinessId(businessId, pageable);
         Map<Long, User> userMap = batchLoadUsers(page.getContent());
@@ -142,7 +145,7 @@ public class StaffService {
      */
     @Transactional(readOnly = true)
     public List<StaffResponse> getBusinessStaffList(Long businessId) {
-        businessService.requireAccess(businessId);
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_STAFF);
 
         List<Staff> staffList = staffRepository.findActiveByBusinessId(businessId);
         Map<Long, User> userMap = batchLoadUsers(staffList);
@@ -154,7 +157,7 @@ public class StaffService {
 
     @Transactional(readOnly = true)
     public Page<StaffResponse> searchStaff(Long businessId, String query, Pageable pageable) {
-        businessService.requireAccess(businessId);
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_STAFF);
         Page<Staff> page = staffRepository.searchStaff(businessId, query, pageable);
         Map<Long, User> userMap = batchLoadUsers(page.getContent());
         return page.map(s -> mapToResponse(s, userMap.get(s.getUserId())));
@@ -164,7 +167,7 @@ public class StaffService {
     public Page<StaffResponse> getStaffByStatus(Long businessId,
                                                 Staff.StaffStatus status,
                                                 Pageable pageable) {
-        businessService.requireAccess(businessId);
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_STAFF);
         Page<Staff> page = staffRepository.findByBusinessIdAndStatus(businessId, status, pageable);
         Map<Long, User> userMap = batchLoadUsers(page.getContent());
         return page.map(s -> mapToResponse(s, userMap.get(s.getUserId())));
@@ -175,7 +178,7 @@ public class StaffService {
     @Transactional
     public StaffResponse updateStaff(Long id, UpdateStaffRequest request) {
         Staff staff = findActiveStaffById(id);
-        businessService.requireAccess(staff.getBusinessId());
+        businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.EDIT_STAFF);
 
         if (request.getRole() != null) {
             if (!rbacService.hasRole(Role.ADMIN) && !rbacService.hasRole(Role.SUPER_ADMIN)) {
@@ -206,6 +209,10 @@ public class StaffService {
 
         staff = staffRepository.save(staff);
 
+        if (request.getSalary() != null) {
+            staffSalaryService.ensureMonthlyLedger(staff.getId(), LocalDate.now());
+        }
+
         auditLogService.logAction(staff.getBusinessId(), "STAFF_UPDATED", "STAFF",
                 staff.getId(), "Staff information updated");
 
@@ -216,7 +223,7 @@ public class StaffService {
     @Transactional
     public void terminateStaff(Long id, LocalDate terminationDate) {
         Staff staff = findActiveStaffById(id);
-        businessService.requireAccess(staff.getBusinessId());
+        businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.REMOVE_STAFF);
 
         staff.terminate(terminationDate != null ? terminationDate : LocalDate.now());
         staffRepository.save(staff);
@@ -234,7 +241,7 @@ public class StaffService {
     @Transactional
     public void suspendStaff(Long id) {
         Staff staff = findActiveStaffById(id);
-        businessService.requireAccess(staff.getBusinessId());
+        businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.EDIT_STAFF);
         staff.suspend();
         staffRepository.save(staff);
         auditLogService.logAction(staff.getBusinessId(), "STAFF_SUSPENDED",
@@ -244,7 +251,7 @@ public class StaffService {
     @Transactional
     public void activateStaff(Long id) {
         Staff staff = findActiveStaffById(id);
-        businessService.requireAccess(staff.getBusinessId());
+        businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.EDIT_STAFF);
         staff.activate();
         staffRepository.save(staff);
         auditLogService.logAction(staff.getBusinessId(), "STAFF_ACTIVATED",
@@ -256,7 +263,7 @@ public class StaffService {
     @Transactional
     public void grantPermission(Long staffId, StaffRole.Permission permission) {
         Staff staff = findActiveStaffById(staffId);
-        businessService.requireAccess(staff.getBusinessId());
+        businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.EDIT_STAFF);
 
         if (permissionRepository.existsByStaffIdAndPermission(staffId, permission)) {
             throw new ConflictException("Permission " + permission + " is already granted");
@@ -278,7 +285,7 @@ public class StaffService {
     @Transactional
     public void revokePermission(Long staffId, StaffRole.Permission permission) {
         Staff staff = findActiveStaffById(staffId);
-        businessService.requireAccess(staff.getBusinessId());
+        businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.EDIT_STAFF);
 
         permissionRepository.findByStaffIdAndPermission(staffId, permission).ifPresent(perm -> {
             permissionRepository.delete(perm);
@@ -291,6 +298,9 @@ public class StaffService {
     @Transactional(readOnly = true)
     public Set<StaffRole.Permission> getEffectivePermissions(Long staffId) {
         Staff staff = findActiveStaffById(staffId);
+        if (rbacService.isAuthenticated()) {
+            businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.VIEW_STAFF);
+        }
         Set<StaffRole.Permission> permissions = new HashSet<>(staff.getRole().getPermissions());
 
         permissionRepository.findGrantedPermissions(staffId).stream()
@@ -313,7 +323,7 @@ public class StaffService {
 
     @Transactional(readOnly = true)
     public Long countActiveStaff(Long businessId) {
-        businessService.requireAccess(businessId);
+        businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_STAFF);
         return staffRepository.countActiveStaff(businessId);
     }
 
@@ -337,10 +347,17 @@ public class StaffService {
     }
 
     private StaffResponse mapToResponse(Staff staff, User user) {
+        String businessPublicId = businessRepository.findById(staff.getBusinessId())
+            .map(Business::getPublicId)
+            .orElse(null);
+
         return StaffResponse.builder()
                 .id(staff.getId())
+            .publicId(staff.getPublicId())
                 .businessId(staff.getBusinessId())
+            .businessPublicId(businessPublicId)
                 .userId(staff.getUserId())
+            .userPublicId(user != null ? user.getPublicId() : null)
                 .userEmail(user != null ? user.getEmail() : null)
                 .userName(user != null ? user.getFullName() : null)
                 .role(staff.getRole())
@@ -374,9 +391,12 @@ public class StaffService {
 
         return StaffDetailResponse.builder()
                 .id(staff.getId())
+            .publicId(staff.getPublicId())
                 .businessId(staff.getBusinessId())
+            .businessPublicId(business.getPublicId())
                 .businessName(business.getName())
                 .userId(staff.getUserId())
+            .userPublicId(user.getPublicId())
                 .userEmail(user.getEmail())
                 .userName(user.getFullName())
                 .role(staff.getRole())

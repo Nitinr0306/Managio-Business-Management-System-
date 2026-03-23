@@ -124,7 +124,9 @@ export function useAuth() {
 
       const staffCtx: StaffContext = {
         staffId: data.staff.staffId,
+        staffPublicId: data.staff.staffPublicId,
         businessId: data.staff.businessId,
+        businessPublicId: data.staff.businessPublicId,
         staffRole: data.staff.role,
         permissions: data.staff.permissions || [],
         canManageMembers: data.staff.canManageMembers,

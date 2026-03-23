@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -58,8 +59,11 @@ public class StaffAuthService {
         String email   = request.getEmail().toLowerCase();
         String ip      = IpAddressUtil.getClientIp(httpRequest);
         String ua      = httpRequest.getHeader("User-Agent");
+        String businessIdentifier = request.getBusinessId();
 
-        log.info("Staff login: email={}, businessId={}, ip={}", email, request.getBusinessId(), ip);
+        log.info("Staff login: email={}, businessIdentifier={}, ip={}", email, businessIdentifier, ip);
+
+        Business business = resolveBusiness(businessIdentifier);
 
         User user = userRepository.findByEmail(email).orElseThrow(() -> {
             logFailed(email, ip, ua, "User not found");
@@ -97,9 +101,9 @@ public class StaffAuthService {
             );
         }
 
-        Staff staff = staffRepository.findByBusinessIdAndUserId(request.getBusinessId(), user.getId())
+        Staff staff = staffRepository.findByBusinessIdAndUserId(business.getId(), user.getId())
                 .orElseThrow(() -> {
-                    logFailed(email, ip, ua, "Not staff in business " + request.getBusinessId());
+                    logFailed(email, ip, ua, "Not staff in business " + businessIdentifier);
                     return new BusinessException("Invalid credentials", ErrorCode.INVALID_CREDENTIALS);
                 });
 
@@ -129,9 +133,6 @@ public class StaffAuthService {
         String       accessToken  = jwtUtil.generateStaffAccessToken(user, staff);
         RefreshToken refreshToken = createRefreshToken(user, request.getDeviceId(), ip, ua);
 
-        Business business = businessRepository.findById(request.getBusinessId())
-                .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
-
         Set<StaffRole.Permission> effectivePermissions =
                 staffService.getEffectivePermissions(staff.getId());
 
@@ -152,11 +153,31 @@ public class StaffAuthService {
                 .tokenType("Bearer")
                 .expiresIn(jwtUtil.getAccessTokenExpiry())
                 .user(mapToUserResponse(user))
-                .staff(mapToStaffInfo(staff, effectivePermissions))
+                .staff(mapToStaffInfo(staff, business, effectivePermissions))
                 .business(mapToBusinessInfo(business))
                 .requiresTwoFactor(false)
                 .lastLoginAt(user.getLastLoginAt())
                 .build();
+    }
+
+    private Business resolveBusiness(String identifier) {
+        String value = identifier == null ? "" : identifier.trim().toUpperCase(Locale.ROOT);
+        if (value.isBlank()) {
+            throw new BadRequestException("Business ID is required");
+        }
+
+        if (value.matches("^[0-9]{4}[A-Z]{4}$")) {
+            return businessRepository.findActiveByPublicId(value)
+                    .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
+        }
+
+        try {
+            Long id = Long.valueOf(value);
+            return businessRepository.findActiveById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
+        } catch (NumberFormatException ex) {
+            throw new BadRequestException("Invalid business identifier format");
+        }
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
@@ -193,7 +214,7 @@ public class StaffAuthService {
     }
 
     private UserResponse mapToUserResponse(User u) {
-        return UserResponse.builder().id(u.getId()).email(u.getEmail())
+        return UserResponse.builder().id(u.getId()).publicId(u.getPublicId()).email(u.getEmail())
                 .firstName(u.getFirstName()).lastName(u.getLastName()).fullName(u.getFullName())
                 .phoneNumber(u.getPhoneNumber()).roles(u.getRoles())
                 .emailVerified(u.getEmailVerified()).enabled(u.getEnabled())
@@ -202,9 +223,10 @@ public class StaffAuthService {
                 .createdAt(u.getCreatedAt()).updatedAt(u.getUpdatedAt()).build();
     }
 
-    private StaffLoginResponse.StaffInfo mapToStaffInfo(Staff s, Set<StaffRole.Permission> perms) {
+    private StaffLoginResponse.StaffInfo mapToStaffInfo(Staff s, Business business, Set<StaffRole.Permission> perms) {
         return StaffLoginResponse.StaffInfo.builder()
-                .staffId(s.getId()).businessId(s.getBusinessId()).role(s.getRole())
+                .staffId(s.getId()).staffPublicId(s.getPublicId())
+                .businessId(s.getBusinessId()).businessPublicId(business.getPublicId()).role(s.getRole())
                 .roleDisplay(s.getRole().getDisplayName()).status(s.getStatus())
                 .department(s.getDepartment()).designation(s.getDesignation())
                 .employeeId(s.getEmployeeId()).permissions(perms)
@@ -216,7 +238,7 @@ public class StaffAuthService {
 
     private StaffLoginResponse.BusinessInfo mapToBusinessInfo(Business b) {
         return StaffLoginResponse.BusinessInfo.builder()
-                .id(b.getId()).name(b.getName()).address(b.getAddress())
+                .id(b.getId()).publicId(b.getPublicId()).name(b.getName()).address(b.getAddress())
                 .phone(b.getPhone()).email(b.getEmail()).build();
     }
 }

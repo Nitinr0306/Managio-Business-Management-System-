@@ -45,6 +45,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
         endpointConfigs.put("/api/v1/auth/staff/login",      new EndpointConfig(5,  60));
         endpointConfigs.put("/api/v1/members/auth/login",    new EndpointConfig(5,  60));
         endpointConfigs.put("/api/v1/members/auth/register", new EndpointConfig(3, 300));
+        endpointConfigs.put("/api/v1/members/auth/forgot-password", new EndpointConfig(3, 300));
+        endpointConfigs.put("/api/v1/members/auth/reset-password",  new EndpointConfig(3, 300));
     }
 
     @Override

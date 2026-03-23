@@ -5,7 +5,9 @@ export type PaymentMethod =
 
 export interface Payment {
   id: string
+  publicId?: string
   memberId: string
+  memberPublicId?: string
   memberName: string
   memberPhone?: string
   planName?: string
@@ -15,6 +17,8 @@ export interface Payment {
   paymentMethodDisplay?: string
   notes?: string
   recordedBy?: string | number
+  recordedByPublicId?: string
+  paidAt?: string
   createdAt: string
 }
 

@@ -1,5 +1,6 @@
 package com.nitin.saas.staff.entity;
 
+import com.nitin.saas.common.utils.PublicIdGenerator;
 import com.nitin.saas.staff.enums.StaffRole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,6 +30,9 @@ public class Staff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String publicId;
 
     @Column(nullable = false)
     private Long businessId;
@@ -109,6 +113,13 @@ public class Staff {
 
     @Version
     private Long version;
+
+    @PrePersist
+    private void assignPublicIdIfMissing() {
+        if (publicId == null || publicId.isBlank()) {
+            publicId = PublicIdGenerator.generate("STF-", 8);
+        }
+    }
 
     public enum StaffStatus {
         ACTIVE,

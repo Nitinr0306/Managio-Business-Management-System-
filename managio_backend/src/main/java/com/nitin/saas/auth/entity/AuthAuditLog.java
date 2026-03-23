@@ -1,6 +1,7 @@
 package com.nitin.saas.auth.entity;
 
 import jakarta.persistence.*;
+import com.nitin.saas.common.utils.PublicIdGenerator;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 public class AuthAuditLog {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
+    @Column(nullable = false, unique = true, length = 20) private String eventId;
     private Long userId;
     @Column(length = 255) private String email;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 50) private EventType eventType;
@@ -29,6 +31,13 @@ public class AuthAuditLog {
     @Column(length = 100) private String requestId;
     @Column(length = 100) private String sessionId;
     @CreationTimestamp @Column(nullable = false, updatable = false) private LocalDateTime createdAt;
+
+    @PrePersist
+    private void assignEventIdIfMissing() {
+        if (eventId == null || eventId.isBlank()) {
+            eventId = PublicIdGenerator.generate("A", 11);
+        }
+    }
 
     public enum EventType {
         LOGIN_SUCCESS, LOGIN_FAILED, LOGOUT, REGISTER,

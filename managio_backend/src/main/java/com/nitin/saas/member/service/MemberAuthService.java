@@ -37,6 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -64,22 +65,27 @@ public class MemberAuthService {
     @Value("${app.security.password-reset-expiry-hours:1}")
     private Integer passwordResetExpiryHours;
 
+    @Value("${app.security.max-login-attempts:5}")
+    private Integer maxLoginAttempts;
+
+    @Value("${app.security.account-lock-duration-minutes:30}")
+    private Integer accountLockDurationMinutes;
+
     // ================= REGISTER =================
     @Transactional
     public MemberRegisterResponse memberRegister(MemberRegistrationRequest request,
                                                  HttpServletRequest httpRequest) {
 
-        Business business = businessRepository.findActiveById(request.getBusinessId())
-                .orElseThrow(() -> new ResourceNotFoundException("BUSINESS_NOT_FOUND"));
+        Business business = resolveBusinessIdentifier(request.getBusinessId());
 
         String email = request.getEmail().toLowerCase();
 
-        if (memberRepository.findByBusinessIdAndEmail(request.getBusinessId(), email).isPresent()) {
+        if (memberRepository.findByBusinessIdAndEmail(business.getId(), email).isPresent()) {
             throw new ConflictException("EMAIL_ALREADY_REGISTERED");
         }
 
         Member member = Member.builder()
-                .businessId(request.getBusinessId())
+            .businessId(business.getId())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .phone(request.getPhone())
@@ -131,6 +137,16 @@ public class MemberAuthService {
             throw new BadCredentialsException("ACCOUNT_DISABLED");
         }
 
+        if (Boolean.TRUE.equals(member.getAccountLocked())) {
+            if (shouldUnlock(member)) {
+                member.resetFailedAttempts();
+                memberRepository.save(member);
+            } else {
+                logFailed(member.getEmail(), ip, ua, "Account locked");
+                throw new AccountLockedException("Account is locked. Please try again later.");
+            }
+        }
+
         if (!"ACTIVE".equals(member.getStatus())) {
             logFailed(member.getEmail(), ip, ua, "Inactive membership");
             throw new BadCredentialsException("MEMBERSHIP_INACTIVE");
@@ -142,7 +158,7 @@ public class MemberAuthService {
         }
 
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            logFailed(member.getEmail(), ip, ua, "Invalid password");
+            handleFailedLogin(member, ip, ua);
             throw new BadCredentialsException("INVALID_CREDENTIALS");
         }
 
@@ -150,6 +166,7 @@ public class MemberAuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
         member.setLastLoginAt(LocalDateTime.now());
+        member.resetFailedAttempts();
         memberRepository.save(member);
 
         auditRepo.save(AuthAuditLog.builder()
@@ -219,6 +236,9 @@ public class MemberAuthService {
         Member member = findMemberByIdentifier(identifier);
         if (member == null) return;
 
+        // Keep only the latest reset token active per member.
+        resetRepo.deleteAllByMemberId(member.getId());
+
         String token = UUID.randomUUID().toString();
 
         resetRepo.save(
@@ -226,6 +246,8 @@ public class MemberAuthService {
                         .token(token)
                         .memberId(member.getId())
                         .expiresAt(LocalDateTime.now().plusHours(passwordResetExpiryHours))
+                .requestIpAddress(IpAddressUtil.getClientIp(request))
+                .requestUserAgent(request.getHeader("User-Agent"))
                         .build()
         );
 
@@ -237,6 +259,7 @@ public class MemberAuthService {
                 .eventType(AuthAuditLog.EventType.PASSWORD_RESET_REQUESTED)
                 .status(AuthAuditLog.Status.SUCCESS)
                 .ipAddress(IpAddressUtil.getClientIp(request))
+            .details("flow=MEMBER_PASSWORD_RESET_REQUEST,businessId=" + member.getBusinessId())
                 .build());
     }
 
@@ -259,8 +282,19 @@ public class MemberAuthService {
         member.setPassword(passwordEncoder.encode(newPassword));
         memberRepository.save(member);
 
+        // Reset password must invalidate all active member sessions.
+        refreshTokenRepository.revokeAllMemberTokens(member.getId());
+
         resetToken.markAsUsed(null, null);
         resetRepo.save(resetToken);
+
+        auditRepo.save(AuthAuditLog.builder()
+            .userId(member.getId())
+            .email(member.getEmail())
+            .eventType(AuthAuditLog.EventType.PASSWORD_RESET_SUCCESS)
+            .status(AuthAuditLog.Status.SUCCESS)
+            .details("flow=MEMBER_PASSWORD_RESET_SUCCESS,businessId=" + member.getBusinessId())
+            .build());
     }
 
     // ================= HELPERS =================
@@ -276,6 +310,32 @@ public class MemberAuthService {
         auditRepo.save(AuthAuditLog.loginFailed(email, ip, ua, reason));
     }
 
+    private void handleFailedLogin(Member member, String ip, String ua) {
+        member.incrementFailedAttempts();
+        if (member.getFailedLoginAttempts() >= maxLoginAttempts) {
+            member.lockAccount();
+            auditRepo.save(AuthAuditLog.builder()
+                    .userId(member.getId())
+                    .email(member.getEmail())
+                    .eventType(AuthAuditLog.EventType.ACCOUNT_LOCKED)
+                    .status(AuthAuditLog.Status.BLOCKED)
+                    .ipAddress(ip)
+                    .userAgent(ua)
+                    .details("Member account locked due to max login attempts")
+                    .build());
+        }
+        memberRepository.save(member);
+        logFailed(member.getEmail(), ip, ua, "Invalid password");
+    }
+
+    private boolean shouldUnlock(Member member) {
+        if (member.getLockedAt() == null) {
+            return false;
+        }
+        return member.getLockedAt().plusMinutes(accountLockDurationMinutes)
+                .isBefore(LocalDateTime.now());
+    }
+
     private MemberLoginResponse buildLoginResponse(Member member, Business business,
                                                    HttpServletRequest request) {
 
@@ -285,7 +345,7 @@ public class MemberAuthService {
                 RefreshToken.builder()
                         .token(UUID.randomUUID().toString())
                         .userId(member.getId())
-                        .subjectType("USER")
+                    .subjectType("MEMBER")
                         .expiresAt(LocalDateTime.now().plusDays(refreshTokenExpiryDays))
                         .ipAddress(IpAddressUtil.getClientIp(request))
                         .userAgent(request.getHeader("User-Agent"))
@@ -300,7 +360,7 @@ public class MemberAuthService {
                 .refreshToken(refreshToken.getToken())
                 .tokenType("Bearer")
                 .expiresIn(jwtUtil.getAccessTokenExpiry())
-                .member(mapToMemberInfo(member))
+                .member(mapToMemberInfo(member, business.getPublicId()))
                 .activeSubscription(subscriptionInfo)
                 .business(mapToBusinessInfo(business))
                 .lastLoginAt(member.getLastLoginAt())
@@ -326,10 +386,12 @@ public class MemberAuthService {
                 .orElse(null);
     }
 
-    private MemberLoginResponse.MemberInfo mapToMemberInfo(Member m) {
+    private MemberLoginResponse.MemberInfo mapToMemberInfo(Member m, String businessPublicId) {
         return MemberLoginResponse.MemberInfo.builder()
                 .id(m.getId())
+                .publicId(m.getPublicId())
                 .businessId(m.getBusinessId())
+                .businessPublicId(businessPublicId)
                 .firstName(m.getFirstName())
                 .lastName(m.getLastName())
                 .fullName(m.getFullName())
@@ -340,9 +402,30 @@ public class MemberAuthService {
                 .build();
     }
 
+    private Business resolveBusinessIdentifier(String businessIdentifier) {
+        String value = businessIdentifier == null ? "" : businessIdentifier.trim().toUpperCase(Locale.ROOT);
+        if (value.isBlank()) {
+            throw new BadRequestException("BUSINESS_ID_REQUIRED");
+        }
+
+        if (value.matches("^[0-9]{4}[A-Z]{4}$")) {
+            return businessRepository.findActiveByPublicId(value)
+                    .orElseThrow(() -> new ResourceNotFoundException("BUSINESS_NOT_FOUND"));
+        }
+
+        try {
+            Long numericId = Long.valueOf(value);
+            return businessRepository.findActiveById(numericId)
+                    .orElseThrow(() -> new ResourceNotFoundException("BUSINESS_NOT_FOUND"));
+        } catch (NumberFormatException ex) {
+            throw new BadRequestException("BUSINESS_ID_INVALID");
+        }
+    }
+
     private MemberLoginResponse.BusinessInfo mapToBusinessInfo(Business b) {
         return MemberLoginResponse.BusinessInfo.builder()
                 .id(b.getId())
+                .publicId(b.getPublicId())
                 .name(b.getName())
                 .build();
     }

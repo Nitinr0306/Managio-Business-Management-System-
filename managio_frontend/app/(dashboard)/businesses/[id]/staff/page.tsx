@@ -46,6 +46,9 @@ export default function StaffPage() {
           </div>
           <div>
             <div className="text-sm font-medium text-white/85">{row.original.userName}</div>
+            {row.original.publicId && (
+              <div className="text-[10px] text-indigo-300/80 font-medium">{row.original.publicId}</div>
+            )}
             <div className="text-xs text-white/30 flex items-center gap-1">
               <Mail className="w-2.5 h-2.5" />{row.original.userEmail}
             </div>
@@ -143,6 +146,9 @@ export default function StaffPage() {
         icon={UserCog}
         actions={
           <div className="flex items-center gap-2">
+            <Link href={`/businesses/${businessId}/staff/salary`} className="flex items-center gap-2 px-4 py-2.5 border border-white/[0.08] text-white/60 hover:text-white/80 hover:bg-white/[0.04] text-sm font-medium rounded-xl transition-all">
+              Salary Ledger
+            </Link>
             <Link href={`/businesses/${businessId}/staff/invite`} className="flex items-center gap-2 px-4 py-2.5 border border-white/[0.08] text-white/60 hover:text-white/80 hover:bg-white/[0.04] text-sm font-medium rounded-xl transition-all">
               <Mail className="w-4 h-4" /> Invite
             </Link>

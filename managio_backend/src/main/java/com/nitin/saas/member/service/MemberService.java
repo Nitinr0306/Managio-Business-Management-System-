@@ -174,9 +174,15 @@ public class MemberService {
         }
 
         private MemberResponse mapToResponse(Member m) {
+                String businessPublicId = businessRepository.findById(m.getBusinessId())
+                        .map(Business::getPublicId)
+                        .orElse(null);
+
                 return MemberResponse.builder()
                         .id(m.getId())
+                        .publicId(m.getPublicId())
                         .businessId(m.getBusinessId())
+                        .businessPublicId(businessPublicId)
                         .firstName(m.getFirstName())
                         .lastName(m.getLastName())
                         .fullName(m.getFullName())

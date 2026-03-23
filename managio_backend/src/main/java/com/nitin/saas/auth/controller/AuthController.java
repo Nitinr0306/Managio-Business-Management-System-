@@ -3,8 +3,10 @@ package com.nitin.saas.auth.controller;
 import com.nitin.saas.auth.dto.*;
 import com.nitin.saas.auth.service.AuthService;
 import com.nitin.saas.auth.service.RBACService;
+import com.nitin.saas.common.dto.ResetPasswordRequest;
 import com.nitin.saas.common.exception.BadRequestException;
 import com.nitin.saas.staff.service.StaffAuthService;
+import com.nitin.saas.member.service.MemberAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +27,7 @@ public class AuthController {
     private final AuthService      authService;
     private final RBACService      rbacService;
     private final StaffAuthService staffAuthService;
+    private final MemberAuthService memberAuthService;
 
     @PostMapping("/register")
     @Operation(summary = "Register a new owner account",
@@ -103,11 +106,60 @@ public class AuthController {
     @PostMapping("/reset-password")
     @Operation(summary = "Reset password using email token")
     public ResponseEntity<Void> resetPassword(
-            @RequestParam String token,
-            @RequestParam String newPassword,
+            @RequestParam(required = false) String token,
+            @RequestParam(required = false) String newPassword,
+            @RequestParam(required = false) String subject,
             HttpServletRequest httpRequest) {
-        authService.resetPassword(token, newPassword, httpRequest);
+
+        if (token == null || token.isBlank()) {
+            throw new BadRequestException("Required parameter 'token' is missing");
+        }
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new BadRequestException("Required parameter 'newPassword' is missing");
+        }
+
+        resetPasswordBySubject(token, newPassword, subject, httpRequest);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/reset-password", consumes = "application/json")
+    @Operation(summary = "Reset password using token payload")
+    public ResponseEntity<Void> resetPasswordBody(
+            @Valid @RequestBody ResetPasswordRequest request,
+            HttpServletRequest httpRequest) {
+
+        resetPasswordBySubject(request.getToken(), request.getNewPassword(), request.getSubject(), httpRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    private void resetPasswordBySubject(String token,
+                                        String newPassword,
+                                        String subject,
+                                        HttpServletRequest httpRequest) {
+
+        String normalizedSubject = subject == null ? "" : subject.trim().toLowerCase();
+
+        if ("member".equals(normalizedSubject)) {
+            memberAuthService.resetPassword(token, newPassword);
+            return;
+        }
+
+        if ("user".equals(normalizedSubject) || normalizedSubject.isBlank()) {
+            try {
+                authService.resetPassword(token, newPassword, httpRequest);
+                return;
+            } catch (BadRequestException ex) {
+                // Backward-compatible fallback for clients that hit /auth/reset-password
+                // with a member token.
+                if (normalizedSubject.isBlank() && "Invalid reset token".equals(ex.getMessage())) {
+                    memberAuthService.resetPassword(token, newPassword);
+                    return;
+                }
+                throw ex;
+            }
+        }
+
+        throw new BadRequestException("Invalid subject. Supported values: user, member");
     }
 
     @PostMapping("/change-password")

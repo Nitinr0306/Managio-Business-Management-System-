@@ -16,8 +16,11 @@ export type Permission =
 
 export interface Staff {
   id: string
+  publicId?: string
   businessId: string
+  businessPublicId?: string
   userId: string
+  userPublicId?: string
   userEmail: string
   userName: string
   role: StaffRole
@@ -50,6 +53,33 @@ export interface StaffDetail extends Staff {
   grantedPermissions: Permission[]
   revokedPermissions: Permission[]
   effectivePermissions: Permission[]
+}
+
+export type SalaryPaymentStatus = 'PAID' | 'UNPAID'
+
+export interface StaffSalaryPayment {
+  id: string
+  staffId: string
+  staffPublicId?: string
+  staffName?: string
+  employeeId?: string
+  salaryMonth: string
+  monthlySalary: number
+  paidAmount: number
+  pendingAmount: number
+  paymentStatus: SalaryPaymentStatus
+  paidAt?: string
+  manuallyMarked: boolean
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MarkSalaryPaidRequest {
+  salaryMonth?: string
+  paidAmount?: number
+  paidAt?: string
+  notes?: string
 }
 
 export interface StaffInvitation {

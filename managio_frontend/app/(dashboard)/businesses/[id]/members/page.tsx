@@ -60,6 +60,9 @@ export default function MembersPage() {
           </div>
           <div>
             <div className="text-sm font-medium text-white/85">{row.original.fullName}</div>
+            {row.original.publicId && (
+              <div className="text-[10px] text-indigo-300/80 font-medium">{row.original.publicId}</div>
+            )}
             {row.original.email && (
               <div className="text-xs text-white/30 flex items-center gap-1">
                 <Mail className="w-2.5 h-2.5" />{row.original.email}
@@ -212,6 +215,7 @@ export default function MembersPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="text-sm font-medium text-white/85 truncate">{m.fullName}</div>
+                        {m.publicId && <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">{m.publicId}</div>}
                         <div className="mt-1 space-y-1">
                           {m.email && (
                             <div className="text-xs text-white/35 flex items-center gap-1.5">

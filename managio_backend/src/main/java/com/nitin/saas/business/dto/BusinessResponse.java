@@ -13,7 +13,9 @@ import java.time.LocalDateTime;
 @Builder
 public class BusinessResponse {
     private Long id;
+    private String publicId;
     private Long ownerId;
+    private String ownerPublicId;
     private String name;
 
     // FIX 11: these were missing from the response DTO.
