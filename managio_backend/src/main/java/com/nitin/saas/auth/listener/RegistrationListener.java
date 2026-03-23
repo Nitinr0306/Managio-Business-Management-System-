@@ -1,5 +1,6 @@
 package com.nitin.saas.auth.listener;
 
+import com.nitin.saas.auth.event.MemberRegisteredEvent;
 import com.nitin.saas.auth.event.UserRegisteredEvent;
 import com.nitin.saas.common.email.EmailNotificationService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class RegistrationListener {
     }
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMember(MemberRegisteredEvent event) {
+        System.out.println("🔥 EVENT TRIGGERED FOR: " + event.getMember().getEmail());
         emailService.sendVerificationEmail(
                 event.getMember().getEmail(),
                 event.getToken()

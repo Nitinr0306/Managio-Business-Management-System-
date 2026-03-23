@@ -1,8 +1,7 @@
 package com.nitin.saas.member.service;
 
-import com.nitin.saas.auth.entity.AuthAuditLog;
 import com.nitin.saas.auth.entity.RefreshToken;
-import com.nitin.saas.auth.listener.MemberRegisteredEvent;
+import com.nitin.saas.auth.event.MemberRegisteredEvent;
 import com.nitin.saas.auth.repository.AuthAuditLogRepository;
 import com.nitin.saas.auth.repository.RefreshTokenRepository;
 import com.nitin.saas.business.entity.Business;

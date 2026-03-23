@@ -1,4 +1,4 @@
-package com.nitin.saas.auth.listener;
+package com.nitin.saas.auth.event;
 
 import com.nitin.saas.member.entity.Member;
 
