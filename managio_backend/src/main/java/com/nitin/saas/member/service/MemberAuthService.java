@@ -32,6 +32,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -227,7 +229,7 @@ public class MemberAuthService {
                         .build()
         );
 
-        emailService.sendPasswordResetEmail(member.getEmail(), token);
+        emailService.sendMemberPasswordResetEmail(member.getEmail(), token);
 
         auditRepo.save(AuthAuditLog.builder()
                 .userId(member.getId())
@@ -241,6 +243,8 @@ public class MemberAuthService {
     // ================= RESET PASSWORD =================
     @Transactional
     public void resetPassword(String token, String newPassword) {
+
+        token = URLDecoder.decode(token, StandardCharsets.UTF_8);
 
         MemberPasswordResetToken resetToken = resetRepo.findByToken(token)
                 .orElseThrow(() -> new BadRequestException("INVALID_TOKEN"));

@@ -8,6 +8,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -108,7 +110,26 @@ public class EmailNotificationService {
         @Async
         public void sendPasswordResetEmail(String email, String token) {
 
-                String link = frontendUrl + "/reset-password?token=" + token;
+                String link = frontendUrl + "/reset-password?token=" + encodeQueryValue(token);
+
+                sendEmail(
+                        email,
+                        "Password Reset – Managio",
+                        html(
+                                "Reset Password",
+                                "You requested a password reset.",
+                                "Reset Password",
+                                link,
+                                "Expires in 1 hour."
+                        ),
+                        "Reset password: " + link
+                );
+        }
+
+        @Async
+        public void sendMemberPasswordResetEmail(String email, String token) {
+
+                String link = frontendUrl + "/reset-password?token=" + encodeQueryValue(token) + "&subject=member";
 
                 sendEmail(
                         email,
@@ -272,5 +293,10 @@ public class EmailNotificationService {
         private String escape(String input) {
                 if (input == null) return "";
                 return input.replace("<", "&lt;").replace(">", "&gt;");
+        }
+
+        private String encodeQueryValue(String value) {
+                if (value == null) return "";
+                return URLEncoder.encode(value, StandardCharsets.UTF_8);
         }
 }
