@@ -65,7 +65,7 @@ export interface MemberRegisterRequest {
   email?: string
   phone?: string
   password: string
-  businessId: string
+  businessId: number
 }
 
 export interface StaffInfo {

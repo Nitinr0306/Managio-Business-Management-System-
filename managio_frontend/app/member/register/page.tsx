@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 import { getErrorMessage } from '@/lib/utils/errors'
 
 const schema = z.object({
-  businessId: z.string().min(1, 'Business ID is required'),
+  businessId: z.coerce.number({ invalid_type_error: 'Business ID must be a number' }).int().positive('Business ID is required'),
   firstName:  z.string().min(1, 'First name required').max(100),
   lastName:   z.string().min(1, 'Last name required').max(100),
   email:      z.string().email('Valid email required').optional().or(z.literal('')),

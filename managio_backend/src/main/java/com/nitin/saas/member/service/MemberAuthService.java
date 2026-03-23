@@ -16,6 +16,10 @@ import com.nitin.saas.member.entity.MemberPasswordResetToken;
 import com.nitin.saas.member.repository.MemberEmailVerificationTokenRepository;
 import com.nitin.saas.member.repository.MemberPasswordResetTokenRepository;
 import com.nitin.saas.member.repository.MemberRepository;
+import com.nitin.saas.subscription.entity.MemberSubscription;
+import com.nitin.saas.subscription.entity.SubscriptionPlan;
+import com.nitin.saas.subscription.repository.MemberSubscriptionRepository;
+import com.nitin.saas.subscription.repository.SubscriptionPlanRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +30,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,6 +47,8 @@ public class MemberAuthService {
     private final MemberPasswordResetTokenRepository resetRepo;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthAuditLogRepository authAuditLogRepository;
+    private final MemberSubscriptionRepository memberSubscriptionRepository;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final ApplicationEventPublisher eventPublisher;
@@ -79,6 +87,9 @@ public class MemberAuthService {
         } else {
             member = Member.builder()
                     .businessId(request.getBusinessId())
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .phone(request.getPhone())
                     .email(email)
                     .password(passwordEncoder.encode(request.getPassword()))
                     .status("ACTIVE")
@@ -249,25 +260,51 @@ public class MemberAuthService {
                         .build()
         );
 
+        MemberLoginResponse.SubscriptionInfo subscriptionInfo = buildActiveSubscriptionInfo(member.getId());
+
         return MemberLoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken())
                 .tokenType("Bearer")
                 .expiresIn(jwtUtil.getAccessTokenExpiry())
                 .member(mapToMemberInfo(member))
+                .activeSubscription(subscriptionInfo)
                 .business(mapToBusinessInfo(business))
                 .lastLoginAt(member.getLastLoginAt())
                 .build();
+    }
+
+    private MemberLoginResponse.SubscriptionInfo buildActiveSubscriptionInfo(Long memberId) {
+        return memberSubscriptionRepository.findActiveSubscriptionByMemberId(memberId)
+                .map(sub -> {
+                    SubscriptionPlan plan = subscriptionPlanRepository.findById(sub.getPlanId()).orElse(null);
+                    long days = ChronoUnit.DAYS.between(LocalDate.now(), sub.getEndDate());
+                    return MemberLoginResponse.SubscriptionInfo.builder()
+                            .subscriptionId(sub.getId())
+                            .planName(plan != null ? plan.getName() : "Plan #" + sub.getPlanId())
+                            .startDate(sub.getStartDate())
+                            .endDate(sub.getEndDate())
+                            .status(sub.getStatus())
+                            .daysRemaining((int) days)
+                            .amountPaid(sub.getAmount())
+                            .build();
+                })
+                .orElse(null);
     }
 
     private MemberLoginResponse.MemberInfo mapToMemberInfo(Member m) {
         return MemberLoginResponse.MemberInfo.builder()
                 .id(m.getId())
                 .businessId(m.getBusinessId())
+                .firstName(m.getFirstName())
+                .lastName(m.getLastName())
                 .fullName(m.getFullName())
                 .phone(m.getPhone())
                 .email(m.getEmail())
+                .dateOfBirth(m.getDateOfBirth())
+                .gender(m.getGender())
                 .status(m.getStatus())
+                .memberSince(m.getCreatedAt())
                 .build();
     }
 
