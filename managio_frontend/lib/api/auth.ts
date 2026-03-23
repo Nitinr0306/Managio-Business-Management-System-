@@ -91,6 +91,16 @@ export const authApi = {
       .post<void>(`${MEMBER_AUTH}/forgot-password`, null, { params: { identifier } })
       .then((r) => r.data),
 
+  memberVerifyEmail: (token: string) =>
+    apiClient
+      .post<void>(`${MEMBER_AUTH}/verify-email`, null, { params: { token } })
+      .then((r) => r.data),
+
+  memberResendVerification: (email: string) =>
+    apiClient
+      .post<void>(`${MEMBER_AUTH}/resend-verification`, null, { params: { email } })
+      .then((r) => r.data),
+
   memberResetPassword: (token: string, newPassword: string) =>
     apiClient
       .post<void>(`${MEMBER_AUTH}/reset-password`, null, { params: { token, newPassword } })

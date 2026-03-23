@@ -34,6 +34,7 @@ export function useAuth() {
       defaultMessage?: string
       invalidCredentialsMessage?: string
       loginEmail?: string
+      verifySubject?: 'user' | 'member'
     }
   ) => {
     const status = getErrorStatus(err)
@@ -61,11 +62,12 @@ export function useAuth() {
 
       toast.error('Email not verified. Redirecting to verification page...')
 
-      router.push(
-        email
-          ? `/verify-email?email=${encodeURIComponent(email)}`
-          : '/verify-email'
-      )
+      const subject = options?.verifySubject || 'user'
+      const query = email
+        ? `/verify-email?email=${encodeURIComponent(email)}&subject=${subject}`
+        : `/verify-email?subject=${subject}`
+
+      router.push(query)
       return
     }
 
@@ -204,6 +206,7 @@ export function useAuth() {
         invalidCredentialsMessage: 'Invalid phone/email or password.',
         defaultMessage: 'Login failed.',
         loginEmail: variables?.identifier, // 🔥 THIS IS THE FIX
+        verifySubject: 'member',
       })
     },
   })

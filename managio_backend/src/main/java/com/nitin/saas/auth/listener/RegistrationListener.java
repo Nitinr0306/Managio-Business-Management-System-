@@ -25,7 +25,7 @@ public class RegistrationListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMember(MemberRegisteredEvent event) {
         System.out.println("🔥 EVENT TRIGGERED FOR: " + event.getMember().getEmail());
-        emailService.sendVerificationEmail(
+        emailService.sendMemberVerificationEmail(
                 event.getMember().getEmail(),
                 event.getToken()
         );

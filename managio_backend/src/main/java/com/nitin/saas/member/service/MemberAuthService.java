@@ -5,6 +5,7 @@ import com.nitin.saas.auth.entity.RefreshToken;
 import com.nitin.saas.auth.event.MemberRegisteredEvent;
 import com.nitin.saas.auth.repository.AuthAuditLogRepository;
 import com.nitin.saas.auth.repository.RefreshTokenRepository;
+import com.nitin.saas.auth.service.RBACService;
 import com.nitin.saas.business.entity.Business;
 import com.nitin.saas.business.repository.BusinessRepository;
 import com.nitin.saas.common.email.EmailNotificationService;
@@ -56,6 +57,7 @@ public class MemberAuthService {
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final RBACService rbacService;
     private final ApplicationEventPublisher eventPublisher;
     private final EmailNotificationService emailService;
 
@@ -295,6 +297,36 @@ public class MemberAuthService {
             .status(AuthAuditLog.Status.SUCCESS)
             .details("flow=MEMBER_PASSWORD_RESET_SUCCESS,businessId=" + member.getBusinessId())
             .build());
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest request, HttpServletRequest httpRequest) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BadRequestException("PASSWORD_MISMATCH");
+        }
+
+        Long memberId = rbacService.getCurrentUserId();
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResourceNotFoundException("MEMBER_NOT_FOUND"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
+            throw new BadRequestException("INVALID_CURRENT_PASSWORD");
+        }
+
+        member.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        memberRepository.save(member);
+
+        refreshTokenRepository.revokeAllMemberTokens(member.getId());
+
+        auditRepo.save(AuthAuditLog.builder()
+                .userId(member.getId())
+                .email(member.getEmail())
+                .eventType(AuthAuditLog.EventType.PASSWORD_CHANGED)
+                .status(AuthAuditLog.Status.SUCCESS)
+                .ipAddress(IpAddressUtil.getClientIp(httpRequest))
+                .userAgent(httpRequest.getHeader("User-Agent"))
+                .details("flow=MEMBER_CHANGE_PASSWORD,businessId=" + member.getBusinessId())
+                .build());
     }
 
     // ================= HELPERS =================

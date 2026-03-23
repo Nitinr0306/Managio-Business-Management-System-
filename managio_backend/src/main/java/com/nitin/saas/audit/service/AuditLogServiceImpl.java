@@ -45,24 +45,55 @@ public class AuditLogServiceImpl implements AuditLogService {
                           String entityType, Long entityId, String details) {
         try {
             Long userId = resolveUserId();
-                String actorType = resolveActorType();
-                String actorPublicId = resolveActorPublicId(actorType, userId);
-                HttpServletRequest request = currentRequest();
+            String actorType = resolveActorType();
+            String actorPublicId = resolveActorPublicId(actorType, userId);
+            HttpServletRequest request = currentRequest();
 
-            AuditLog entry = AuditLog.builder()
-                    .businessId(businessId)
-                    .userId(userId)
-                    .actorType(actorType)
-                    .actorPublicId(actorPublicId)
-                    .action(action)
-                    .entityType(entityType)
-                    .entityId(entityId)
-                    .details(details)
-                    .ipAddress(request != null ? IpAddressUtil.getClientIp(request) : null)
-                    .userAgent(request != null ? request.getHeader("User-Agent") : null)
-                    .build();
+            persistAudit(
+                businessId,
+                userId,
+                actorType,
+                actorPublicId,
+                action,
+                entityType,
+                entityId,
+                details,
+                request
+            );
 
-            auditLogRepository.save(entry);
+            log.debug("Audit: businessId={} action={} entityType={} entityId={}",
+                businessId, action, entityType, entityId);
+
+        } catch (Exception ex) {
+            // Never let audit failures break the main flow
+            log.error("Failed to write audit log: action={} entityType={} error={}",
+                action, entityType, ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void logActionAsActor(Long businessId,
+                                 Long actorUserId,
+                                 String actorType,
+                                 String actorPublicId,
+                                 String action,
+                                 String entityType,
+                                 Long entityId,
+                                 String details) {
+        try {
+            HttpServletRequest request = currentRequest();
+            persistAudit(
+                businessId,
+                actorUserId,
+                actorType,
+                actorPublicId,
+                action,
+                entityType,
+                entityId,
+                details,
+                request
+            );
 
             log.debug("Audit: businessId={} action={} entityType={} entityId={}",
                     businessId, action, entityType, entityId);
@@ -72,6 +103,31 @@ public class AuditLogServiceImpl implements AuditLogService {
             log.error("Failed to write audit log: action={} entityType={} error={}",
                     action, entityType, ex.getMessage(), ex);
         }
+    }
+
+    private void persistAudit(Long businessId,
+                              Long userId,
+                              String actorType,
+                              String actorPublicId,
+                              String action,
+                              String entityType,
+                              Long entityId,
+                              String details,
+                              HttpServletRequest request) {
+            AuditLog entry = AuditLog.builder()
+                .businessId(businessId)
+                .userId(userId == null ? 0L : userId)
+                .actorType(actorType)
+                .actorPublicId(actorPublicId)
+                .action(action)
+                .entityType(entityType)
+                .entityId(entityId)
+                .details(details)
+                .ipAddress(request != null ? IpAddressUtil.getClientIp(request) : null)
+                .userAgent(request != null ? request.getHeader("User-Agent") : null)
+                .build();
+
+            auditLogRepository.save(entry);
     }
 
     @Override

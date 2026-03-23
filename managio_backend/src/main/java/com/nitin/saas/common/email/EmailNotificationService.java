@@ -1,5 +1,6 @@
 package com.nitin.saas.common.email;
 
+import com.nitin.saas.business.repository.BusinessRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -17,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Slf4j
 public class EmailNotificationService {
+
+        private final BusinessRepository businessRepository;
 
         private final OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
@@ -107,6 +110,24 @@ public class EmailNotificationService {
                 );
         }
 
+        public void sendMemberVerificationEmail(String email, String token) {
+
+                String link = frontendUrl + "/verify-email?token=" + token + "&subject=member";
+
+                sendEmail(
+                        email,
+                        "Verify Your Email – Managio",
+                        html(
+                                "Verify Your Email",
+                                "Please verify your email to activate your account.",
+                                "Verify Email",
+                                link,
+                                "Expires in 24 hours."
+                        ),
+                        "Verify your email: " + link
+                );
+        }
+
         @Async
         public void sendPasswordResetEmail(String email, String token) {
 
@@ -160,9 +181,10 @@ public class EmailNotificationService {
                 String token) {
 
                 String link = frontendUrl + "/staff/accept-invitation?token=" + token;
+                String businessDisplayId = resolveBusinessDisplayId(businessId);
 
                 String body = "You are invited to join <strong>" + escape(businessName) + "</strong>"
-                        + "<br><br><strong>Business ID:</strong> " + businessId
+                        + "<br><br><strong>Business ID:</strong> " + businessDisplayId
                         + "<br><strong>Role:</strong> " + escape(role);
 
                 sendEmail(
@@ -182,6 +204,7 @@ public class EmailNotificationService {
                 String role) {
 
                 String link = frontendUrl + "/staff/login";
+                String businessDisplayId = resolveBusinessDisplayId(businessId);
 
                 sendEmail(
                         email,
@@ -189,7 +212,7 @@ public class EmailNotificationService {
                         html(
                                 "Welcome",
                                 "Hi " + escape(name) + ", your role is " + escape(role)
-                                        + "<br><br>Business ID: " + businessId,
+                                        + "<br><br>Business ID: " + businessDisplayId,
                                 "Login",
                                 link,
                                 ""
@@ -210,6 +233,7 @@ public class EmailNotificationService {
                 String businessName) {
 
                 String link = frontendUrl + "/member/login";
+                String businessDisplayId = resolveBusinessDisplayId(businessId);
 
                 sendEmail(
                         email,
@@ -217,7 +241,7 @@ public class EmailNotificationService {
                         html(
                                 "Welcome",
                                 "Hi " + escape(memberName)
-                                        + "<br>Business ID: " + businessId,
+                                        + "<br>Business ID: " + businessDisplayId,
                                 "Login",
                                 link,
                                 ""
@@ -234,6 +258,7 @@ public class EmailNotificationService {
                 int daysRemaining) {
 
                 String link = frontendUrl + "/member/subscription";
+                String businessDisplayId = resolveBusinessDisplayId(businessId);
 
                 sendEmail(
                         email,
@@ -241,7 +266,7 @@ public class EmailNotificationService {
                         html(
                                 "Reminder",
                                 "Expires in " + daysRemaining + " days"
-                                        + "<br>Business ID: " + businessId,
+                                        + "<br>Business ID: " + businessDisplayId,
                                 "Renew",
                                 link,
                                 ""
@@ -257,6 +282,7 @@ public class EmailNotificationService {
                 String memberName,
                 String amount,
                 String method) {
+                String businessDisplayId = resolveBusinessDisplayId(businessId);
 
                 sendEmail(
                         email,
@@ -264,7 +290,7 @@ public class EmailNotificationService {
                         html(
                                 "Payment Received",
                                 "₹" + amount + " via " + method
-                                        + "<br>Business ID: " + businessId,
+                                        + "<br>Business ID: " + businessDisplayId,
                                 "View",
                                 frontendUrl + "/member/payments",
                                 ""
@@ -298,5 +324,14 @@ public class EmailNotificationService {
         private String encodeQueryValue(String value) {
                 if (value == null) return "";
                 return URLEncoder.encode(value, StandardCharsets.UTF_8);
+        }
+
+        private String resolveBusinessDisplayId(Long businessId) {
+                if (businessId == null) return "";
+                return businessRepository.findById(businessId)
+                        .map(b -> b.getPublicId() != null && !b.getPublicId().isBlank()
+                                ? b.getPublicId()
+                                : String.valueOf(businessId))
+                        .orElse(String.valueOf(businessId));
         }
 }

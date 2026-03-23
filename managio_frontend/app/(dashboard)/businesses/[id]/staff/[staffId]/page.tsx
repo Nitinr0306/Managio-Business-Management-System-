@@ -110,6 +110,11 @@ export default function StaffDetailPage() {
                 <span className={cn('text-xs px-2.5 py-1 rounded-full font-medium', STATUS_COLORS[staff.status] || STATUS_COLORS.INACTIVE)}>
                   {staff.status}
                 </span>
+                {staff.publicId && (
+                  <span className="text-[10px] px-2 py-1 rounded-full bg-white/5 text-indigo-300/80 font-medium">
+                    {staff.publicId}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -153,6 +158,7 @@ export default function StaffDetailPage() {
           {[
             { label: 'Department', value: staff.department || '—' },
             { label: 'Designation', value: staff.designation || '—' },
+            { label: 'Monthly Salary', value: staff.salary != null ? `₹${Number(staff.salary).toLocaleString('en-IN')}` : '—' },
             { label: 'Employee ID', value: staff.employeeId || '—' },
             { label: 'Hire Date', value: staff.hireDate ? formatDate(staff.hireDate) : '—' },
             { label: 'Termination Date', value: staff.terminationDate ? formatDate(staff.terminationDate) : '—' },

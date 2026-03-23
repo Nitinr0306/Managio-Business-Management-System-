@@ -85,6 +85,7 @@ export interface MarkSalaryPaidRequest {
 export interface StaffInvitation {
   id: string
   businessId: string
+  businessPublicId?: string
   businessName?: string
   email: string
   role: StaffRole

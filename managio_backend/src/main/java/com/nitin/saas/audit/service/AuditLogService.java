@@ -10,6 +10,15 @@ public interface AuditLogService {
     void logAction(Long businessId, String action, String entityType,
                    Long entityId, String details);
 
+    void logActionAsActor(Long businessId,
+                          Long actorUserId,
+                          String actorType,
+                          String actorPublicId,
+                          String action,
+                          String entityType,
+                          Long entityId,
+                          String details);
+
     void logStaffRemoval(Long businessId, Long staffId);
 
     void logSubscriptionCancellation(Long businessId, Long subscriptionId, String reason);

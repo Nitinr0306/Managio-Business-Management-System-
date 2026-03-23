@@ -43,6 +43,16 @@ export default function AuditLogsPage() {
     entityType: entityFilter,
   })
 
+  const formatActor = (log: { actorPublicId?: string; actorType?: string; userId?: number }) => {
+    if (log.actorPublicId) {
+      return log.actorPublicId
+    }
+    if (log.actorType === 'SYSTEM' || log.userId === 0) {
+      return 'SYSTEM'
+    }
+    return log.userId != null ? `#${log.userId}` : 'UNKNOWN'
+  }
+
   return (
     <div>
       <PageHeader
@@ -131,7 +141,11 @@ export default function AuditLogsPage() {
                         {formatDateTime(log.createdAt)}
                       </div>
                     </div>
-                    <div className="mt-2 text-[10px] text-white/30">User ID: {log.userId}</div>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] text-white/30">
+                      <span>Actor: {formatActor(log)}</span>
+                      {log.logId && <span className="px-1.5 py-0.5 rounded bg-white/5 text-white/35">{log.logId}</span>}
+                      {log.ipAddress && <span>IP: {log.ipAddress}</span>}
+                    </div>
                   </div>
                 ))}
 
@@ -174,7 +188,7 @@ export default function AuditLogsPage() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-white/5 bg-white/[0.02]">
-                        {['User ID', 'Action', 'Entity', 'Details', 'Time'].map((h) => (
+                        {['Actor', 'Action', 'Entity', 'Details', 'Time'].map((h) => (
                           <th
                             key={h}
                             className="px-4 py-3 text-left text-xs font-medium text-white/40 whitespace-nowrap"
@@ -191,7 +205,12 @@ export default function AuditLogsPage() {
                           className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors"
                         >
                           <td className="px-4 py-3">
-                            <span className="text-sm text-white/60">{log.userId}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-white/60">{formatActor(log)}</span>
+                              {log.logId && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-white/35">{log.logId}</span>
+                              )}
+                            </div>
                           </td>
                           <td className="px-4 py-3">
                             <span
@@ -210,7 +229,10 @@ export default function AuditLogsPage() {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-sm text-white/55">{log.details || '—'}</span>
+                            <div className="text-sm text-white/55">
+                              <div>{log.details || '—'}</div>
+                              {log.ipAddress && <div className="text-[10px] text-white/30 mt-0.5">IP: {log.ipAddress}</div>}
+                            </div>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <span className="text-xs text-white/40">

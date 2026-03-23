@@ -11,11 +11,16 @@ export type AuditEntityType =
 
 export interface AuditLog {
   id: number
+  logId?: string
   businessId: number
   userId: number
+  actorType?: 'USER' | 'MEMBER' | 'SYSTEM' | string
+  actorPublicId?: string
   action: string
   entityType: string
   entityId?: number
   details?: string
+  ipAddress?: string
+  userAgent?: string
   createdAt: string
 }

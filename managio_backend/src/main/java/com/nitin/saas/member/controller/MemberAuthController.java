@@ -4,6 +4,7 @@ import com.nitin.saas.member.dto.MemberLoginRequest;
 import com.nitin.saas.member.dto.MemberLoginResponse;
 import com.nitin.saas.member.dto.MemberRegisterResponse;
 import com.nitin.saas.member.dto.MemberRegistrationRequest;
+import com.nitin.saas.member.dto.ChangePasswordRequest;
 import com.nitin.saas.common.dto.ResetPasswordRequest;
 import com.nitin.saas.member.service.MemberAuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -72,6 +73,14 @@ public class MemberAuthController {
     public ResponseEntity<Void> resetPasswordBody(
             @Valid @RequestBody ResetPasswordRequest request) {
         memberAuthService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request,
+            HttpServletRequest httpRequest) {
+        memberAuthService.changePassword(request, httpRequest);
         return ResponseEntity.ok().build();
     }
 }

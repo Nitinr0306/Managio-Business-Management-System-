@@ -6,7 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { CheckCircle2, XCircle, Loader2, Mail, ArrowLeft, ArrowRight, RefreshCw } from 'lucide-react'
 import { authApi } from '@/lib/api/auth'
 import Link from 'next/link'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useMutation } from '@tanstack/react-query'
 import { getErrorCode } from '@/lib/utils/errors'
 
 function VerifyContent() {
@@ -15,6 +15,8 @@ function VerifyContent() {
 
   const token = searchParams.get('token')
   const emailFromUrl = searchParams.get('email')
+  const subject = searchParams.get('subject')
+  const isMemberFlow = subject === 'member'
   const [storedEmail, setStoredEmail] = useState<string | null>(null)
 
   useEffect(() => {
@@ -26,7 +28,10 @@ function VerifyContent() {
       (typeof window !== 'undefined'
           ? localStorage.getItem('pending_verification_email')
           : null)
-  const { resendVerification, isResendPending } = useAuth()
+  const resendMutation = useMutation({
+    mutationFn: (email: string) =>
+      isMemberFlow ? authApi.memberResendVerification(email) : authApi.resendVerification(email),
+  })
   const [resent, setResent] = useState(false)
 
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'no-token'>('loading')
@@ -38,8 +43,8 @@ function VerifyContent() {
       return
     }
 
-    authApi
-      .verifyEmail(token)
+    const verifyRequest = isMemberFlow ? authApi.memberVerifyEmail(token) : authApi.verifyEmail(token)
+    verifyRequest
       .then(() => {
         setStatus('success')
         localStorage.removeItem('pending_verification_email')
@@ -59,13 +64,16 @@ function VerifyContent() {
 
         setStatus('error')
       })
-  }, [token])
+  }, [token, isMemberFlow])
 
   const handleResend = () => {
     if (!email) return
-    resendVerification(email)
-    setResent(true)
-    setTimeout(() => setResent(false), 30000)
+    resendMutation.mutate(email, {
+      onSuccess: () => {
+        setResent(true)
+        setTimeout(() => setResent(false), 30000)
+      },
+    })
   }
 
   return (
@@ -153,11 +161,11 @@ function VerifyContent() {
           <div className="space-y-3">
             <button
               onClick={handleResend}
-              disabled={isResendPending || resent}
+              disabled={resendMutation.isPending || resent}
               className="relative w-full flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-indigo-600/25 group overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.07] to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-              {isResendPending ? (
+              {resendMutation.isPending ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
               ) : resent ? (
                 <><CheckCircle2 className="w-4 h-4 text-emerald-300" /> Email sent!</>
@@ -216,11 +224,11 @@ function VerifyContent() {
           <div className="space-y-3">
             <button
               onClick={handleResend}
-              disabled={isResendPending || resent}
+              disabled={resendMutation.isPending || resent}
               className="relative w-full flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-indigo-600/25 group overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.07] to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-              {isResendPending ? (
+              {resendMutation.isPending ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
               ) : resent ? (
                 <><CheckCircle2 className="w-4 h-4 text-emerald-300" /> Email sent!</>

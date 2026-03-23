@@ -13,6 +13,12 @@ export default function NotificationsPage() {
   const { data, isLoading } = useRecentAuditLogs(businessId, 7)
   const logs = data ?? []
 
+  const formatActor = (log: { actorPublicId?: string; actorType?: string; userId?: number }) => {
+    if (log.actorPublicId) return log.actorPublicId
+    if (log.actorType === 'SYSTEM' || log.userId === 0) return 'SYSTEM'
+    return log.userId != null ? `#${log.userId}` : 'UNKNOWN'
+  }
+
   return (
     <div className="max-w-2xl mx-auto">
       <PageHeader
@@ -52,7 +58,8 @@ export default function NotificationsPage() {
                     </div>
                     <p className="text-xs text-white/45 mt-0.5 leading-relaxed">
                       {log.entityType}
-                      {log.entityId != null ? ` #${log.entityId}` : ''} • User #{log.userId}
+                      {log.entityId != null ? ` #${log.entityId}` : ''} • Actor {formatActor(log)}
+                      {log.logId ? ` • ${log.logId}` : ''}
                       {log.details ? ` — ${log.details}` : ''}
                     </p>
                     <p className="text-xs text-white/25 mt-1.5">{formatRelative(log.createdAt)}</p>

@@ -194,10 +194,16 @@ public class StaffInvitationService {
             log.info("ACCEPT_INVITATION: business staffCount incremented businessId={} newCount={}",
                     business.getId(), business.getStaffCount());
 
-            auditLogService.logAction(
-                    invitation.getBusinessId(), "STAFF_INVITATION_ACCEPTED",
-                    "STAFF_INVITATION", invitation.getId(),
-                    String.format("Invitation accepted by %s", user.getEmail()));
+            auditLogService.logActionAsActor(
+                    invitation.getBusinessId(),
+                    user.getId(),
+                    "USER",
+                    user.getPublicId(),
+                    "STAFF_INVITATION_ACCEPTED",
+                    "STAFF_INVITATION",
+                    invitation.getId(),
+                    String.format("Invitation accepted by %s", user.getEmail())
+            );
 
             log.info("ACCEPT_INVITATION: SUCCESS invitationId={} userId={} businessId={}",
                     invitation.getId(), user.getId(), invitation.getBusinessId());
@@ -395,6 +401,7 @@ public class StaffInvitationService {
         return StaffInvitationResponse.builder()
                 .id(invitation.getId())
                 .businessId(invitation.getBusinessId())
+                .businessPublicId(business.getPublicId())
                 .businessName(business.getName())
                 .email(invitation.getEmail())
                 .role(invitation.getRole())
