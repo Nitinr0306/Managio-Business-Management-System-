@@ -8,6 +8,7 @@ export type AuditEntityType =
   | 'PLAN'
   | 'BUSINESS'
   | 'USER'
+  | 'TASK'
 
 export interface AuditLog {
   id: number
@@ -19,6 +20,7 @@ export interface AuditLog {
   action: string
   entityType: string
   entityId?: number
+  entityPublicId?: string
   details?: string
   ipAddress?: string
   userAgent?: string

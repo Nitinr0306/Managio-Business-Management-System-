@@ -50,15 +50,17 @@ public class PaymentController {
     @GetMapping
     @Operation(summary = "List all payments for a business (paginated)")
     public ResponseEntity<Page<PaymentResponse>> getPayments(
-            @PathVariable Long businessId, Pageable pageable) {
-        return ResponseEntity.ok(paymentService.getPaymentsByBusiness(businessId, pageable));
+            @PathVariable Long businessId,
+            @RequestParam(required = false) String paymentMethod,
+            Pageable pageable) {
+        return ResponseEntity.ok(paymentService.getPaymentsByBusiness(businessId, paymentMethod, pageable));
     }
 
     @GetMapping("/member/{memberId}")
     @Operation(summary = "Get payment history for a member")
     public ResponseEntity<List<PaymentResponse>> getMemberPaymentHistory(
             @PathVariable Long businessId,
-            @PathVariable Long memberId) {
+            @PathVariable String memberId) {
         return ResponseEntity.ok(paymentService.getMemberPaymentHistory(memberId));
     }
 

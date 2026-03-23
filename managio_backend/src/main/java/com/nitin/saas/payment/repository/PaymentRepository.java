@@ -1,6 +1,7 @@
 package com.nitin.saas.payment.repository;
 
 import com.nitin.saas.payment.entity.Payment;
+import com.nitin.saas.payment.enums.PaymentMethod;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,6 +26,24 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "ORDER BY p.createdAt DESC")
     Page<Payment> findByBusinessId(
             @Param("businessId") Long businessId,
+            Pageable pageable);
+
+    @Query("SELECT p FROM Payment p " +
+            "JOIN Member m ON p.memberId = m.id " +
+            "WHERE m.businessId = :businessId AND p.paymentMethod = :paymentMethod " +
+            "ORDER BY p.createdAt DESC")
+    Page<Payment> findByBusinessIdAndPaymentMethod(
+            @Param("businessId") Long businessId,
+            @Param("paymentMethod") PaymentMethod paymentMethod,
+            Pageable pageable);
+
+    @Query("SELECT p FROM Payment p " +
+            "JOIN Member m ON p.memberId = m.id " +
+            "WHERE m.businessId = :businessId AND p.paymentMethod IN :paymentMethods " +
+            "ORDER BY p.createdAt DESC")
+    Page<Payment> findByBusinessIdAndPaymentMethods(
+            @Param("businessId") Long businessId,
+            @Param("paymentMethods") List<PaymentMethod> paymentMethods,
             Pageable pageable);
 
     @Query("SELECT COALESCE(SUM(p.amount), 0) " +

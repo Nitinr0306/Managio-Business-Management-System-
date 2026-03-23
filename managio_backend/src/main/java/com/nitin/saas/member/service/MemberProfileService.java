@@ -2,6 +2,7 @@ package com.nitin.saas.member.service;
 
 import com.nitin.saas.auth.service.RBACService;
 import com.nitin.saas.business.service.BusinessService;
+import com.nitin.saas.common.exception.BadRequestException;
 import com.nitin.saas.common.exception.ResourceNotFoundException;
 import com.nitin.saas.common.security.MemberPrincipal;
 import com.nitin.saas.member.dto.MemberDetailResponse;
@@ -28,6 +29,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -46,9 +48,9 @@ public class MemberProfileService {
     // ── Member detail ─────────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
-    public MemberDetailResponse getMemberProfile(Long memberId) {
-        Member member = memberRepository.findActiveById(memberId)
-                .orElseThrow(() -> new ResourceNotFoundException("Member not found: " + memberId));
+        public MemberDetailResponse getMemberProfile(String memberIdentifier) {
+                Member member = resolveMember(memberIdentifier);
+                Long memberId = member.getId();
 
         if (rbacService.isMemberPrincipal()) {
             MemberPrincipal mp = rbacService.getCurrentMember();
@@ -166,9 +168,9 @@ public class MemberProfileService {
      * FIX M2: batch-loads all plans in a single findAllById call.
      */
     @Transactional(readOnly = true)
-    public List<SubscriptionHistoryResponse> getSubscriptionHistory(Long memberId) {
-        Member member = memberRepository.findActiveById(memberId)
-                .orElseThrow(() -> new ResourceNotFoundException("Member not found: " + memberId));
+        public List<SubscriptionHistoryResponse> getSubscriptionHistory(String memberIdentifier) {
+                Member member = resolveMember(memberIdentifier);
+                Long memberId = member.getId();
 
         if (rbacService.isMemberPrincipal()) {
             MemberPrincipal mp = rbacService.getCurrentMember();
@@ -227,6 +229,26 @@ public class MemberProfileService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+        private Member resolveMember(String memberIdentifier) {
+                String value = memberIdentifier == null ? "" : memberIdentifier.trim().toUpperCase(Locale.ROOT);
+                if (value.isBlank()) {
+                        throw new BadRequestException("Member identifier is required");
+                }
+
+                if (value.startsWith("MBR-")) {
+                        return memberRepository.findActiveByPublicId(value)
+                                        .orElseThrow(() -> new ResourceNotFoundException("Member not found: " + memberIdentifier));
+                }
+
+                try {
+                        Long id = Long.valueOf(value);
+                        return memberRepository.findActiveById(id)
+                                        .orElseThrow(() -> new ResourceNotFoundException("Member not found: " + memberIdentifier));
+                } catch (NumberFormatException ex) {
+                        throw new BadRequestException("Invalid member identifier format");
+                }
+        }
 
     private SubscriptionHistoryResponse mapToSubscriptionHistory(MemberSubscription sub,
                                                                  SubscriptionPlan plan) {

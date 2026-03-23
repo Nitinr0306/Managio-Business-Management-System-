@@ -4,6 +4,7 @@ import com.nitin.saas.audit.service.AuditLogService;
 import com.nitin.saas.business.entity.Business;
 import com.nitin.saas.business.repository.BusinessRepository;
 import com.nitin.saas.business.service.BusinessService;
+import com.nitin.saas.common.exception.BadRequestException;
 import com.nitin.saas.common.email.EmailNotificationService;
 import com.nitin.saas.common.exception.ResourceNotFoundException;
 import com.nitin.saas.member.dto.CreateMemberRequest;
@@ -16,6 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -83,17 +86,28 @@ public class MemberService {
         // ── Read ──────────────────────────────────────────────────────────────────
 
         @Transactional(readOnly = true)
-        public MemberResponse getMemberById(Long id) {
-                Member member = findActiveMemberById(id);
+        public MemberResponse getMemberById(String memberIdentifier) {
+                Member member = findActiveMember(memberIdentifier);
                 businessService.requireAccess(member.getBusinessId());
                 return mapToResponse(member);
         }
 
         @Transactional(readOnly = true)
-        public Page<MemberResponse> getMembers(Long businessId, Pageable pageable) {
+            public Page<MemberResponse> getMembers(Long businessId, String search, String status, Pageable pageable) {
                 businessService.requireAccess(businessId);
-                return memberRepository.findActiveByBusinessId(businessId, pageable)
-                        .map(this::mapToResponse);
+
+                        if (search != null && !search.isBlank()) {
+                                return memberRepository.searchMembers(businessId, search.trim(), pageable)
+                                        .map(this::mapToResponse);
+                        }
+
+                        if (status != null && !status.isBlank()) {
+                                return memberRepository.findByBusinessIdAndStatus(businessId, status.trim().toUpperCase(), pageable)
+                                        .map(this::mapToResponse);
+                        }
+
+                        return memberRepository.findActiveByBusinessId(businessId, pageable)
+                                        .map(this::mapToResponse);
         }
 
         @Transactional(readOnly = true)
@@ -113,8 +127,8 @@ public class MemberService {
         // ── Update ────────────────────────────────────────────────────────────────
 
         @Transactional
-        public MemberResponse updateMember(Long id, CreateMemberRequest request) {
-                Member member = findActiveMemberById(id);
+        public MemberResponse updateMember(String memberIdentifier, CreateMemberRequest request) {
+                Member member = findActiveMember(memberIdentifier);
                 businessService.requireAccess(member.getBusinessId());
 
                 member.setFirstName(request.getFirstName());
@@ -127,15 +141,15 @@ public class MemberService {
                 member.setNotes(request.getNotes());
 
                 member = memberRepository.save(member);
-                log.info("Member updated: id={}", id);
+                log.info("Member updated: id={}", member.getId());
                 return mapToResponse(member);
         }
 
         // ── Deactivate ────────────────────────────────────────────────────────────
 
         @Transactional
-        public void deactivateMember(Long id) {
-                Member member = findActiveMemberById(id);
+        public void deactivateMember(String memberIdentifier) {
+                Member member = findActiveMember(memberIdentifier);
                 businessService.requireAccess(member.getBusinessId());
 
                 member.deactivate();
@@ -149,7 +163,7 @@ public class MemberService {
                 auditLogService.logMemberDeactivation(
                         member.getBusinessId(), member.getId(), member.getFullName());
 
-                log.info("Member deactivated: id={}", id);
+                log.info("Member deactivated: id={}", member.getId());
         }
 
         // ── Count helpers ─────────────────────────────────────────────────────────
@@ -168,9 +182,24 @@ public class MemberService {
 
         // ── Private helpers ───────────────────────────────────────────────────────
 
-        private Member findActiveMemberById(Long id) {
-                return memberRepository.findActiveById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Member not found: " + id));
+        private Member findActiveMember(String memberIdentifier) {
+                String value = memberIdentifier == null ? "" : memberIdentifier.trim().toUpperCase(Locale.ROOT);
+                if (value.isBlank()) {
+                        throw new BadRequestException("Member identifier is required");
+                }
+
+                if (value.startsWith("MBR-")) {
+                        return memberRepository.findActiveByPublicId(value)
+                                .orElseThrow(() -> new ResourceNotFoundException("Member not found: " + memberIdentifier));
+                }
+
+                try {
+                        Long id = Long.valueOf(value);
+                        return memberRepository.findActiveById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Member not found: " + memberIdentifier));
+                } catch (NumberFormatException ex) {
+                        throw new BadRequestException("Invalid member identifier format");
+                }
         }
 
         private MemberResponse mapToResponse(Member m) {

@@ -99,10 +99,12 @@ export default function StaffPage() {
     {
       id: 'actions',
       header: '',
-      cell: ({ row }) => (
+      cell: ({ row }) => {
+        const staffIdentifier = row.original.publicId || row.original.id
+        return (
         <div className="flex items-center gap-1 justify-end">
           <Link
-            href={`/businesses/${businessId}/staff/${row.original.id}`}
+            href={`/businesses/${businessId}/staff/${staffIdentifier}`}
             className="w-7 h-7 flex items-center justify-center rounded-lg text-white/35 hover:text-white/70 hover:bg-white/[0.04] transition-all"
           >
             <Eye className="w-3.5 h-3.5" />
@@ -126,7 +128,8 @@ export default function StaffPage() {
             </button>
           )}
         </div>
-      ),
+        )
+      },
     },
   ], [businessId])
 
@@ -240,7 +243,7 @@ export default function StaffPage() {
         onConfirm={async () => {
           if (!suspendTarget) return
           try {
-            await suspendMutation.mutateAsync(suspendTarget.id)
+            await suspendMutation.mutateAsync(suspendTarget.publicId || suspendTarget.id)
           } finally {
             setSuspendTarget(null)
           }
@@ -251,7 +254,10 @@ export default function StaffPage() {
         onConfirm={async () => {
           if (!terminateTarget) return
           try {
-            await terminateMutation.mutateAsync({ staffId: terminateTarget.id, terminationDate: new Date().toISOString() })
+            await terminateMutation.mutateAsync({
+              staffId: terminateTarget.publicId || terminateTarget.id,
+              terminationDate: new Date().toISOString(),
+            })
           } finally {
             setTerminateTarget(null)
           }

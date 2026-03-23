@@ -38,6 +38,7 @@ function useNavGroups(businessId?: string): NavGroup[] {
       items: [
         { label: 'Members',       href: `${b}/members`,       icon: Users },
         { label: 'Staff',         href: `${b}/staff`,         icon: UserCog },
+        { label: 'Tasks',         href: `${b}/tasks`,         icon: Calendar },
         { label: 'Invitations',   href: `${b}/staff/invitations`, icon: Mail },
       ],
     },

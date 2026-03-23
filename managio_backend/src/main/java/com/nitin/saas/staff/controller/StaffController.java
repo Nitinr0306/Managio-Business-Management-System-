@@ -40,8 +40,10 @@ public class StaffController {
     @Operation(summary = "Get all staff members with pagination")
     public ResponseEntity<Page<StaffResponse>> getBusinessStaff(
             @PathVariable Long businessId,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
             Pageable pageable) {
-        return ResponseEntity.ok(staffService.getBusinessStaff(businessId, pageable));
+        return ResponseEntity.ok(staffService.getBusinessStaff(businessId, search, status, pageable));
     }
     @GetMapping("/list")
     @Operation(summary = "Get all staff members as list")
@@ -51,12 +53,12 @@ public class StaffController {
     }
     @GetMapping("/{id}")
     @Operation(summary = "Get staff member by ID")
-    public ResponseEntity<StaffResponse> getStaffById(@PathVariable Long id) {
+    public ResponseEntity<StaffResponse> getStaffById(@PathVariable String id) {
         return ResponseEntity.ok(staffService.getStaffById(id));
     }
     @GetMapping("/{id}/detail")
     @Operation(summary = "Get staff member detailed information")
-    public ResponseEntity<StaffDetailResponse> getStaffDetail(@PathVariable Long id) {
+    public ResponseEntity<StaffDetailResponse> getStaffDetail(@PathVariable String id) {
         return ResponseEntity.ok(staffService.getStaffDetail(id));
     }
     @GetMapping("/search")
@@ -78,14 +80,14 @@ public class StaffController {
     @PutMapping("/{id}")
     @Operation(summary = "Update staff member information")
     public ResponseEntity<StaffResponse> updateStaff(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody UpdateStaffRequest request) {
         return ResponseEntity.ok(staffService.updateStaff(id, request));
     }
     @PostMapping("/{id}/terminate")
     @Operation(summary = "Terminate staff member")
     public ResponseEntity<Void> terminateStaff(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate terminationDate) {
         staffService.terminateStaff(id, terminationDate);
@@ -93,13 +95,13 @@ public class StaffController {
     }
     @PostMapping("/{id}/suspend")
     @Operation(summary = "Suspend staff member")
-    public ResponseEntity<Void> suspendStaff(@PathVariable Long id) {
+    public ResponseEntity<Void> suspendStaff(@PathVariable String id) {
         staffService.suspendStaff(id);
         return ResponseEntity.ok().build();
     }
     @PostMapping("/{id}/activate")
     @Operation(summary = "Activate staff member")
-    public ResponseEntity<Void> activateStaff(@PathVariable Long id) {
+    public ResponseEntity<Void> activateStaff(@PathVariable String id) {
         staffService.activateStaff(id);
         return ResponseEntity.ok().build();
     }
@@ -107,7 +109,7 @@ public class StaffController {
     @PostMapping("/{staffId}/permissions/{permission}/grant")
     @Operation(summary = "Grant permission to staff member")
     public ResponseEntity<Void> grantPermission(
-            @PathVariable Long staffId,
+            @PathVariable String staffId,
             @PathVariable StaffRole.Permission permission) {
         staffService.grantPermission(staffId, permission);
         return ResponseEntity.ok().build();
@@ -115,7 +117,7 @@ public class StaffController {
     @PostMapping("/{staffId}/permissions/{permission}/revoke")
     @Operation(summary = "Revoke permission from staff member")
     public ResponseEntity<Void> revokePermission(
-            @PathVariable Long staffId,
+            @PathVariable String staffId,
             @PathVariable StaffRole.Permission permission) {
         staffService.revokePermission(staffId, permission);
         return ResponseEntity.ok().build();
@@ -123,13 +125,13 @@ public class StaffController {
     @GetMapping("/{staffId}/permissions")
     @Operation(summary = "Get effective permissions for staff member")
     public ResponseEntity<Set<StaffRole.Permission>> getEffectivePermissions(
-            @PathVariable Long staffId) {
+            @PathVariable String staffId) {
         return ResponseEntity.ok(staffService.getEffectivePermissions(staffId));
     }
     @GetMapping("/{staffId}/permissions/{permission}/check")
     @Operation(summary = "Check if staff has specific permission")
     public ResponseEntity<Boolean> hasPermission(
-            @PathVariable Long staffId,
+            @PathVariable String staffId,
             @PathVariable StaffRole.Permission permission) {
         return ResponseEntity.ok(staffService.hasPermission(staffId, permission));
     }
@@ -161,7 +163,7 @@ public class StaffController {
     @Operation(summary = "Mark salary as paid for a month")
     public ResponseEntity<StaffSalaryPaymentResponse> markSalaryPaid(
             @PathVariable Long businessId,
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody MarkSalaryPaidRequest request) {
         return ResponseEntity.ok(staffSalaryService.markSalaryPaid(businessId, id, request));
     }

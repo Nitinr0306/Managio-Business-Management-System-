@@ -11,6 +11,7 @@ import com.nitin.saas.member.repository.MemberRepository;
 import com.nitin.saas.payment.dto.PaymentResponse;
 import com.nitin.saas.payment.dto.RecordPaymentRequest;
 import com.nitin.saas.payment.entity.Payment;
+import com.nitin.saas.payment.enums.PaymentMethod;
 import com.nitin.saas.payment.repository.PaymentRepository;
 import com.nitin.saas.subscription.entity.MemberSubscription;
 import com.nitin.saas.subscription.entity.SubscriptionPlan;
@@ -32,6 +33,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -131,10 +133,10 @@ public class PaymentService {
      * FIX B7: batch-loads members via findAllById to avoid N+1.
      */
     @Transactional(readOnly = true)
-    public Page<PaymentResponse> getPaymentsByBusiness(Long businessId, Pageable pageable) {
+    public Page<PaymentResponse> getPaymentsByBusiness(Long businessId, String paymentMethod, Pageable pageable) {
         businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_PAYMENTS);
 
-        Page<Payment> paymentPage = paymentRepository.findByBusinessId(businessId, pageable);
+        Page<Payment> paymentPage = findPaymentsByFilter(businessId, paymentMethod, pageable);
         List<Payment> payments    = paymentPage.getContent();
 
         if (payments.isEmpty()) {
@@ -155,10 +157,31 @@ public class PaymentService {
         return new PageImpl<>(responses, pageable, paymentPage.getTotalElements());
     }
 
+    private Page<Payment> findPaymentsByFilter(Long businessId, String paymentMethod, Pageable pageable) {
+        if (paymentMethod == null || paymentMethod.isBlank()) {
+            return paymentRepository.findByBusinessId(businessId, pageable);
+        }
+
+        String normalized = paymentMethod.trim().toUpperCase();
+        if ("CARD".equals(normalized)) {
+            return paymentRepository.findByBusinessIdAndPaymentMethods(
+                    businessId,
+                    List.of(PaymentMethod.CREDIT_CARD, PaymentMethod.DEBIT_CARD),
+                    pageable);
+        }
+
+        try {
+            PaymentMethod method = PaymentMethod.valueOf(normalized);
+            return paymentRepository.findByBusinessIdAndPaymentMethod(businessId, method, pageable);
+        } catch (IllegalArgumentException ex) {
+            throw new BadRequestException("Invalid payment method filter: " + paymentMethod);
+        }
+    }
+
     @Transactional(readOnly = true)
-    public List<PaymentResponse> getMemberPaymentHistory(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
+    public List<PaymentResponse> getMemberPaymentHistory(String memberIdentifier) {
+        Member member = resolveMember(memberIdentifier);
+        Long memberId = member.getId();
 
         if (rbacService.isMemberPrincipal()) {
             MemberPrincipal mp = rbacService.getCurrentMember();
@@ -201,6 +224,26 @@ public class PaymentService {
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
+
+    private Member resolveMember(String memberIdentifier) {
+        String value = memberIdentifier == null ? "" : memberIdentifier.trim().toUpperCase(Locale.ROOT);
+        if (value.isBlank()) {
+            throw new BadRequestException("Member identifier is required");
+        }
+
+        if (value.startsWith("MBR-")) {
+            return memberRepository.findActiveByPublicId(value)
+                    .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
+        }
+
+        try {
+            Long id = Long.valueOf(value);
+            return memberRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
+        } catch (NumberFormatException ex) {
+            throw new BadRequestException("Invalid member identifier format");
+        }
+    }
 
     private void activateSubscription(Long subscriptionId) {
         subscriptionRepository.findById(subscriptionId).ifPresent(subscription -> {

@@ -5,10 +5,16 @@ import com.nitin.saas.audit.entity.AuditLog;
 import com.nitin.saas.audit.repository.AuditLogRepository;
 import com.nitin.saas.auth.repository.UserRepository;
 import com.nitin.saas.auth.service.RBACService;
+import com.nitin.saas.business.repository.BusinessRepository;
 import com.nitin.saas.business.service.BusinessService;
 import com.nitin.saas.common.utils.IpAddressUtil;
 import com.nitin.saas.member.repository.MemberRepository;
+import com.nitin.saas.payment.repository.PaymentRepository;
+import com.nitin.saas.staff.repository.StaffRepository;
 import com.nitin.saas.staff.enums.StaffRole;
+import com.nitin.saas.subscription.repository.MemberSubscriptionRepository;
+import com.nitin.saas.subscription.repository.SubscriptionPlanRepository;
+import com.nitin.saas.task.repository.StaffTaskRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +39,12 @@ public class AuditLogServiceImpl implements AuditLogService {
     private final BusinessService businessService;
     private final UserRepository userRepository;
     private final MemberRepository memberRepository;
+    private final StaffRepository staffRepository;
+    private final PaymentRepository paymentRepository;
+    private final BusinessRepository businessRepository;
+    private final MemberSubscriptionRepository memberSubscriptionRepository;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
+    private final StaffTaskRepository staffTaskRepository;
 
     /**
      * Core write method. Uses REQUIRES_NEW so the audit log entry is committed
@@ -114,6 +126,8 @@ public class AuditLogServiceImpl implements AuditLogService {
                               Long entityId,
                               String details,
                               HttpServletRequest request) {
+            String entityPublicId = resolveEntityPublicId(entityType, entityId);
+
             AuditLog entry = AuditLog.builder()
                 .businessId(businessId)
                 .userId(userId == null ? 0L : userId)
@@ -122,6 +136,7 @@ public class AuditLogServiceImpl implements AuditLogService {
                 .action(action)
                 .entityType(entityType)
                 .entityId(entityId)
+                .entityPublicId(entityPublicId)
                 .details(details)
                 .ipAddress(request != null ? IpAddressUtil.getClientIp(request) : null)
                 .userAgent(request != null ? request.getHeader("User-Agent") : null)
@@ -239,6 +254,11 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     private AuditLogResponse mapToResponse(AuditLog log) {
+        String entityPublicId = log.getEntityPublicId();
+        if (entityPublicId == null && log.getEntityType() != null && log.getEntityId() != null) {
+            entityPublicId = resolveEntityPublicId(log.getEntityType(), log.getEntityId());
+        }
+
         return AuditLogResponse.builder()
                 .id(log.getId())
                 .logId(log.getLogId())
@@ -249,10 +269,33 @@ public class AuditLogServiceImpl implements AuditLogService {
                 .action(log.getAction())
                 .entityType(log.getEntityType())
                 .entityId(log.getEntityId())
+                .entityPublicId(entityPublicId)
                 .details(log.getDetails())
                 .ipAddress(log.getIpAddress())
                 .userAgent(log.getUserAgent())
                 .createdAt(log.getCreatedAt())
                 .build();
+    }
+
+    private String resolveEntityPublicId(String entityType, Long entityId) {
+        if (entityType == null || entityId == null) {
+            return null;
+        }
+
+        String type = entityType.trim().toUpperCase();
+
+        return switch (type) {
+            case "MEMBER" -> memberRepository.findById(entityId).map(m -> m.getPublicId()).orElse(null);
+            case "STAFF" -> staffRepository.findById(entityId).map(s -> s.getPublicId()).orElse(null);
+            case "PAYMENT" -> paymentRepository.findById(entityId).map(p -> p.getPublicId()).orElse(null);
+            case "BUSINESS" -> businessRepository.findById(entityId).map(b -> b.getPublicId()).orElse(null);
+            case "USER" -> userRepository.findById(entityId).map(u -> u.getPublicId()).orElse(null);
+            case "SUBSCRIPTION" -> memberSubscriptionRepository.findById(entityId)
+                    .map(s -> "SUB-" + s.getId()).orElse(null);
+            case "PLAN" -> subscriptionPlanRepository.findById(entityId)
+                    .map(p -> "PLN-" + p.getId()).orElse(null);
+            case "TASK" -> staffTaskRepository.findById(entityId).map(t -> t.getPublicId()).orElse(null);
+            default -> null;
+        };
     }
 }

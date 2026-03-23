@@ -11,6 +11,7 @@ import {
   LogOut,
   Dumbbell,
   Wallet,
+  CheckSquare,
 } from 'lucide-react'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { cn } from '@/lib/utils/cn'
@@ -44,6 +45,12 @@ export function StaffSidebar({
       href: '/staff/payments',
       icon: BarChart3,
       enabled: !!staffContext?.canManagePayments,
+    },
+    {
+      label: 'Tasks',
+      href: '/staff/tasks',
+      icon: CheckSquare,
+      enabled: true,
     },
     {
       label: 'Salary Ledger',

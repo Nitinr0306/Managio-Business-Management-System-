@@ -134,7 +134,7 @@ public class StaffAuthService {
         RefreshToken refreshToken = createRefreshToken(user, request.getDeviceId(), ip, ua);
 
         Set<StaffRole.Permission> effectivePermissions =
-                staffService.getEffectivePermissions(staff.getId());
+            staffService.getEffectivePermissions(staff.getPublicId());
 
         authAuditLogRepository.save(AuthAuditLog.builder()
                 .userId(user.getId()).email(email)

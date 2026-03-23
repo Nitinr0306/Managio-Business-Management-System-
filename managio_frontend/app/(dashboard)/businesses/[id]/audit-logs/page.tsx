@@ -30,6 +30,7 @@ const ENTITY_TYPES: AuditEntityType[] = [
   'PLAN',
   'BUSINESS',
   'USER',
+  'TASK',
 ]
 
 export default function AuditLogsPage() {
@@ -50,7 +51,7 @@ export default function AuditLogsPage() {
     if (log.actorType === 'SYSTEM' || log.userId === 0) {
       return 'SYSTEM'
     }
-    return log.userId != null ? `#${log.userId}` : 'UNKNOWN'
+    return log.actorType || 'UNKNOWN'
   }
 
   return (
@@ -130,8 +131,12 @@ export default function AuditLogsPage() {
                           </span>
                           <span className="text-[10px] px-2 py-1 rounded-full bg-white/5 text-white/50">
                             {log.entityType}
-                            {log.entityId != null ? ` #${log.entityId}` : ''}
                           </span>
+                          {log.entityPublicId && (
+                            <span className="text-[10px] px-2 py-1 rounded-full bg-indigo-500/10 text-indigo-300/85 font-medium">
+                              {log.entityPublicId}
+                            </span>
+                          )}
                         </div>
                         <div className="mt-2 text-xs text-white/45">
                           {log.details || '—'}
@@ -223,10 +228,16 @@ export default function AuditLogsPage() {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-white/50">
-                              {log.entityType}
-                              {log.entityId != null ? ` #${log.entityId}` : ''}
-                            </span>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs px-2 py-0.5 rounded bg-white/5 text-white/50">
+                                {log.entityType}
+                              </span>
+                              {log.entityPublicId && (
+                                <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300/85 font-medium">
+                                  {log.entityPublicId}
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="px-4 py-3">
                             <div className="text-sm text-white/55">

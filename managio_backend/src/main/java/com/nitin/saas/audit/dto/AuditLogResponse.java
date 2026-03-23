@@ -21,6 +21,7 @@ public class AuditLogResponse {
     private String action;
     private String entityType;
     private Long entityId;
+    private String entityPublicId;
     private String details;
     private String ipAddress;
     private String userAgent;

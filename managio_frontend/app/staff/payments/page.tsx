@@ -26,7 +26,8 @@ const PaymentMethodPie = dynamic(() => import('@/components/payments/PaymentMeth
 
 const METHOD_COLORS: Record<string, string> = {
   CASH: 'bg-emerald-500/15 text-emerald-400',
-  CARD: 'bg-indigo-500/15 text-indigo-400',
+  CREDIT_CARD: 'bg-indigo-500/15 text-indigo-400',
+  DEBIT_CARD: 'bg-indigo-500/15 text-indigo-400',
   UPI: 'bg-violet-500/15 text-violet-400',
   BANK_TRANSFER: 'bg-cyan-500/15 text-cyan-400',
   CHEQUE: 'bg-amber-500/15 text-amber-400',
@@ -159,7 +160,7 @@ export default function StaffPaymentsPage() {
       <div className="grid lg:grid-cols-3 gap-6 mb-6">
         <div className="lg:col-span-2 flex items-center gap-3">
           <div className="flex flex-wrap gap-1.5">
-            {['', 'CASH', 'UPI', 'CARD', 'BANK_TRANSFER', 'CHEQUE'].map(m => (
+            {['', 'CASH', 'UPI', 'CARD', 'CREDIT_CARD', 'DEBIT_CARD', 'BANK_TRANSFER', 'CHEQUE'].map(m => (
               <button
                 key={m}
                 onClick={() => { setMethodFilter(m); setPage(0) }}
@@ -170,7 +171,7 @@ export default function StaffPaymentsPage() {
                     : 'border-white/8 text-white/50 hover:text-white/80 hover:border-white/15'
                 )}
               >
-                {m || 'All Methods'}
+                {m === '' ? 'All Methods' : m === 'CREDIT_CARD' ? 'Credit Card' : m === 'DEBIT_CARD' ? 'Debit Card' : m}
               </button>
             ))}
           </div>

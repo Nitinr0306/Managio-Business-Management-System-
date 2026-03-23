@@ -8,6 +8,7 @@ import com.nitin.saas.auth.service.RBACService;
 import com.nitin.saas.business.entity.Business;
 import com.nitin.saas.business.repository.BusinessRepository;
 import com.nitin.saas.business.service.BusinessService;
+import com.nitin.saas.common.exception.BadRequestException;
 import com.nitin.saas.common.exception.ConflictException;
 import com.nitin.saas.common.exception.ResourceNotFoundException;
 import com.nitin.saas.staff.dto.*;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -109,8 +111,8 @@ public class StaffService {
     // ── Reads ─────────────────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
-    public StaffResponse getStaffById(Long id) {
-        Staff staff = findActiveStaffById(id);
+    public StaffResponse getStaffById(String staffIdentifier) {
+        Staff staff = findActiveStaff(staffIdentifier);
         businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.VIEW_STAFF);
         User user = userRepository.findById(staff.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -118,8 +120,8 @@ public class StaffService {
     }
 
     @Transactional(readOnly = true)
-    public StaffDetailResponse getStaffDetail(Long id) {
-        Staff staff = findActiveStaffById(id);
+    public StaffDetailResponse getStaffDetail(String staffIdentifier) {
+        Staff staff = findActiveStaff(staffIdentifier);
         businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.VIEW_STAFF);
         User user = userRepository.findById(staff.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -132,10 +134,23 @@ public class StaffService {
      * FIX CVH-009 / N+1: batch-loads all users in a single findAllById call.
      */
     @Transactional(readOnly = true)
-    public Page<StaffResponse> getBusinessStaff(Long businessId, Pageable pageable) {
+    public Page<StaffResponse> getBusinessStaff(Long businessId, String search, String status, Pageable pageable) {
         businessService.requireBusinessPermission(businessId, StaffRole.Permission.VIEW_STAFF);
 
-        Page<Staff> page = staffRepository.findActiveByBusinessId(businessId, pageable);
+        Page<Staff> page;
+        if (search != null && !search.isBlank()) {
+            page = staffRepository.searchStaff(businessId, search.trim(), pageable);
+        } else if (status != null && !status.isBlank()) {
+            try {
+                Staff.StaffStatus parsedStatus = Staff.StaffStatus.valueOf(status.trim().toUpperCase());
+                page = staffRepository.findByBusinessIdAndStatus(businessId, parsedStatus, pageable);
+            } catch (IllegalArgumentException ex) {
+                throw new BadRequestException("Invalid status filter: " + status);
+            }
+        } else {
+            page = staffRepository.findActiveByBusinessId(businessId, pageable);
+        }
+
         Map<Long, User> userMap = batchLoadUsers(page.getContent());
         return page.map(s -> mapToResponse(s, userMap.get(s.getUserId())));
     }
@@ -176,8 +191,8 @@ public class StaffService {
     // ── Updates ───────────────────────────────────────────────────────────────
 
     @Transactional
-    public StaffResponse updateStaff(Long id, UpdateStaffRequest request) {
-        Staff staff = findActiveStaffById(id);
+    public StaffResponse updateStaff(String staffIdentifier, UpdateStaffRequest request) {
+        Staff staff = findActiveStaff(staffIdentifier);
         businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.EDIT_STAFF);
 
         if (request.getRole() != null) {
@@ -221,8 +236,8 @@ public class StaffService {
     }
 
     @Transactional
-    public void terminateStaff(Long id, LocalDate terminationDate) {
-        Staff staff = findActiveStaffById(id);
+    public void terminateStaff(String staffIdentifier, LocalDate terminationDate) {
+        Staff staff = findActiveStaff(staffIdentifier);
         businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.REMOVE_STAFF);
 
         staff.terminate(terminationDate != null ? terminationDate : LocalDate.now());
@@ -235,12 +250,12 @@ public class StaffService {
 
         auditLogService.logAction(staff.getBusinessId(), "STAFF_TERMINATED",
                 "STAFF", staff.getId(), "Staff terminated");
-        log.info("Staff terminated: id={}", id);
+        log.info("Staff terminated: id={}", staff.getId());
     }
 
     @Transactional
-    public void suspendStaff(Long id) {
-        Staff staff = findActiveStaffById(id);
+    public void suspendStaff(String staffIdentifier) {
+        Staff staff = findActiveStaff(staffIdentifier);
         businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.EDIT_STAFF);
         staff.suspend();
         staffRepository.save(staff);
@@ -249,8 +264,8 @@ public class StaffService {
     }
 
     @Transactional
-    public void activateStaff(Long id) {
-        Staff staff = findActiveStaffById(id);
+    public void activateStaff(String staffIdentifier) {
+        Staff staff = findActiveStaff(staffIdentifier);
         businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.EDIT_STAFF);
         staff.activate();
         staffRepository.save(staff);
@@ -261,8 +276,9 @@ public class StaffService {
     // ── Permissions ───────────────────────────────────────────────────────────
 
     @Transactional
-    public void grantPermission(Long staffId, StaffRole.Permission permission) {
-        Staff staff = findActiveStaffById(staffId);
+    public void grantPermission(String staffIdentifier, StaffRole.Permission permission) {
+        Staff staff = findActiveStaff(staffIdentifier);
+        Long staffId = staff.getId();
         businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.EDIT_STAFF);
 
         if (permissionRepository.existsByStaffIdAndPermission(staffId, permission)) {
@@ -283,8 +299,9 @@ public class StaffService {
     }
 
     @Transactional
-    public void revokePermission(Long staffId, StaffRole.Permission permission) {
-        Staff staff = findActiveStaffById(staffId);
+    public void revokePermission(String staffIdentifier, StaffRole.Permission permission) {
+        Staff staff = findActiveStaff(staffIdentifier);
+        Long staffId = staff.getId();
         businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.EDIT_STAFF);
 
         permissionRepository.findByStaffIdAndPermission(staffId, permission).ifPresent(perm -> {
@@ -296,8 +313,9 @@ public class StaffService {
     }
 
     @Transactional(readOnly = true)
-    public Set<StaffRole.Permission> getEffectivePermissions(Long staffId) {
-        Staff staff = findActiveStaffById(staffId);
+    public Set<StaffRole.Permission> getEffectivePermissions(String staffIdentifier) {
+        Staff staff = findActiveStaff(staffIdentifier);
+        Long staffId = staff.getId();
         if (rbacService.isAuthenticated()) {
             businessService.requireBusinessPermission(staff.getBusinessId(), StaffRole.Permission.VIEW_STAFF);
         }
@@ -315,8 +333,8 @@ public class StaffService {
     }
 
     @Transactional(readOnly = true)
-    public boolean hasPermission(Long staffId, StaffRole.Permission permission) {
-        Set<StaffRole.Permission> effective = getEffectivePermissions(staffId);
+    public boolean hasPermission(String staffIdentifier, StaffRole.Permission permission) {
+        Set<StaffRole.Permission> effective = getEffectivePermissions(staffIdentifier);
         return effective.contains(StaffRole.Permission.ALL_PERMISSIONS)
                 || effective.contains(permission);
     }
@@ -329,9 +347,24 @@ public class StaffService {
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
-    private Staff findActiveStaffById(Long id) {
-        return staffRepository.findActiveById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Staff not found: " + id));
+    private Staff findActiveStaff(String staffIdentifier) {
+        String value = staffIdentifier == null ? "" : staffIdentifier.trim().toUpperCase(Locale.ROOT);
+        if (value.isBlank()) {
+            throw new BadRequestException("Staff identifier is required");
+        }
+
+        if (value.startsWith("STF-")) {
+            return staffRepository.findActiveByPublicId(value)
+                    .orElseThrow(() -> new ResourceNotFoundException("Staff not found: " + staffIdentifier));
+        }
+
+        try {
+            Long id = Long.valueOf(value);
+            return staffRepository.findActiveById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Staff not found: " + staffIdentifier));
+        } catch (NumberFormatException ex) {
+            throw new BadRequestException("Invalid staff identifier format");
+        }
     }
 
     /**
@@ -385,7 +418,7 @@ public class StaffService {
     }
 
     private StaffDetailResponse mapToDetailResponse(Staff staff, User user, Business business) {
-        Set<StaffRole.Permission> effective = getEffectivePermissions(staff.getId());
+        Set<StaffRole.Permission> effective = getEffectivePermissions(staff.getPublicId());
         List<StaffPermission> granted = permissionRepository.findGrantedPermissions(staff.getId());
         List<StaffPermission> revoked = permissionRepository.findRevokedPermissions(staff.getId());
 

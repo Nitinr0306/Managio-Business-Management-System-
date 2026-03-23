@@ -24,6 +24,9 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
     @Query("SELECT s FROM Staff s WHERE s.id = :id AND s.deletedAt IS NULL")
     Optional<Staff> findActiveById(@Param("id") Long id);
 
+    @Query("SELECT s FROM Staff s WHERE UPPER(s.publicId) = UPPER(:publicId) AND s.deletedAt IS NULL")
+    Optional<Staff> findActiveByPublicId(@Param("publicId") String publicId);
+
     @Query("SELECT s FROM Staff s WHERE s.businessId = :businessId AND s.userId = :userId AND s.deletedAt IS NULL")
     Optional<Staff> findByBusinessIdAndUserId(@Param("businessId") Long businessId,
                                               @Param("userId") Long userId);

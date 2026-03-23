@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,11 +79,11 @@ public class StaffSalaryService {
     }
 
     @Transactional
-    public StaffSalaryPaymentResponse markSalaryPaid(Long businessId, Long staffId, MarkSalaryPaidRequest request) {
+    public StaffSalaryPaymentResponse markSalaryPaid(Long businessId, String staffIdentifier, MarkSalaryPaidRequest request) {
         businessService.requireBusinessPermission(businessId, StaffRole.Permission.RECORD_PAYMENTS);
 
-        Staff staff = staffRepository.findActiveById(staffId)
-                .orElseThrow(() -> new ResourceNotFoundException("Staff not found: " + staffId));
+        Staff staff = resolveStaff(staffIdentifier);
+        Long staffId = staff.getId();
 
         if (!staff.getBusinessId().equals(businessId)) {
             throw new BadRequestException("Staff does not belong to this business");
@@ -141,6 +142,26 @@ public class StaffSalaryService {
         );
 
         return mapToResponse(ledger);
+    }
+
+    private Staff resolveStaff(String staffIdentifier) {
+        String value = staffIdentifier == null ? "" : staffIdentifier.trim().toUpperCase(Locale.ROOT);
+        if (value.isBlank()) {
+            throw new BadRequestException("Staff identifier is required");
+        }
+
+        if (value.startsWith("STF-")) {
+            return staffRepository.findActiveByPublicId(value)
+                    .orElseThrow(() -> new ResourceNotFoundException("Staff not found: " + staffIdentifier));
+        }
+
+        try {
+            Long id = Long.valueOf(value);
+            return staffRepository.findActiveById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Staff not found: " + staffIdentifier));
+        } catch (NumberFormatException ex) {
+            throw new BadRequestException("Invalid staff identifier format");
+        }
     }
 
     private StaffSalaryPaymentResponse mapToResponse(StaffSalaryPayment payment) {

@@ -174,6 +174,7 @@ export default function TeamPage() {
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1.5">
                             {CORE_PERMS.map(({ label, perm }) => {
+                              const staffIdentifier = String(s.publicId || s.id)
                               // We don't have effectivePermissions on list rows; use capability booleans as coarse toggles.
                               // Permission toggles are still applied via backend permission endpoints.
                               const has =
@@ -185,8 +186,8 @@ export default function TeamPage() {
                               return (
                                 <button
                                   key={perm}
-                                  disabled={busy === `${s.id}:${perm}`}
-                                  onClick={() => togglePermission(String(s.id), perm, has)}
+                                  disabled={busy === `${staffIdentifier}:${perm}`}
+                                  onClick={() => togglePermission(staffIdentifier, perm, has)}
                                   className={cn(
                                     'text-[10px] px-2 py-1 rounded-full border transition-all inline-flex items-center gap-1',
                                     has
@@ -202,7 +203,7 @@ export default function TeamPage() {
                         </td>
                         <td className="px-4 py-3">
                           <Link
-                            href={`/businesses/${businessId}/staff/${s.id}`}
+                            href={`/businesses/${businessId}/staff/${s.publicId || s.id}`}
                             className="text-xs text-indigo-400 hover:text-indigo-300"
                           >
                             Manage →

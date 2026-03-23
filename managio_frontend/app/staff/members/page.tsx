@@ -105,17 +105,19 @@ export default function StaffMembersPage() {
     {
       id: 'actions',
       header: '',
-      cell: ({ row }) => (
+      cell: ({ row }) => {
+        const memberIdentifier = row.original.publicId || row.original.id
+        return (
         <div className="flex items-center gap-1 justify-end">
           <Link
-            href={`/staff/members/${row.original.id}`}
+            href={`/staff/members/${memberIdentifier}`}
             className="w-7 h-7 flex items-center justify-center rounded-lg text-white/40 hover:text-white/80 hover:bg-white/6 transition-all"
             title="View"
           >
             <Eye className="w-3.5 h-3.5" />
           </Link>
           <Link
-            href={`/staff/members/${row.original.id}?edit=1`}
+            href={`/staff/members/${memberIdentifier}?edit=1`}
             className="w-7 h-7 flex items-center justify-center rounded-lg text-white/40 hover:text-white/80 hover:bg-white/6 transition-all"
             title="Edit"
           >
@@ -131,7 +133,8 @@ export default function StaffMembersPage() {
             </button>
           )}
         </div>
-      ),
+        )
+      },
     },
   ], [])
 
@@ -268,18 +271,25 @@ export default function StaffMembersPage() {
                     </div>
 
                     <div className="mt-3 flex items-center justify-end gap-2">
+                      {(() => {
+                        const memberIdentifier = m.publicId || m.id
+                        return (
+                          <>
                       <Link
-                        href={`/staff/members/${m.id}`}
+                        href={`/staff/members/${memberIdentifier}`}
                         className="px-3 py-2 rounded-xl border border-white/10 text-xs text-white/70 hover:bg-white/5"
                       >
                         View
                       </Link>
                       <Link
-                        href={`/staff/members/${m.id}?edit=1`}
+                        href={`/staff/members/${memberIdentifier}?edit=1`}
                         className="px-3 py-2 rounded-xl border border-white/10 text-xs text-white/70 hover:bg-white/5"
                       >
                         Edit
                       </Link>
+                          </>
+                        )
+                      })()}
                       {m.status === 'ACTIVE' && (
                         <button
                           onClick={() => setDeactivateTarget(m)}
@@ -412,7 +422,7 @@ export default function StaffMembersPage() {
         onClose={() => setDeactivateTarget(null)}
         onConfirm={async () => {
           if (!deactivateTarget) return
-          try { await deactivateMutation.mutateAsync(deactivateTarget.id) }
+          try { await deactivateMutation.mutateAsync(deactivateTarget.publicId || deactivateTarget.id) }
           finally { setDeactivateTarget(null) }
         }}
         title="Deactivate Member"

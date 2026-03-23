@@ -47,6 +47,9 @@ public class AuditLog {
 
     private Long entityId;
 
+    @Column(length = 30)
+    private String entityPublicId;
+
     @Column(columnDefinition = "TEXT")
     private String details;
 

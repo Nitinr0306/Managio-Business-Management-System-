@@ -8,6 +8,7 @@ import { LoadingSpinner } from '@/components/shared/EmptyState'
 import {
   Users, Clock, CreditCard, TrendingUp,
   LogOut, UserCog, Shield, ArrowRight,
+  CheckSquare,
 } from 'lucide-react'
 import {
   formatCurrency, formatRelative, getInitials,
@@ -39,6 +40,7 @@ export default function StaffDashboardPage() {
   }
 
   const quickActions = [
+    { label: 'My Tasks', href: '/staff/tasks', icon: CheckSquare },
     ...(staffContext?.canManageMembers  ? [{ label: 'Members',       href: `/businesses/${businessId}/members`,       icon: Users }] : []),
     ...(staffContext?.canManagePayments ? [{ label: 'Record Payment', href: `/businesses/${businessId}/payments/new`,   icon: CreditCard }] : []),
     ...(staffContext?.canViewReports    ? [{ label: 'Statistics',     href: `/businesses/${businessId}/statistics`,    icon: TrendingUp }] : []),

@@ -16,7 +16,7 @@ export default function NotificationsPage() {
   const formatActor = (log: { actorPublicId?: string; actorType?: string; userId?: number }) => {
     if (log.actorPublicId) return log.actorPublicId
     if (log.actorType === 'SYSTEM' || log.userId === 0) return 'SYSTEM'
-    return log.userId != null ? `#${log.userId}` : 'UNKNOWN'
+    return log.actorType || 'UNKNOWN'
   }
 
   return (
@@ -58,7 +58,8 @@ export default function NotificationsPage() {
                     </div>
                     <p className="text-xs text-white/45 mt-0.5 leading-relaxed">
                       {log.entityType}
-                      {log.entityId != null ? ` #${log.entityId}` : ''} • Actor {formatActor(log)}
+                      {log.entityPublicId ? ` ${log.entityPublicId}` : ''}
+                      {' '}• Actor {formatActor(log)}
                       {log.logId ? ` • ${log.logId}` : ''}
                       {log.details ? ` — ${log.details}` : ''}
                     </p>

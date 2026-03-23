@@ -103,14 +103,18 @@ export default function MembersPage() {
       header: '',
       cell: ({ row }) => (
         <div className="flex items-center gap-1 justify-end">
+          {(() => {
+            const memberIdentifier = row.original.publicId || row.original.id
+            return (
+              <>
           <Link
-            href={`/businesses/${businessId}/members/${row.original.id}`}
+            href={`/businesses/${businessId}/members/${memberIdentifier}`}
             className="w-7 h-7 flex items-center justify-center rounded-lg text-white/35 hover:text-white/70 hover:bg-white/[0.04] transition-all"
           >
             <Eye className="w-3.5 h-3.5" />
           </Link>
           <Link
-            href={`/businesses/${businessId}/members/${row.original.id}?edit=1`}
+            href={`/businesses/${businessId}/members/${memberIdentifier}?edit=1`}
             className="w-7 h-7 flex items-center justify-center rounded-lg text-white/35 hover:text-white/70 hover:bg-white/[0.04] transition-all"
           >
             <Edit className="w-3.5 h-3.5" />
@@ -123,6 +127,9 @@ export default function MembersPage() {
               <UserX className="w-3.5 h-3.5" />
             </button>
           )}
+              </>
+            )
+          })()}
         </div>
       ),
     },
@@ -236,18 +243,25 @@ export default function MembersPage() {
                     </div>
 
                     <div className="mt-3 flex items-center justify-end gap-2">
+                      {(() => {
+                        const memberIdentifier = m.publicId || m.id
+                        return (
+                          <>
                       <Link
-                        href={`/businesses/${businessId}/members/${m.id}`}
+                        href={`/businesses/${businessId}/members/${memberIdentifier}`}
                         className="px-3 py-2 rounded-xl border border-white/[0.06] text-xs text-white/60 hover:bg-white/[0.04] transition-all"
                       >
                         View
                       </Link>
                       <Link
-                        href={`/businesses/${businessId}/members/${m.id}?edit=1`}
+                        href={`/businesses/${businessId}/members/${memberIdentifier}?edit=1`}
                         className="px-3 py-2 rounded-xl border border-white/[0.06] text-xs text-white/60 hover:bg-white/[0.04] transition-all"
                       >
                         Edit
                       </Link>
+                          </>
+                        )
+                      })()}
                       {m.status === 'ACTIVE' && (
                         <button
                           onClick={() => setDeactivateTarget(m)}
@@ -392,7 +406,7 @@ export default function MembersPage() {
         onConfirm={async () => {
           if (!deactivateTarget) return
           try {
-            await deactivateMutation.mutateAsync(deactivateTarget.id)
+            await deactivateMutation.mutateAsync(deactivateTarget.publicId || deactivateTarget.id)
           } finally {
             setDeactivateTarget(null)
           }

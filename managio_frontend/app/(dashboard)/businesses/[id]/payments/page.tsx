@@ -26,7 +26,8 @@ const PaymentMethodPie = dynamic(() => import('@/components/payments/PaymentMeth
 
 const METHOD_COLORS: Record<string, string> = {
   CASH: 'bg-emerald-500/10 text-emerald-400',
-  CARD: 'bg-indigo-500/10 text-indigo-400',
+  CREDIT_CARD: 'bg-indigo-500/10 text-indigo-400',
+  DEBIT_CARD: 'bg-indigo-500/10 text-indigo-400',
   UPI: 'bg-violet-500/10 text-violet-400',
   BANK_TRANSFER: 'bg-cyan-500/10 text-cyan-400',
   CHEQUE: 'bg-amber-500/10 text-amber-400',
@@ -38,6 +39,8 @@ const METHOD_OPTIONS = [
   { label: 'Cash', value: 'CASH' },
   { label: 'UPI', value: 'UPI' },
   { label: 'Card', value: 'CARD' },
+  { label: 'Credit Card', value: 'CREDIT_CARD' },
+  { label: 'Debit Card', value: 'DEBIT_CARD' },
   { label: 'Bank', value: 'BANK_TRANSFER' },
   { label: 'Cheque', value: 'CHEQUE' },
 ]

@@ -50,8 +50,11 @@ public class MemberController {
     @GetMapping
     @Operation(summary = "List members (paginated)")
     public ResponseEntity<Page<MemberResponse>> getMembers(
-            @PathVariable Long businessId, Pageable pageable) {
-        return ResponseEntity.ok(memberService.getMembers(businessId, pageable));
+            @PathVariable Long businessId,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            Pageable pageable) {
+        return ResponseEntity.ok(memberService.getMembers(businessId, search, status, pageable));
     }
 
     @GetMapping("/with-subscriptions")
@@ -81,35 +84,35 @@ public class MemberController {
     @GetMapping("/{id}")
     @Operation(summary = "Get a member by ID")
     public ResponseEntity<MemberResponse> getMemberById(
-            @PathVariable Long businessId, @PathVariable Long id) {
+            @PathVariable Long businessId, @PathVariable String id) {
         return ResponseEntity.ok(memberService.getMemberById(id));
     }
 
     @GetMapping("/{id}/profile")
     @Operation(summary = "Get full member profile with subscription and payment history")
     public ResponseEntity<MemberDetailResponse> getMemberProfile(
-            @PathVariable Long businessId, @PathVariable Long id) {
+            @PathVariable Long businessId, @PathVariable String id) {
         return ResponseEntity.ok(memberProfileService.getMemberProfile(id));
     }
 
     @GetMapping("/{id}/subscription-history")
     @Operation(summary = "Get member subscription history")
     public ResponseEntity<List<SubscriptionHistoryResponse>> getSubscriptionHistory(
-            @PathVariable Long businessId, @PathVariable Long id) {
+            @PathVariable Long businessId, @PathVariable String id) {
         return ResponseEntity.ok(memberProfileService.getSubscriptionHistory(id));
     }
 
     @GetMapping("/{id}/payment-history")
     @Operation(summary = "Get member payment history")
     public ResponseEntity<List<PaymentResponse>> getPaymentHistory(
-            @PathVariable Long businessId, @PathVariable Long id) {
+            @PathVariable Long businessId, @PathVariable String id) {
         return ResponseEntity.ok(paymentService.getMemberPaymentHistory(id));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update member details")
     public ResponseEntity<MemberResponse> updateMember(
-            @PathVariable Long businessId, @PathVariable Long id,
+            @PathVariable Long businessId, @PathVariable String id,
             @Valid @RequestBody CreateMemberRequest request) {
         return ResponseEntity.ok(memberService.updateMember(id, request));
     }
@@ -117,7 +120,7 @@ public class MemberController {
     @PostMapping("/{id}/deactivate")
     @Operation(summary = "Deactivate a member (soft delete)")
     public ResponseEntity<Void> deactivateMember(
-            @PathVariable Long businessId, @PathVariable Long id) {
+            @PathVariable Long businessId, @PathVariable String id) {
         memberService.deactivateMember(id);
         return ResponseEntity.ok().build();
     }
