@@ -1,7 +1,9 @@
 package com.nitin.saas.member.service;
 
+import com.nitin.saas.auth.service.RBACService;
 import com.nitin.saas.business.service.BusinessService;
 import com.nitin.saas.common.exception.ResourceNotFoundException;
+import com.nitin.saas.common.security.MemberPrincipal;
 import com.nitin.saas.member.dto.MemberDetailResponse;
 import com.nitin.saas.member.dto.MemberListItemResponse;
 import com.nitin.saas.member.dto.SubscriptionHistoryResponse;
@@ -18,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +41,7 @@ public class MemberProfileService {
     private final SubscriptionPlanRepository   planRepository;
     private final PaymentRepository            paymentRepository;
     private final BusinessService              businessService;
+    private final RBACService                  rbacService;
 
     // ── Member detail ─────────────────────────────────────────────────────────
 
@@ -46,7 +50,14 @@ public class MemberProfileService {
         Member member = memberRepository.findActiveById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found: " + memberId));
 
-        businessService.requireAccess(member.getBusinessId());
+        if (rbacService.isMemberPrincipal()) {
+            MemberPrincipal mp = rbacService.getCurrentMember();
+            if (mp == null || !mp.getMemberId().equals(memberId)) {
+                throw new AccessDeniedException("Members may only view their own profile");
+            }
+        } else {
+            businessService.requireAccess(member.getBusinessId());
+        }
 
         MemberDetailResponse.ActiveSubscriptionInfo activeSubInfo = getActiveSubscriptionInfo(memberId);
         List<PaymentResponse> paymentHistory = getPaymentHistory(memberId);
@@ -159,7 +170,14 @@ public class MemberProfileService {
         Member member = memberRepository.findActiveById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found: " + memberId));
 
-        businessService.requireAccess(member.getBusinessId());
+        if (rbacService.isMemberPrincipal()) {
+            MemberPrincipal mp = rbacService.getCurrentMember();
+            if (mp == null || !mp.getMemberId().equals(memberId)) {
+                throw new AccessDeniedException("Members may only view their own subscription history");
+            }
+        } else {
+            businessService.requireAccess(member.getBusinessId());
+        }
 
         List<MemberSubscription> subs = subscriptionRepository.findByMemberId(memberId);
         if (subs.isEmpty()) return Collections.emptyList();

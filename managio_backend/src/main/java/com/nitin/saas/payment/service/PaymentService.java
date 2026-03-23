@@ -5,6 +5,7 @@ import com.nitin.saas.business.service.BusinessService;
 import com.nitin.saas.common.email.EmailNotificationService;
 import com.nitin.saas.common.exception.BadRequestException;
 import com.nitin.saas.common.exception.ResourceNotFoundException;
+import com.nitin.saas.common.security.MemberPrincipal;
 import com.nitin.saas.member.entity.Member;
 import com.nitin.saas.member.repository.MemberRepository;
 import com.nitin.saas.payment.dto.PaymentResponse;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -154,7 +156,16 @@ public class PaymentService {
     public List<PaymentResponse> getMemberPaymentHistory(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
-        businessService.requireAccess(member.getBusinessId());
+
+        if (rbacService.isMemberPrincipal()) {
+            MemberPrincipal mp = rbacService.getCurrentMember();
+            if (mp == null || !mp.getMemberId().equals(memberId)) {
+                throw new AccessDeniedException("Members may only view their own payment history");
+            }
+        } else {
+            businessService.requireAccess(member.getBusinessId());
+        }
+
         return paymentRepository.findByMemberId(memberId).stream()
                 .map(p -> mapToResponse(p, member))
                 .collect(Collectors.toList());
