@@ -72,54 +72,36 @@ public class MemberAuthService {
 
         String email = request.getEmail().toLowerCase();
 
-        Optional<Member> existingOpt =
-                memberRepository.findByBusinessIdAndEmail(request.getBusinessId(), email);
-
-        Member member;
-
-        if (existingOpt.isPresent()) {
-            member = existingOpt.get();
-
-            if (member.getPassword() != null && Boolean.TRUE.equals(member.getEmailVerified())) {
-                throw new ConflictException("EMAIL_ALREADY_REGISTERED");
-            }
-
-            member.setPassword(passwordEncoder.encode(request.getPassword()));
-            member.setEmailVerified(false);
-
-        } else {
-            member = Member.builder()
-                    .businessId(request.getBusinessId())
-                    .firstName(request.getFirstName())
-                    .lastName(request.getLastName())
-                    .phone(request.getPhone())
-                    .email(email)
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .status("ACTIVE")
-                    .accountEnabled(true)
-                    .emailVerified(true)
-                    .build();
+        if (memberRepository.findByBusinessIdAndEmail(request.getBusinessId(), email).isPresent()) {
+            throw new ConflictException("EMAIL_ALREADY_REGISTERED");
         }
+
+        Member member = Member.builder()
+                .businessId(request.getBusinessId())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .phone(request.getPhone())
+                .email(email)
+                .password(passwordEncoder.encode(request.getPassword()))
+                .status("ACTIVE")
+                .accountEnabled(true)
+                .emailVerified(false)
+                .build();
 
         member = memberRepository.save(member);
 
-        // 🔴 DELETE OLD TOKENS
-        verificationRepo.deleteAllByMemberId(member.getId());
+        String token = UUID.randomUUID().toString();
 
-//        // CREATE NEW TOKEN
-//        String token = UUID.randomUUID().toString();
-//
-//        MemberEmailVerificationToken saved = verificationRepo.save(
-//                MemberEmailVerificationToken.builder()
-//                        .token(token)
-//                        .memberId(member.getId())
-//                        .expiresAt(LocalDateTime.now().plusHours(24))
-//                        .used(false)
-//                        .build()
-//        );
-//
-//        // ✅ EVENT-DRIVEN EMAIL
-//        eventPublisher.publishEvent(new MemberRegisteredEvent(member, saved.getToken()));
+        verificationRepo.save(
+                MemberEmailVerificationToken.builder()
+                        .token(token)
+                        .memberId(member.getId())
+                        .expiresAt(LocalDateTime.now().plusHours(24))
+                        .used(false)
+                        .build()
+        );
+
+        eventPublisher.publishEvent(new MemberRegisteredEvent(member, token));
 
         return MemberRegisterResponse.builder()
                 .requiresVerification(true)
@@ -132,13 +114,33 @@ public class MemberAuthService {
     public MemberLoginResponse memberLogin(MemberLoginRequest request,
                                            HttpServletRequest httpRequest) {
 
+        String ip = IpAddressUtil.getClientIp(httpRequest);
+        String ua = httpRequest.getHeader("User-Agent");
+
         Member member = findMemberByIdentifier(request.getIdentifier());
 
-        if (member == null) throw new BadCredentialsException("INVALID_CREDENTIALS");
-        if (!member.getAccountEnabled()) throw new BadCredentialsException("ACCOUNT_DISABLED");
-        if (!"ACTIVE".equals(member.getStatus())) throw new BadCredentialsException("MEMBERSHIP_INACTIVE");
+        if (member == null) {
+            logFailed(request.getIdentifier(), ip, ua, "Member not found");
+            throw new BadCredentialsException("INVALID_CREDENTIALS");
+        }
+
+        if (!member.getAccountEnabled()) {
+            logFailed(member.getEmail(), ip, ua, "Account disabled");
+            throw new BadCredentialsException("ACCOUNT_DISABLED");
+        }
+
+        if (!"ACTIVE".equals(member.getStatus())) {
+            logFailed(member.getEmail(), ip, ua, "Inactive membership");
+            throw new BadCredentialsException("MEMBERSHIP_INACTIVE");
+        }
+
+        if (!Boolean.TRUE.equals(member.getEmailVerified())) {
+            logFailed(member.getEmail(), ip, ua, "Email not verified");
+            throw new BadCredentialsException("EMAIL_NOT_VERIFIED");
+        }
 
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
+            logFailed(member.getEmail(), ip, ua, "Invalid password");
             throw new BadCredentialsException("INVALID_CREDENTIALS");
         }
 
@@ -148,10 +150,20 @@ public class MemberAuthService {
         member.setLastLoginAt(LocalDateTime.now());
         memberRepository.save(member);
 
+        auditRepo.save(AuthAuditLog.builder()
+                .userId(member.getId())
+                .email(member.getEmail())
+                .eventType(AuthAuditLog.EventType.LOGIN_SUCCESS)
+                .status(AuthAuditLog.Status.SUCCESS)
+                .ipAddress(ip)
+                .userAgent(ua)
+                .details("Member login")
+                .build());
+
         return buildLoginResponse(member, business, httpRequest);
     }
 
-    // ================= VERIFY =================
+    // ================= VERIFY EMAIL =================
     @Transactional
     public void verifyEmail(String token) {
 
@@ -185,7 +197,7 @@ public class MemberAuthService {
 
         String token = UUID.randomUUID().toString();
 
-        MemberEmailVerificationToken saved = verificationRepo.save(
+        verificationRepo.save(
                 MemberEmailVerificationToken.builder()
                         .token(token)
                         .memberId(member.getId())
@@ -194,15 +206,16 @@ public class MemberAuthService {
                         .build()
         );
 
-        eventPublisher.publishEvent(new MemberRegisteredEvent(member, saved.getToken()));
+        eventPublisher.publishEvent(new MemberRegisteredEvent(member, token));
     }
 
     // ================= FORGOT PASSWORD =================
     @Transactional
-    public void requestPasswordReset(String identifier) {
+    public void requestPasswordReset(String identifier,
+                                     HttpServletRequest request) {
 
         Member member = findMemberByIdentifier(identifier);
-        if (member == null || member.getEmail() == null) return;
+        if (member == null) return;
 
         String token = UUID.randomUUID().toString();
 
@@ -217,13 +230,12 @@ public class MemberAuthService {
         emailService.sendPasswordResetEmail(member.getEmail(), token);
 
         auditRepo.save(AuthAuditLog.builder()
-                .userId(member.getId()).email(member.getEmail())
+                .userId(member.getId())
+                .email(member.getEmail())
                 .eventType(AuthAuditLog.EventType.PASSWORD_RESET_REQUESTED)
                 .status(AuthAuditLog.Status.SUCCESS)
-                .ipAddress(IpAddressUtil.getClientIp(null))
+                .ipAddress(IpAddressUtil.getClientIp(request))
                 .build());
-
-
     }
 
     // ================= RESET PASSWORD =================
@@ -256,6 +268,10 @@ public class MemberAuthService {
         return memberRepository.findByPhone(identifier).orElse(null);
     }
 
+    private void logFailed(String email, String ip, String ua, String reason) {
+        auditRepo.save(AuthAuditLog.loginFailed(email, ip, ua, reason));
+    }
+
     private MemberLoginResponse buildLoginResponse(Member member, Business business,
                                                    HttpServletRequest request) {
 
@@ -265,14 +281,15 @@ public class MemberAuthService {
                 RefreshToken.builder()
                         .token(UUID.randomUUID().toString())
                         .userId(member.getId())
-                        .subjectType("MEMBER")
+                        .subjectType("USER")
                         .expiresAt(LocalDateTime.now().plusDays(refreshTokenExpiryDays))
                         .ipAddress(IpAddressUtil.getClientIp(request))
                         .userAgent(request.getHeader("User-Agent"))
                         .build()
         );
 
-        MemberLoginResponse.SubscriptionInfo subscriptionInfo = buildActiveSubscriptionInfo(member.getId());
+        MemberLoginResponse.SubscriptionInfo subscriptionInfo =
+                buildActiveSubscriptionInfo(member.getId());
 
         return MemberLoginResponse.builder()
                 .accessToken(accessToken)
@@ -291,6 +308,7 @@ public class MemberAuthService {
                 .map(sub -> {
                     SubscriptionPlan plan = subscriptionPlanRepository.findById(sub.getPlanId()).orElse(null);
                     long days = ChronoUnit.DAYS.between(LocalDate.now(), sub.getEndDate());
+
                     return MemberLoginResponse.SubscriptionInfo.builder()
                             .subscriptionId(sub.getId())
                             .planName(plan != null ? plan.getName() : "Plan #" + sub.getPlanId())
@@ -313,8 +331,6 @@ public class MemberAuthService {
                 .fullName(m.getFullName())
                 .phone(m.getPhone())
                 .email(m.getEmail())
-                .dateOfBirth(m.getDateOfBirth())
-                .gender(m.getGender())
                 .status(m.getStatus())
                 .memberSince(m.getCreatedAt())
                 .build();

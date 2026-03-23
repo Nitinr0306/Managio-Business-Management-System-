@@ -52,8 +52,9 @@ public class MemberAuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<Void> forgotPassword(@RequestParam String identifier) {
-        memberAuthService.requestPasswordReset(identifier);
+    public ResponseEntity<Void> forgotPassword(@RequestParam String identifier,HttpServletRequest request
+    ) {
+        memberAuthService.requestPasswordReset(identifier,request);
         return ResponseEntity.ok().build();
     }
 
