@@ -22,7 +22,7 @@ public class MemberAuthController {
 
     @PostMapping("/register")
     public ResponseEntity<MemberRegisterResponse> register(
-            @RequestBody MemberRegistrationRequest request,
+            @Valid @RequestBody MemberRegistrationRequest request,
             HttpServletRequest httpRequest
     ) {
         return ResponseEntity.ok(
@@ -32,7 +32,7 @@ public class MemberAuthController {
 
     @PostMapping("/login")
     public ResponseEntity<MemberLoginResponse> login(
-            @RequestBody MemberLoginRequest request,
+            @Valid @RequestBody MemberLoginRequest request,
             HttpServletRequest httpRequest
     ) {
         return ResponseEntity.ok(

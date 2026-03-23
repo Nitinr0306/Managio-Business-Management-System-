@@ -156,6 +156,8 @@ export default function StaffDetailPage() {
             <UserCog className="w-4 h-4 text-indigo-400" /> Staff Details
           </h3>
           {[
+            { label: 'Staff ID', value: staff.publicId || `STF-${staff.id}` },
+            { label: 'User ID', value: staff.userPublicId || `USR-${staff.userId}` },
             { label: 'Department', value: staff.department || '—' },
             { label: 'Designation', value: staff.designation || '—' },
             { label: 'Monthly Salary', value: staff.salary != null ? `₹${Number(staff.salary).toLocaleString('en-IN')}` : '—' },

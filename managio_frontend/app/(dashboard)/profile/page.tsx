@@ -89,6 +89,7 @@ export default function ProfilePage() {
 
           <div className="space-y-4">
             {[
+              { label: 'Account ID', value: user?.publicId || (user?.id ? `USR-${user.id}` : '—') },
               { label: 'Full Name', value: user?.fullName || `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() },
               { label: 'Email Address', value: user?.email },
               { label: 'Account Role', value: user?.roles?.[0]?.replace('ROLE_', '') || 'USER' },

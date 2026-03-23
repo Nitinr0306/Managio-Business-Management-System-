@@ -239,6 +239,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen = false }: SidebarProp
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-medium text-white/75 truncate">{displayName}</div>
                 <div className="text-[10px] text-white/30 truncate">{user?.email}</div>
+                {user?.publicId && <div className="text-[10px] text-indigo-300/80 font-medium truncate">{user.publicId}</div>}
               </div>
               <button
                 onClick={() => logout()}

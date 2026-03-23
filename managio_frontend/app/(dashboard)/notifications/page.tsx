@@ -16,7 +16,7 @@ export default function NotificationsPage() {
   const formatActor = (log: { actorPublicId?: string; actorType?: string; userId?: number }) => {
     if (log.actorPublicId) return log.actorPublicId
     if (log.actorType === 'SYSTEM' || log.userId === 0) return 'SYSTEM'
-    return log.actorType || 'UNKNOWN'
+    return log.actorType || 'USER'
   }
 
   return (

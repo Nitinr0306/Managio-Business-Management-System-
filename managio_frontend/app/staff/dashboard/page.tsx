@@ -4,7 +4,6 @@ import { useAuthStore } from '@/lib/store/authStore'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useStaffDashboard } from '@/lib/hooks/useDashboard'
 import { StatsCard } from '@/components/shared/StatsCard'
-import { LoadingSpinner } from '@/components/shared/EmptyState'
 import {
   Users, Clock, CreditCard, TrendingUp,
   LogOut, UserCog, Shield, ArrowRight,
@@ -12,7 +11,7 @@ import {
 } from 'lucide-react'
 import {
   formatCurrency, formatRelative, getInitials,
-  getUserDisplayName, formatDate,
+  getUserDisplayName,
 } from '@/lib/utils/formatters'
 import { cn } from '@/lib/utils/cn'
 import Link from 'next/link'
@@ -71,6 +70,18 @@ export default function StaffDashboardPage() {
                     <span className="text-white/20">·</span>
                     <span className="text-xs text-white/40">{businessContext.name}</span>
                   </>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                {user?.publicId && (
+                  <span className="text-[10px] px-2 py-1 rounded-full bg-violet-500/10 text-violet-300/85 font-medium">
+                    {user.publicId}
+                  </span>
+                )}
+                {staffContext?.staffPublicId && (
+                  <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-300/85 font-medium">
+                    {staffContext.staffPublicId}
+                  </span>
                 )}
               </div>
             </div>

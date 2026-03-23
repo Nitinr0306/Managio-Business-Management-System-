@@ -113,6 +113,9 @@ export default function MemberDetailPage() {
                 <span className="text-xs text-white/30 flex items-center gap-1">
                   <Calendar className="w-3 h-3" /> Joined {formatDate(member.createdAt)}
                 </span>
+                <span className="text-[10px] px-2 py-1 rounded-full bg-indigo-500/10 text-indigo-300/85 font-medium">
+                  {member.publicId || `MEM-${member.id}`}
+                </span>
               </div>
             </div>
           </div>
@@ -164,6 +167,7 @@ export default function MemberDetailPage() {
           <div className="p-5 rounded-2xl border border-white/[0.06] bg-[hsl(var(--card))] space-y-3">
             <h3 className="text-sm font-display font-600 text-white/60">Personal Details</h3>
             {[
+              { label: 'Member ID', value: member.publicId || `MEM-${member.id}` },
               { label: 'Date of Birth', value: member.dateOfBirth ? formatDate(member.dateOfBirth) : '—' },
               { label: 'Gender', value: member.gender || '—' },
               { label: 'Address', value: member.address || '—' },

@@ -51,7 +51,7 @@ export default function AuditLogsPage() {
     if (log.actorType === 'SYSTEM' || log.userId === 0) {
       return 'SYSTEM'
     }
-    return log.actorType || 'UNKNOWN'
+    return log.actorType || 'USER'
   }
 
   return (

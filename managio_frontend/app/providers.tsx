@@ -33,9 +33,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           closeButton
           toastOptions={{
             style: {
-              background: 'hsl(240 10% 8%)',
-              border: '1px solid hsl(240 5% 16%)',
-              color: 'hsl(0 0% 96%)',
+              background: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
+              color: 'hsl(var(--foreground))',
               borderRadius: '12px',
             },
           }}

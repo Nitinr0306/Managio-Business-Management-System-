@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
 import { BottomTabs, type BottomTabItem } from '@/components/layout/BottomTabs'
 import { useBusinessStore } from '@/lib/store/businessStore'
-import { Bell, Building2, CreditCard, LayoutDashboard, Menu, Users, UserCog } from 'lucide-react'
+import { Bell, Building2, CheckSquare, CreditCard, LayoutDashboard, Menu, Users, UserCog } from 'lucide-react'
 import { BOTTOM_TABS_H, HEADER_H, OWNER_SIDEBAR_FULL, OWNER_SIDEBAR_MINI } from '@/lib/ui/layout'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -44,8 +44,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     ? [
         { key: 'overview', label: 'Home', href: `/businesses/${currentBusiness.id}`, icon: LayoutDashboard },
         { key: 'members', label: 'Members', href: `/businesses/${currentBusiness.id}/members`, icon: Users },
+        { key: 'tasks', label: 'Tasks', href: `/businesses/${currentBusiness.id}/tasks`, icon: CheckSquare },
         { key: 'payments', label: 'Payments', href: `/businesses/${currentBusiness.id}/payments`, icon: CreditCard },
-        { key: 'subs', label: 'Subs', href: `/businesses/${currentBusiness.id}/subscriptions`, icon: CreditCard },
         { key: 'more', label: 'More', icon: Menu, onClick: () => setMobileOpen(true) },
       ]
     : [

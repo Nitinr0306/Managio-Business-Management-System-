@@ -60,7 +60,7 @@ export function MobileDrawer({
             aria-modal="true"
             aria-label={title ?? 'Menu'}
             className={cn(
-              'fixed top-0 left-0 bottom-0 w-[86vw] max-w-[320px] bg-[#080812] border-r border-white/10 z-50 md:hidden outline-none',
+              'fixed top-0 left-0 bottom-0 w-[86vw] max-w-[320px] bg-[hsl(var(--surface-1))] border-r border-white/10 z-50 md:hidden outline-none',
               'flex flex-col'
             )}
             initial={{ x: '-100%' }}

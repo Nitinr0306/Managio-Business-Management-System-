@@ -21,7 +21,7 @@ const CORE_PERMS: { label: string; perm: Permission; hint: string }[] = [
 
 export default function TeamPage() {
   const businessId = useBusinessStore((s) => (s.currentBusiness?.id ? String(s.currentBusiness.id) : ''))
-  const [page, setPage] = useState(0)
+  const [page] = useState(0)
   const [busy, setBusy] = useState<string | null>(null)
 
   const staffQuery = useStaff(businessId, { page, size: 20 })

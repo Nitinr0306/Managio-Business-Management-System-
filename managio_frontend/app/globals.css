@@ -88,6 +88,32 @@
     --input: 228 10% 90%;
     --ring: 238 84% 60%;
   }
+
+  /* Light-mode compatibility layer for legacy dark-first utility usage. */
+  .light [class*='text-white/'] {
+    color: hsl(var(--foreground) / 0.78) !important;
+  }
+
+  .light [class*='placeholder-white/']::placeholder {
+    color: hsl(var(--muted-foreground) / 0.9) !important;
+  }
+
+  .light [class*='border-white/'] {
+    border-color: hsl(var(--border) / 0.9) !important;
+  }
+
+  .light [class*='bg-white/'] {
+    background-color: hsl(var(--surface-1)) !important;
+  }
+
+  .light .bg-\[\#070710\],
+  .light .bg-\[\#080812\] {
+    background-color: hsl(var(--surface-0)) !important;
+  }
+
+  .light .bg-\[\#070710\]\/70 {
+    background-color: hsl(var(--surface-0) / 0.8) !important;
+  }
 }
 
 /* ── Base Styles ─────────────────────────────────────────────── */

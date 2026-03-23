@@ -197,8 +197,8 @@ export function useAuth() {
       router.replace('/member/dashboard')
     },
     onError: (err, variables) => {
-      // store email/identifier for redirect
-      if (variables?.identifier) {
+      // Persist only emails for verification resend flow; phone identifiers are not valid here.
+      if (variables?.identifier?.includes('@')) {
         localStorage.setItem('pending_verification_email', variables.identifier)
       }
 

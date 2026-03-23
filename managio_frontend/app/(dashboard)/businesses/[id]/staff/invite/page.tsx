@@ -30,15 +30,15 @@ export default function InviteStaffPage() {
   } = useForm<InviteData>({ resolver: zodResolver(inviteSchema) })
 
   const inp =
-    'w-full bg-white/4 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/25 focus:outline-none focus:border-indigo-500/60 transition-all'
-  const lbl = 'block text-xs font-medium text-white/50 mb-1.5'
+    'w-full bg-[hsl(var(--surface-1))] border border-[hsl(var(--border))] rounded-xl px-4 py-2.5 text-sm text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:border-indigo-500/60 transition-all'
+  const lbl = 'block text-xs font-medium text-[hsl(var(--muted-foreground))] mb-1.5'
 
   return (
     <div className="max-w-xl mx-auto">
       <div className="mb-8">
         <Link
           href={`/businesses/${businessId}/staff`}
-          className="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white/80 transition-colors mb-4"
+          className="inline-flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors mb-4"
         >
           <ArrowLeft className="w-4 h-4" /> Back to staff
         </Link>
@@ -48,7 +48,7 @@ export default function InviteStaffPage() {
           </div>
           <div>
             <h1 className="text-2xl font-display font-700">Invite Staff Member</h1>
-            <p className="text-sm text-white/45">Send an email invitation to join your team</p>
+            <p className="text-sm text-[hsl(var(--muted-foreground))]">Send an email invitation to join your team</p>
           </div>
         </div>
       </div>
@@ -56,7 +56,7 @@ export default function InviteStaffPage() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-6 rounded-2xl border border-white/6 bg-white/[0.02]"
+        className="p-6 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]"
       >
         <form
           onSubmit={handleSubmit(async (d) => {

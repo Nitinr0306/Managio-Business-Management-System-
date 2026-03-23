@@ -118,8 +118,8 @@ export default function StaffSalaryLedgerPage() {
                   {monthly.map((row) => (
                     <tr key={row.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
                       <td className="px-4 py-3">
-                        <div className="text-sm text-white/80">{row.staffName || row.staffPublicId || row.staffId}</div>
-                        <div className="text-xs text-white/35">{row.staffPublicId || row.employeeId || 'N/A'}</div>
+                        <div className="text-sm text-white/80">{row.staffName || row.staffPublicId || 'Staff Member'}</div>
+                        <div className="text-xs text-white/35">{row.staffPublicId || row.employeeId || 'ID unavailable'}</div>
                       </td>
                       <td className="px-4 py-3 text-sm text-white/70">{formatCurrency(row.monthlySalary)}</td>
                       <td className="px-4 py-3 text-sm text-emerald-400">{formatCurrency(row.paidAmount)}</td>
@@ -165,7 +165,7 @@ export default function StaffSalaryLedgerPage() {
                 <div key={`${row.staffId}-${row.salaryMonth}`} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="text-sm text-white/80">{row.staffName || row.staffPublicId || row.staffId}</div>
+                      <div className="text-sm text-white/80">{row.staffName || row.staffPublicId || 'Staff Member'}</div>
                       <div className="text-xs text-white/35">Pending: {formatCurrency(row.pendingAmount)}</div>
                     </div>
                     <CircleAlert className="w-4 h-4 text-amber-400" />

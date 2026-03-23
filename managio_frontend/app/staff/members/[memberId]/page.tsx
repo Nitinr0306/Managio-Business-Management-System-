@@ -113,6 +113,11 @@ export default function StaffMemberDetailPage() {
             <div className="text-sm text-white/45 mt-1">
               {member.email ?? '—'} • {member.phone ?? '—'}
             </div>
+            <div className="mt-2">
+              <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-300/85 font-medium">
+                {member.publicId || `MEM-${member.id}`}
+              </span>
+            </div>
           </div>
           <Link
             href={`/staff/members/${memberId}?edit=1`}

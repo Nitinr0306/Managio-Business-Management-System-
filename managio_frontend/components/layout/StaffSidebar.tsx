@@ -73,12 +73,12 @@ export function StaffSidebar({
     <aside
       className={cn(
         variant === 'desktop'
-          ? 'w-[260px] fixed left-0 top-0 h-screen bg-[#080812] border-r border-white/5 hidden md:flex flex-col'
+          ? 'w-[260px] fixed left-0 top-0 h-screen bg-[hsl(var(--surface-1))] border-r border-white/5 hidden md:flex flex-col'
           : 'w-full bg-transparent flex flex-col',
         className
       )}
     >
-      <div className={cn('flex items-center gap-3 px-4 h-16 border-b border-white/5', variant === 'mobile' && 'bg-[#080812]')}>
+      <div className={cn('flex items-center gap-3 px-4 h-16 border-b border-white/5', variant === 'mobile' && 'bg-[hsl(var(--surface-1))]')}>
         <Link
           href="/staff/dashboard"
           onClick={() => onNavigate?.()}
@@ -92,7 +92,7 @@ export function StaffSidebar({
         </div>
       </div>
 
-      <nav className={cn('flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5', variant === 'mobile' && 'bg-[#080812]')}>
+      <nav className={cn('flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5', variant === 'mobile' && 'bg-[hsl(var(--surface-1))]')}>
         {nav.map((item) => {
           const active = isActive(item.href)
           const disabled = !item.enabled
@@ -118,7 +118,7 @@ export function StaffSidebar({
         })}
       </nav>
 
-      <div className={cn('border-t border-white/5 p-3', variant === 'mobile' && 'bg-[#080812]')}>
+      <div className={cn('border-t border-white/5 p-3', variant === 'mobile' && 'bg-[hsl(var(--surface-1))]')}>
         <button
           onClick={() => logout()}
           className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all"

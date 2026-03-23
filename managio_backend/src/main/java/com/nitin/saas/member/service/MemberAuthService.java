@@ -332,6 +332,9 @@ public class MemberAuthService {
     // ================= HELPERS =================
 
     private Member findMemberByIdentifier(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            return null;
+        }
         if (identifier.contains("@")) {
             return memberRepository.findByEmail(identifier.toLowerCase()).orElse(null);
         }

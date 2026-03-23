@@ -51,7 +51,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-[#070710]">
+    <div className="min-h-screen bg-[hsl(var(--background))]">
       <div className="hidden md:block">
         <StaffSidebar businessId={businessId} variant="desktop" />
       </div>

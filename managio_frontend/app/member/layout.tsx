@@ -35,11 +35,11 @@ export default function MemberPortalLayout({ children }: { children: React.React
   )
 
   return (
-    <div className="min-h-screen bg-[#070710]">
+    <div className="min-h-screen bg-[hsl(var(--background))]">
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-emerald-600/6 rounded-full blur-[100px]" />
       </div>
-      <header className="relative z-20 px-4 md:px-6 py-4 border-b border-white/5 flex items-center justify-between bg-[#070710]/70 backdrop-blur">
+      <header className="relative z-20 px-4 md:px-6 py-4 border-b border-white/5 flex items-center justify-between bg-[hsl(var(--surface-1))]/80 backdrop-blur">
         <Link href="/member/dashboard" className="inline-flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
             <Dumbbell className="w-4 h-4 text-white" />
@@ -56,7 +56,7 @@ export default function MemberPortalLayout({ children }: { children: React.React
       </header>
 
       <MobileDrawer open={isMobile && drawerOpen} title="Member menu" onClose={() => setDrawerOpen(false)}>
-        <div className="p-3 bg-[#080812]">
+        <div className="p-3 bg-[hsl(var(--surface-1))]">
           <div className="space-y-1">
             <Link onClick={() => setDrawerOpen(false)} href="/member/dashboard" className="block px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5">
               Dashboard
