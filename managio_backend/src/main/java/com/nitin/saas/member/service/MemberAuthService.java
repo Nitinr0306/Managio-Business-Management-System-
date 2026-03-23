@@ -83,7 +83,7 @@ public class MemberAuthService {
                     .password(passwordEncoder.encode(request.getPassword()))
                     .status("ACTIVE")
                     .accountEnabled(true)
-                    .emailVerified(false)
+                    .emailVerified(true)
                     .build();
         }
 
@@ -92,20 +92,20 @@ public class MemberAuthService {
         // 🔴 DELETE OLD TOKENS
         verificationRepo.deleteAllByMemberId(member.getId());
 
-        // CREATE NEW TOKEN
-        String token = UUID.randomUUID().toString();
-
-        MemberEmailVerificationToken saved = verificationRepo.save(
-                MemberEmailVerificationToken.builder()
-                        .token(token)
-                        .memberId(member.getId())
-                        .expiresAt(LocalDateTime.now().plusHours(24))
-                        .used(false)
-                        .build()
-        );
-
-        // ✅ EVENT-DRIVEN EMAIL
-        eventPublisher.publishEvent(new MemberRegisteredEvent(member, saved.getToken()));
+//        // CREATE NEW TOKEN
+//        String token = UUID.randomUUID().toString();
+//
+//        MemberEmailVerificationToken saved = verificationRepo.save(
+//                MemberEmailVerificationToken.builder()
+//                        .token(token)
+//                        .memberId(member.getId())
+//                        .expiresAt(LocalDateTime.now().plusHours(24))
+//                        .used(false)
+//                        .build()
+//        );
+//
+//        // ✅ EVENT-DRIVEN EMAIL
+//        eventPublisher.publishEvent(new MemberRegisteredEvent(member, saved.getToken()));
 
         return MemberRegisterResponse.builder()
                 .requiresVerification(true)
@@ -123,10 +123,6 @@ public class MemberAuthService {
         if (member == null) throw new BadCredentialsException("INVALID_CREDENTIALS");
         if (!member.getAccountEnabled()) throw new BadCredentialsException("ACCOUNT_DISABLED");
         if (!"ACTIVE".equals(member.getStatus())) throw new BadCredentialsException("MEMBERSHIP_INACTIVE");
-
-        if (!Boolean.TRUE.equals(member.getEmailVerified())) {
-            throw new BusinessException("Email not verified", ErrorCode.EMAIL_NOT_VERIFIED);
-        }
 
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new BadCredentialsException("INVALID_CREDENTIALS");
