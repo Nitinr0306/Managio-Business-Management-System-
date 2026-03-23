@@ -1,11 +1,13 @@
 package com.nitin.saas.member.service;
 
+import com.nitin.saas.auth.entity.AuthAuditLog;
 import com.nitin.saas.auth.entity.RefreshToken;
 import com.nitin.saas.auth.event.MemberRegisteredEvent;
 import com.nitin.saas.auth.repository.AuthAuditLogRepository;
 import com.nitin.saas.auth.repository.RefreshTokenRepository;
 import com.nitin.saas.business.entity.Business;
 import com.nitin.saas.business.repository.BusinessRepository;
+import com.nitin.saas.common.email.EmailNotificationService;
 import com.nitin.saas.common.exception.*;
 import com.nitin.saas.common.security.JwtUtil;
 import com.nitin.saas.common.utils.IpAddressUtil;
@@ -46,12 +48,13 @@ public class MemberAuthService {
     private final MemberEmailVerificationTokenRepository verificationRepo;
     private final MemberPasswordResetTokenRepository resetRepo;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final AuthAuditLogRepository authAuditLogRepository;
+    private final AuthAuditLogRepository auditRepo;
     private final MemberSubscriptionRepository memberSubscriptionRepository;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final ApplicationEventPublisher eventPublisher;
+    private final EmailNotificationService emailService;
 
     @Value("${app.security.refresh-token-expiry-days:30}")
     private Integer refreshTokenExpiryDays;
@@ -211,7 +214,16 @@ public class MemberAuthService {
                         .build()
         );
 
-        // password reset email can remain direct
+        emailService.sendPasswordResetEmail(member.getEmail(), token);
+
+        auditRepo.save(AuthAuditLog.builder()
+                .userId(member.getId()).email(member.getEmail())
+                .eventType(AuthAuditLog.EventType.PASSWORD_RESET_REQUESTED)
+                .status(AuthAuditLog.Status.SUCCESS)
+                .ipAddress(IpAddressUtil.getClientIp(null))
+                .build());
+
+
     }
 
     // ================= RESET PASSWORD =================
