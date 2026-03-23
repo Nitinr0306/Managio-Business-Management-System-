@@ -52,6 +52,7 @@ public class MemberService {
                         .notes(request.getNotes())
                         .status("ACTIVE")
                         .accountEnabled(true)
+                        .emailVerified(false)
                         .build();
 
                 member = memberRepository.save(member);
