@@ -2,35 +2,41 @@ pipeline {
 
     agent any
 
+    environment {
+        DOCKER_USERNAME = "nitinr1103"
+        IMAGE_NAME = "managio-backend"
+    }
+
     stages {
 
         stage('Clone') {
             steps {
-                echo 'Repository cloned'
+                echo 'Cloning Repository'
             }
         }
 
         stage('Build Backend') {
             steps {
-                sh 'echo Building Backend'
+                sh 'cd managio_backend && chmod +x mvnw && ./mvnw clean package -DskipTests'
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'echo Docker Build'
+                sh 'docker build -t $DOCKER_USERNAME/$IMAGE_NAME:latest ./managio_backend'
             }
         }
 
         stage('Docker Push') {
             steps {
-                sh 'echo Docker Push'
+                sh 'docker login -u $DOCKER_USERNAME -p dckr_pat_lRZj2fK62wjN7VVDVdQA8_l2QIw'
+                sh 'docker push $DOCKER_USERNAME/$IMAGE_NAME:latest'
             }
         }
 
         stage('Deploy Kubernetes') {
             steps {
-                sh 'echo Deploying to Kubernetes'
+                sh 'kubectl rollout restart deployment backend'
             }
         }
     }
