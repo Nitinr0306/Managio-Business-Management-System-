@@ -28,11 +28,15 @@ pipeline {
         }
 
         stage('Docker Push') {
-            steps {
-                sh 'docker login -u $DOCKER_USERNAME -p dckr_pat_lRZj2fK62wjN7VVDVdQA8_l2QIw'
-                sh 'docker push $DOCKER_USERNAME/$IMAGE_NAME:latest'
-            }
+    steps {
+        withCredentials([
+            string(credentialsId: 'dockerhub-token', variable: 'DOCKER_TOKEN')
+        ]) {
+            sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_TOKEN'
+            sh 'docker push $DOCKER_USERNAME/$IMAGE_NAME:latest'
         }
+    }
+}
 
         stage('Deploy Kubernetes') {
             steps {
