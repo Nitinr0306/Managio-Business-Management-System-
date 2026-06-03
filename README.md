@@ -833,9 +833,9 @@ Verified in codebase:
 
 | | |
 |---|---|
-| LinkedIn | [linkedin.com/in/your-profile](https://www.linkedin.com/in/nitinr0306/) |
-| GitHub | [github.com/your-username](https://github.com/Nitinr0306) |
-| Portfolio | [your-portfolio.com](https://nitinr0306-portfolio-business.vercel.app/) |
+| LinkedIn | [linkedin.com/in/nitinr0306](https://www.linkedin.com/in/nitinr0306/) |
+| GitHub | [github.com/Nitinr0306](https://github.com/Nitinr0306) |
+| Portfolio | [nitinr0306-portfolio-business.vercel.app/](https://nitinr0306-portfolio-business.vercel.app/) |
 | Email | nitinr0306@gmail.com |
 
 ---
