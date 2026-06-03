@@ -841,5 +841,5 @@ Verified in codebase:
 ---
 
 <p align="center">
-  <sub>Built with Spring Boot & Next.js · Managio v1.0.0</sub>
+  <sub>Built with Spring Boot & Next.js·Managio v1.0.0</sub>
 </p>
