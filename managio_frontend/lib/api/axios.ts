@@ -5,8 +5,8 @@ import axios, {
 } from 'axios'
 import { useAuthStore } from '@/lib/store/authStore'
 
-const BASE_URL =  process.env.NEXT_PUBLIC_API_BASE_URL
-
+const BASE_URL = "/"
+console.log("BASE_URL =", BASE_URL)
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },

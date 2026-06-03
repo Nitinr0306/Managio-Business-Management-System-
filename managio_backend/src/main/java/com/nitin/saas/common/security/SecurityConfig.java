@@ -121,19 +121,14 @@ public class SecurityConfig {
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOriginPatterns(List.of(
-                        "http://localhost:3000",
-                        "http://localhost:3001",
-                        "https://*.vercel.app",
-                        "https://managio.me"   
-                        ));
+                config.setAllowedOriginPatterns(List.of("*"));
                 config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
                 config.setAllowedHeaders(List.of(
                         "Authorization","Content-Type",
                         "X-Refresh-Token","X-Device-Id","X-Request-Id"));
                 config.setExposedHeaders(List.of(
                         "X-Total-Count","X-Total-Pages","X-Request-Id"));
-                config.setAllowCredentials(true);
+                config.setAllowCredentials(false);
                 config.setMaxAge(3600L);
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

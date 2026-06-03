@@ -1,15 +1,20 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+
   reactStrictMode: true,
+
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion'],
   },
+
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
     ],
   },
+
   async headers() {
     return [
       {
