@@ -825,8 +825,6 @@ Verified in codebase:
 
 **Proprietary** — © 2026 Managio. All rights reserved.
 
-> A `LICENSE` file was **Not Found in Codebase**. Add `LICENSE` or `LICENSE.md` if you intend to open-source.
-
 ---
 
 ## Author
@@ -835,10 +833,10 @@ Verified in codebase:
 
 | | |
 |---|---|
-| LinkedIn | [linkedin.com/in/your-profile](https://linkedin.com/in/your-profile) |
-| GitHub | [github.com/your-username](https://github.com/your-username) |
-| Portfolio | [your-portfolio.com](https://your-portfolio.com) |
-| Email | your.email@example.com |
+| LinkedIn | [linkedin.com/in/your-profile](https://www.linkedin.com/in/nitinr0306/) |
+| GitHub | [github.com/your-username](https://github.com/Nitinr0306) |
+| Portfolio | [your-portfolio.com](https://nitinr0306-portfolio-business.vercel.app/) |
+| Email | nitinr0306@gmail.com |
 
 ---
 
