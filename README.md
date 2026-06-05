@@ -282,8 +282,8 @@ The frontend implements dedicated surfaces for:
 
 ### Deployment & infrastructure
 
-<details>
-<summary><strong>Cloud, Docker, Kubernetes, monitoring (click to expand)</strong></summary>
+<details open>
+<summary><strong>Cloud, Docker, Kubernetes, monitoring (click to shrink)</strong></summary>
 
 | Screenshot | Caption |
 |------------|---------|
