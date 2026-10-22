@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Members — Managio (Front Desk)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@600;700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@0.453.0/dist/umd/lucide.min.js"></script>
+  <script src="../data.js"></script>
+  <script src="shell.js"></script>
+  <style>body{font-feature-settings:'tnum' 1}</style>
+</head>
+<body class="bg-canvas text-ink antialiased">
+<div id="topbar"></div>
+<main class="px-4 sm:px-6 py-7 max-w-[1320px]">
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <h1 class="font-display text-[32px] leading-[38px] font-bold">Members</h1>
+    <div class="flex gap-2">
+      <button class="h-11 px-4 rounded-xl border border-line bg-surface font-semibold text-[15px] hover:bg-canvas inline-flex items-center gap-2"><i data-lucide="upload" class="w-4 h-4"></i>Import CSV</button>
+      <button class="h-11 px-4 rounded-xl bg-sun text-pine font-semibold text-[15px] hover:bg-sun-dark inline-flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Add member</button>
+    </div>
+  </div>
+  <div id="chips" class="mt-5 flex flex-wrap gap-2" role="tablist" aria-label="Filter members"></div>
+
+  <div class="mt-5 grid lg:grid-cols-[1fr_420px] gap-6 items-start">
+    <ul id="list" class="space-y-2.5" aria-label="Members, most urgent first"></ul>
+
+    <aside class="lg:sticky lg:top-[136px] space-y-4" aria-label="Selected member">
+      <div class="rounded-2xl bg-pine text-white p-6 relative overflow-hidden">
+        <div class="flex justify-between items-start">
+          <span class="text-[13px] text-white/70">Member pass</span>
+          <span class="text-[13px] text-white/70 tabular-nums">Ironwood Fitness Indiranagar</span>
+        </div>
+        <p class="font-display text-[28px] leading-8 font-bold mt-4">Rohan Mehta</p>
+        <p class="text-[15px] text-white/75 tabular-nums">MBR-7K2Q9XLD</p>
+        <div class="mt-6 grid grid-cols-2 gap-4 border-t border-white/15 pt-4 text-[14px]">
+          <div><div class="text-white/60">Plan</div><div class="font-semibold">Quarterly Strength</div></div>
+          <div><div class="text-white/60">Valid</div><div class="font-semibold">26 Jul to 24 Oct 2026</div></div>
+        </div>
+        <div class="mt-5 flex items-end justify-between">
+          <p class="font-display text-[44px] leading-[44px] font-bold text-sun">4 days left</p>
+          <p class="text-[14px] text-white/70 pb-1">of 90</p>
+        </div>
+      </div>
+      <div class="bg-surface border border-line rounded-xl p-5">
+        <button class="w-full h-[52px] rounded-xl bg-sun text-pine font-bold text-[17px] hover:bg-sun-dark">Renew plan</button>
+        <div class="mt-2.5 grid grid-cols-2 gap-2.5">
+          <button class="h-11 rounded-xl border border-line font-semibold text-[15px] hover:bg-canvas">Record payment</button>
+          <button class="h-11 rounded-xl border border-line font-semibold text-[15px] hover:bg-canvas inline-flex items-center justify-center gap-1.5"><i data-lucide="phone" class="w-4 h-4"></i>Call</button>
+        </div>
+        <h2 class="mt-5 text-[15px] font-semibold">Payment history</h2>
+        <ul class="mt-2 divide-y divide-line text-[15px]">
+          <li class="flex justify-between py-2.5"><span class="text-muted">20 Oct 2026, Cash</span><span class="font-semibold tabular-nums">₹6,499</span></li>
+          <li class="flex justify-between py-2.5"><span class="text-muted">27 Jul 2026, UPI</span><span class="font-semibold tabular-nums">₹6,499</span></li>
+          <li class="flex justify-between py-2.5"><span class="text-muted">27 Apr 2026, UPI</span><span class="font-semibold tabular-nums">₹6,499</span></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</main>
+<script>
+  const { members, plans } = MANAGIO;
+  document.getElementById('topbar').outerHTML = B.topbar('Members');
+  const c = MANAGIO.business.counts;
+  const chips = [['All', c.all, true], ['Active', c.active], ['Ends in 7 days', c.ending], ['Expired', c.lapsed], ['No plan', c.none]];
+  document.getElementById('chips').innerHTML = chips.map(([l, n, on]) => `
+    <button role="tab" aria-selected="${!!on}" class="h-11 px-4 rounded-full text-[15px] font-semibold inline-flex items-center gap-2 ${on ? 'bg-pine text-white' : 'bg-surface border border-line text-ink hover:bg-pine-100'}">${l}<span class="tabular-nums ${on ? 'text-sun' : 'text-muted'}">${n}</span></button>`).join('');
+
+  const action = m => m.status === 'none'
+    ? `<button class="h-11 px-4 rounded-xl border-2 border-pine text-pine font-semibold text-[15px]">Assign plan</button>`
+    : m.status === 'active'
+      ? `<button class="h-11 px-4 rounded-xl border border-line font-semibold text-[15px]">Record payment</button>`
+      : `<button class="h-11 px-4 rounded-xl border-2 border-pine text-pine font-semibold text-[15px] hover:bg-pine-100">Renew plan</button>`;
+  const shown = members.filter(m => m.status !== 'active').concat(members.find(m => m.id === 'MBR-3HD8Q2LM'));
+  document.getElementById('list').innerHTML = shown.map(m => {
+    const sel = m.id === 'MBR-7K2Q9XLD';
+    return `<li class="bg-surface rounded-xl px-4 py-3 flex flex-wrap items-center gap-4 min-h-[76px] ${sel ? 'ring-2 ring-pine' : 'border border-line hover:border-pine/40'}">
+      ${B.avatar(m.name, sel ? 'bg-pine text-white' : undefined)}
+      <div class="flex-1 min-w-[180px]">
+        <div class="text-[16px] font-semibold">${m.name} <span class="font-normal text-muted">${m.plan ? plans[m.plan].name : 'No plan yet'}</span></div>
+        <div class="text-[14px] text-muted tabular-nums">${m.id}, ${m.phone}</div>
+      </div>
+      ${B.pill(m)}
+      ${action(m)}
+    </li>`;
+  }).join('');
+  lucide.createIcons();
+</script>
+</body>
+</html>

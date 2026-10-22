@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Managio - Ironwood Fitness Indiranagar</title>
+<!-- Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@500;600;700;800&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Design System Configuration -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-tint": "#3e6563",
+            "on-primary-fixed-variant": "#254d4b",
+            "surface-dim": "#cfdddb",
+            "on-secondary-fixed-variant": "#3b4a48",
+            "surface-container-low": "#e9f6f4",
+            "on-error-container": "#93000a",
+            "on-secondary-fixed": "#101e1d",
+            "outline-variant": "#c0c8c7",
+            "tertiary-fixed-dim": "#f0c12c",
+            "primary-fixed-dim": "#a5cecb",
+            "on-surface-variant": "#414847",
+            "inverse-surface": "#273332",
+            "surface-bright": "#effcfa",
+            "on-tertiary-fixed-variant": "#584400",
+            "surface-container-high": "#ddebe9",
+            "on-tertiary-container": "#503d00",
+            "on-error": "#ffffff",
+            "surface-container-highest": "#d8e5e3",
+            "outline": "#717978",
+            "surface": "#effcfa",
+            "on-secondary-container": "#586766",
+            "secondary-container": "#d5e6e4",
+            "on-primary-container": "#7ea6a3",
+            "on-background": "#121e1d",
+            "secondary": "#526160",
+            "tertiary-container": "#d2a501",
+            "primary-container": "#123c3a",
+            "on-surface": "#121e1d",
+            "primary": "#002624",
+            "inverse-primary": "#a5cecb",
+            "surface-variant": "#d8e5e3",
+            "secondary-fixed-dim": "#bacac8",
+            "background": "#effcfa",
+            "on-tertiary-fixed": "#241a00",
+            "inverse-on-surface": "#e6f4f1",
+            "on-primary": "#ffffff",
+            "tertiary-fixed": "#ffdf90",
+            "tertiary": "#755b00",
+            "error": "#ba1a1a",
+            "surface-container-lowest": "#ffffff",
+            "secondary-fixed": "#d5e6e4",
+            "primary-fixed": "#c0ebe7",
+            "on-secondary": "#ffffff",
+            "surface-container": "#e3f1ef",
+            "on-tertiary": "#ffffff",
+            "on-primary-fixed": "#00201f",
+            "error-container": "#ffdad6"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "space-xl": "2rem",
+            "space-sm": "0.5rem",
+            "margin": "1.5rem",
+            "gutter": "1rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "space-xs": "0.25rem"
+          },
+          fontFamily: {
+            "headline-md": ["Epilogue", "sans-serif"],
+            "label-md": ["Hanken Grotesk", "sans-serif"],
+            "label-lg": ["Hanken Grotesk", "sans-serif"],
+            "label-sm": ["Hanken Grotesk", "sans-serif"],
+            "headline-sm": ["Epilogue", "sans-serif"],
+            "headline-lg": ["Epilogue", "sans-serif"],
+            "body-lg": ["Hanken Grotesk", "sans-serif"],
+            "body-sm": ["Hanken Grotesk", "sans-serif"],
+            "body-md": ["Hanken Grotesk", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          fontSize: {
+            "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+            "label-md": ["13px", { lineHeight: "18px", fontWeight: "600" }],
+            "label-lg": ["15px", { lineHeight: "20px", fontWeight: "600" }],
+            "label-sm": ["11px", { lineHeight: "16px", fontWeight: "600" }],
+            "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+            "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "700" }],
+            "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+            "body-md": ["15px", { lineHeight: "22px", fontWeight: "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .receipt-perforation {
+      background-image: radial-gradient(circle, #f2f4f1 3px, transparent 3.5px);
+      background-size: 12px 6px;
+      background-position: top center;
+      background-repeat: repeat-x;
+    }
+  </style>
+</head>
+<body class="bg-[#F2F4F1] text-on-surface antialiased min-h-full flex flex-col font-body-md select-none">
+<!-- ================= TOP APP BAR (Shared Component via JSON) ================= -->
+<header class="bg-primary-container dark:bg-primary text-tertiary-fixed dark:text-tertiary-fixed-dim docked full-width top-0 w-full h-16 px-6 flex items-center justify-between gap-4 z-50 sticky border-b border-outline-variant/30">
+<!-- Left Cluster: Brand & Tenant Selector -->
+<div class="flex items-center gap-4 shrink-0">
+<span class="text-headline-sm font-headline-sm font-bold text-on-primary tracking-tight">Managio</span>
+<div class="h-5 w-px bg-on-primary-container/40"></div>
+<button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-on-primary hover:bg-on-primary/10 transition-colors duration-150 active:scale-95 text-body-md font-medium" type="button">
+<span>Ironwood Fitness Indiranagar</span>
+<span class="material-symbols-outlined text-[18px] text-on-primary-container">expand_more</span>
+</button>
+</div>
+<!-- Center Cluster: Search Box (on_left in center space) -->
+<div class="flex-1 max-w-xl mx-4">
+<div class="relative flex items-center w-full">
+<span class="material-symbols-outlined absolute left-3.5 text-secondary text-[20px] pointer-events-none">search</span>
+<input class="w-full h-10 pl-10 pr-10 bg-surface-container-lowest text-on-surface placeholder:text-outline border-0 rounded-lg text-body-sm focus:ring-2 focus:ring-tertiary-container focus:outline-none transition-all" placeholder="Find a member by name, phone or member ID" type="text"/>
+<div class="absolute right-3 flex items-center justify-center h-5 w-5 rounded bg-surface-container border border-outline-variant/40 text-secondary text-[11px] font-mono font-medium pointer-events-none">
+          /
+        </div>
+</div>
+</div>
+<!-- Right Cluster: Primary Quick Action & Receptionist Profile -->
+<div class="flex items-center gap-3 shrink-0">
+<!-- Notification Icon from JSON trailing_icon_actions -->
+<button aria-label="Notifications" class="p-2 text-on-primary-container hover:text-on-primary hover:bg-on-primary/10 rounded-full transition-colors active:scale-95" type="button">
+<span class="material-symbols-outlined text-[22px]">notifications</span>
+</button>
+<!-- Record payment Button (JSON trailing_primary_action) -->
+<button class="bg-[#F4C430] hover:bg-tertiary-fixed-dim text-primary-container px-4 py-2 rounded-lg font-label-lg font-bold flex items-center gap-1.5 shadow-none transition-colors duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-[20px] font-bold">add</span>
+<span>Record payment</span>
+</button>
+<div class="h-5 w-px bg-on-primary-container/40 mx-1"></div>
+<!-- Receptionist Avatar: Divya Menon (DM) -->
+<button class="flex items-center gap-2 p-1 rounded-full hover:bg-on-primary/10 transition-colors" title="Receptionist Divya profile avatar DM" type="button">
+<div class="relative flex items-center justify-center w-9 h-9 rounded-full bg-surface-container-high text-primary-container font-headline-sm text-[13px] font-bold">
+          DM
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#1F9D55] ring-2 ring-primary-container"></span>
+</div>
+</button>
+</div>
+</header>
+<!-- ================= SUB-NAVIGATION BAR ================= -->
+<nav class="bg-surface-container-lowest border-b border-[#E2E8F0] px-6 h-12 flex items-center sticky top-16 z-40">
+<div class="flex items-center gap-8 h-full max-w-[1440px] w-full">
+<!-- Today Tab (Active) -->
+<a class="text-primary-container border-b-[3px] border-primary-container font-label-lg font-bold h-full flex items-center px-1" href="#today">
+        Today
+      </a>
+<!-- Inactive Navigation items strictly matching JSON labels -->
+<a class="text-secondary hover:text-primary-container font-label-lg font-medium h-full flex items-center px-1 transition-colors" href="#members">
+        Members
+      </a>
+<a class="text-secondary hover:text-primary-container font-label-lg font-medium h-full flex items-center px-1 transition-colors" href="#plans">
+        Plans
+      </a>
+<a class="text-secondary hover:text-primary-container font-label-lg font-medium h-full flex items-center px-1 transition-colors" href="#payments">
+        Payments
+      </a>
+<a class="text-secondary hover:text-primary-container font-label-lg font-medium h-full flex items-center px-1 transition-colors" href="#team">
+        Team
+      </a>
+<a class="text-secondary hover:text-primary-container font-label-lg font-medium h-full flex items-center px-1 transition-colors" href="#activity">
+        Activity
+      </a>
+</div>
+</nav>
+<!-- ================= MAIN CONTENT CANVAS ================= -->
+<main class="flex-1 max-w-[1440px] w-full mx-auto px-8 py-8">
+<!-- Top Greeting Section -->
+<section class="mb-7 flex items-end justify-between">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary-container tracking-tight">Good morning, Divya</h1>
+<p class="font-body-md text-secondary mt-0.5">Tuesday, 20 October</p>
+</div>
+<div class="flex items-center gap-2 text-label-md text-on-surface-variant bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant/30">
+<span class="w-2 h-2 rounded-full bg-[#1F9D55]"></span>
+<span>Counter console active</span>
+</div>
+</section>
+<!-- Two-Column Tablet/Desktop Counter Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- ================= LEFT COLUMN (~65% / 8 Cols): TODAY'S WORK ================= -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<h2 class="font-headline-md text-headline-md text-primary-container">Today's work</h2>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed text-label-sm font-semibold">6 pending actions</span>
+</div>
+<span class="text-label-md text-secondary">Updated 2m ago</span>
+</div>
+<!-- Panel 1: Renew in the next 7 days -->
+<div class="bg-surface-container-lowest rounded-[12px] border border-[#DDE3DF] p-5 shadow-xs">
+<div class="flex items-center justify-between pb-4 border-b border-[#DDE3DF]">
+<div class="flex items-center gap-2.5">
+<h3 class="font-headline-sm text-[17px] text-primary-container font-bold">Renew in the next 7 days</h3>
+<span class="px-2 py-0.5 rounded-full bg-[#FFF3D6] text-[#A66200] font-label-sm font-bold border border-[#FFE08A]">3</span>
+</div>
+<span class="text-body-sm text-secondary">High renewal probability</span>
+</div>
+<!-- Pass Rows Container -->
+<div class="divide-y divide-[#DDE3DF]">
+<!-- Row 1: Kavya Iyer -->
+<div class="min-h-[56px] py-3.5 flex items-center justify-between gap-4">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center font-headline-sm text-body-md font-bold text-primary-container shrink-0">
+                  KI
+                </div>
+<div class="truncate">
+<p class="font-headline-sm text-body-lg font-semibold text-primary-container truncate">Kavya Iyer</p>
+<p class="font-body-sm text-secondary truncate">Yoga 3x/week Monthly</p>
+</div>
+</div>
+<div class="flex items-center gap-4 shrink-0">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-label-md font-bold bg-[#FFF7E6] text-[#C77700] border border-[#FFE8BD]">
+                  Ends tomorrow
+                </span>
+<button class="h-9 px-4 rounded-lg border border-primary-container text-primary-container hover:bg-surface-container font-label-md font-semibold transition-colors active:scale-95" type="button">
+                  Renew plan
+                </button>
+</div>
+</div>
+<!-- Row 2: Rohan Mehta -->
+<div class="min-h-[56px] py-3.5 flex items-center justify-between gap-4">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center font-headline-sm text-body-md font-bold text-primary-container shrink-0">
+                  RM
+                </div>
+<div class="truncate">
+<p class="font-headline-sm text-body-lg font-semibold text-primary-container truncate">Rohan Mehta</p>
+<p class="font-body-sm text-secondary truncate">Quarterly Strength</p>
+</div>
+</div>
+<div class="flex items-center gap-4 shrink-0">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-label-md font-bold bg-[#FFF7E6] text-[#C77700] border border-[#FFE8BD]">
+                  Ends in 4 days
+                </span>
+<button class="h-9 px-4 rounded-lg border border-primary-container text-primary-container hover:bg-surface-container font-label-md font-semibold transition-colors active:scale-95" type="button">
+                  Renew plan
+                </button>
+</div>
+</div>
+<!-- Row 3: Neha Gupta -->
+<div class="min-h-[56px] py-3.5 flex items-center justify-between gap-4">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center font-headline-sm text-body-md font-bold text-primary-container shrink-0">
+                  NG
+                </div>
+<div class="truncate">
+<p class="font-headline-sm text-body-lg font-semibold text-primary-container truncate">Neha Gupta</p>
+<p class="font-body-sm text-secondary truncate">Quarterly Strength</p>
+</div>
+</div>
+<div class="flex items-center gap-4 shrink-0">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-label-md font-bold bg-[#FFF7E6] text-[#C77700] border border-[#FFE8BD]">
+                  Ends in 6 days
+                </span>
+<button class="h-9 px-4 rounded-lg border border-primary-container text-primary-container hover:bg-surface-container font-label-md font-semibold transition-colors active:scale-95" type="button">
+                  Renew plan
+                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Panel 2: Expired recently: call to renew -->
+<div class="bg-surface-container-lowest rounded-[12px] border border-[#DDE3DF] p-5 shadow-xs">
+<div class="flex items-center justify-between pb-4 border-b border-[#DDE3DF]">
+<div class="flex items-center gap-2.5">
+<h3 class="font-headline-sm text-[17px] text-primary-container font-bold">Expired recently: call to renew</h3>
+<span class="px-2 py-0.5 rounded-full bg-[#FEECEC] text-[#C73A2F] font-label-sm font-bold border border-[#FCD4D4]">2</span>
+</div>
+<span class="text-body-sm text-secondary">Follow up via counter phone</span>
+</div>
+<div class="divide-y divide-[#DDE3DF]">
+<!-- Row 1: Arjun Shetty -->
+<div class="min-h-[56px] py-3.5 flex items-center justify-between gap-4">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center font-headline-sm text-body-md font-bold shrink-0">
+                  AS
+                </div>
+<div class="truncate">
+<p class="font-headline-sm text-body-lg font-semibold text-primary-container truncate">Arjun Shetty</p>
+<p class="font-body-sm text-secondary font-mono truncate">+91 97409 88310</p>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-label-md font-bold bg-[#FDF2F2] text-[#C73A2F] border border-[#F8D2D2]">
+                  Expired 5 days ago
+                </span>
+<button class="h-9 px-3 rounded-lg border border-[#DDE3DF] hover:border-primary-container text-primary-container hover:bg-surface-container flex items-center gap-1.5 font-label-md font-semibold transition-colors active:scale-95" type="button">
+<span class="material-symbols-outlined text-[18px]">call</span>
+<span>Call</span>
+</button>
+<button class="h-9 px-4 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md font-semibold transition-colors active:scale-95" type="button">
+                  Renew plan
+                </button>
+</div>
+</div>
+<!-- Row 2: Meera Pillai -->
+<div class="min-h-[56px] py-3.5 flex items-center justify-between gap-4">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center font-headline-sm text-body-md font-bold shrink-0">
+                  MP
+                </div>
+<div class="truncate">
+<p class="font-headline-sm text-body-lg font-semibold text-primary-container truncate">Meera Pillai</p>
+<p class="font-body-sm text-secondary font-mono truncate">+91 94480 35176</p>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-label-md font-bold bg-[#FDF2F2] text-[#C73A2F] border border-[#F8D2D2]">
+                  Expired 18 days ago
+                </span>
+<button class="h-9 px-3 rounded-lg border border-[#DDE3DF] hover:border-primary-container text-primary-container hover:bg-surface-container flex items-center gap-1.5 font-label-md font-semibold transition-colors active:scale-95" type="button">
+<span class="material-symbols-outlined text-[18px]">call</span>
+<span>Call</span>
+</button>
+<button class="h-9 px-4 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md font-semibold transition-colors active:scale-95" type="button">
+                  Renew plan
+                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Panel 3: New members without a plan -->
+<div class="bg-surface-container-lowest rounded-[12px] border border-[#DDE3DF] p-5 shadow-xs">
+<div class="flex items-center justify-between pb-4 border-b border-[#DDE3DF]">
+<div class="flex items-center gap-2.5">
+<h3 class="font-headline-sm text-[17px] text-primary-container font-bold">New members without a plan</h3>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm font-bold border border-outline-variant/40">1</span>
+</div>
+<span class="text-body-sm text-secondary">Ready for onboarding</span>
+</div>
+<div class="divide-y divide-[#DDE3DF]">
+<!-- Row 1: Ishita Banerjee -->
+<div class="min-h-[56px] py-3.5 flex items-center justify-between gap-4">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-primary-container flex items-center justify-center font-headline-sm text-body-md font-bold shrink-0">
+                  IB
+                </div>
+<div class="truncate">
+<p class="font-headline-sm text-body-lg font-semibold text-primary-container truncate">Ishita Banerjee</p>
+<p class="font-body-sm text-secondary truncate">Joined 18 Oct</p>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<button class="h-9 px-4 rounded-lg bg-[#F4C430] hover:bg-tertiary-fixed-dim text-primary-container font-label-md font-bold transition-colors active:scale-95" type="button">
+                  Assign plan
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ================= RIGHT COLUMN (~35% / 4 Cols): COUNTER METRICS & RECEIPTS ================= -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="bg-surface-container-lowest rounded-[12px] border border-[#DDE3DF] p-6 shadow-xs">
+<!-- Section Header & Big Counter -->
+<div class="flex items-center justify-between mb-2">
+<h2 class="font-headline-sm text-headline-sm text-secondary">Collected today</h2>
+<span class="text-label-sm font-semibold text-[#1F9D55] bg-[#E7F6EC] px-2.5 py-0.5 rounded-full border border-[#C6ECD2]">
+              On track
+            </span>
+</div>
+<div class="font-headline-lg text-[40px] leading-[48px] font-bold text-primary-container mb-6 tracking-tight">
+            ₹41,500
+          </div>
+<!-- Segmented Horizontal Distribution Bar -->
+<div class="w-full mb-3">
+<div class="h-3.5 w-full rounded-md overflow-hidden flex bg-surface-container">
+<!-- UPI (59%) -->
+<div class="bg-primary-container h-full" style="width: 59%;" title="UPI: ₹24,498 (59%)"></div>
+<!-- Card (25%) -->
+<div class="bg-secondary h-full ml-[2px]" style="width: 25%;" title="Card: ₹10,503 (25%)"></div>
+<!-- Cash (16%) -->
+<div class="bg-[#F4C430] h-full ml-[2px]" style="width: 16%;" title="Cash: ₹6,499 (16%)"></div>
+</div>
+</div>
+<!-- Method Legend Labels -->
+<div class="grid grid-cols-3 gap-2 pb-6 border-b border-[#DDE3DF] text-body-sm">
+<div>
+<div class="flex items-center gap-1.5 text-secondary text-label-sm mb-0.5">
+<span class="w-2.5 h-2.5 rounded-sm bg-primary-container inline-block"></span>
+<span>UPI</span>
+</div>
+<p class="font-headline-sm text-body-md font-bold text-primary-container">₹24,498</p>
+</div>
+<div>
+<div class="flex items-center gap-1.5 text-secondary text-label-sm mb-0.5">
+<span class="w-2.5 h-2.5 rounded-sm bg-secondary inline-block"></span>
+<span>Card</span>
+</div>
+<p class="font-headline-sm text-body-md font-bold text-primary-container">₹10,503</p>
+</div>
+<div>
+<div class="flex items-center gap-1.5 text-secondary text-label-sm mb-0.5">
+<span class="w-2.5 h-2.5 rounded-sm bg-[#F4C430] inline-block"></span>
+<span>Cash</span>
+</div>
+<p class="font-headline-sm text-body-md font-bold text-primary-container">₹6,499</p>
+</div>
+</div>
+<!-- Subsection Header: Recent Receipts -->
+<div class="pt-5 mb-4 flex items-center justify-between">
+<h3 class="font-headline-sm text-[17px] text-primary-container font-bold">Recent receipts</h3>
+<span class="text-label-sm text-secondary">Last 3 generated</span>
+</div>
+<!-- Stacked Authentic Paper Receipt Slips -->
+<div class="space-y-3.5 mb-5">
+<!-- Receipt 1: Priya Nair -->
+<div class="relative bg-surface-container-low rounded-lg border border-[#DDE3DF] p-3.5 pt-4 overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1.5 receipt-perforation border-b border-[#DDE3DF]"></div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div>
+<span class="font-mono text-label-sm font-semibold text-secondary">PAY-8F2K1Q7Z</span>
+<p class="font-headline-sm text-body-md font-bold text-primary-container mt-0.5">Priya Nair</p>
+</div>
+<div class="text-right">
+<p class="font-headline-sm text-body-lg font-bold text-primary-container">₹21,999</p>
+<span class="inline-block font-label-sm font-semibold text-primary-container bg-surface-container px-2 py-0.5 rounded">UPI</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-dashed border-[#DDE3DF] text-[12px] text-secondary">
+<span>Annual Yoga Unlimited</span>
+<span>10:42</span>
+</div>
+</div>
+<!-- Receipt 2: Rohan Mehta -->
+<div class="relative bg-surface-container-low rounded-lg border border-[#DDE3DF] p-3.5 pt-4 overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1.5 receipt-perforation border-b border-[#DDE3DF]"></div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div>
+<span class="font-mono text-label-sm font-semibold text-secondary">PAY-2C9L4M8D</span>
+<p class="font-headline-sm text-body-md font-bold text-primary-container mt-0.5">Rohan Mehta</p>
+</div>
+<div class="text-right">
+<p class="font-headline-sm text-body-lg font-bold text-primary-container">₹6,499</p>
+<span class="inline-block font-label-sm font-semibold text-[#8C5200] bg-[#FFF2D4] px-2 py-0.5 rounded">Cash</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-dashed border-[#DDE3DF] text-[12px] text-secondary">
+<span>Quarterly Strength Add-on</span>
+<span>10:15</span>
+</div>
+</div>
+<!-- Receipt 3: Vikram Joshi -->
+<div class="relative bg-surface-container-low rounded-lg border border-[#DDE3DF] p-3.5 pt-4 overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1.5 receipt-perforation border-b border-[#DDE3DF]"></div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div>
+<span class="font-mono text-label-sm font-semibold text-secondary">PAY-6T1R7W3E</span>
+<p class="font-headline-sm text-body-md font-bold text-primary-container mt-0.5">Vikram Joshi</p>
+</div>
+<div class="text-right">
+<p class="font-headline-sm text-body-lg font-bold text-primary-container">₹2,499</p>
+<span class="inline-block font-label-sm font-semibold text-primary-container bg-surface-container px-2 py-0.5 rounded">UPI</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-dashed border-[#DDE3DF] text-[12px] text-secondary">
+<span>Personal Training Session Pack</span>
+<span>09:30</span>
+</div>
+</div>
+</div>
+<!-- Bottom Action -->
+<button class="w-full py-2.5 rounded-lg border border-[#DDE3DF] hover:border-primary-container hover:bg-surface-container text-primary-container text-label-lg font-semibold flex items-center justify-center gap-1.5 transition-colors active:scale-95" type="button">
+<span>View all receipts</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<!-- Quick Help / Shift Handover Banner -->
+<div class="bg-primary-container text-on-primary rounded-[12px] p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary-fixed text-[24px]">contactless</span>
+<div>
+<p class="font-headline-sm text-body-md font-bold">Counter POS connected</p>
+<p class="text-body-sm text-on-primary-container">Ironwood QR Terminal 01 ready</p>
+</div>
+</div>
+<span class="w-2.5 h-2.5 rounded-full bg-[#1F9D55]"></span>
+</div>
+</div>
+</div>
+</main>
+<!-- Keyboard shortcut listener for swift counter search focus -->
+<script>
+    document.addEventListener('keydown', function(e) {
+      if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[placeholder*="Find a member"]');
+        if (searchInput) searchInput.focus();
+      }
+    });
+  </script>
+</body></html>

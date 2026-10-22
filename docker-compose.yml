@@ -1,119 +1,66 @@
+# Managio v2 as production-like containers on one machine: PostgreSQL, the API and the web app.
+#   cp .env.example .env    # then fill in the MANAGIO_* values
+#   docker compose up --build
+#   open http://localhost:3000
+# Only the web app is published. The browser reaches the API through the web app's /api pass-through, as on
+# Vercel (docs/ARCHITECTURE.md). Settings are described in docs/ENVIRONMENT.md.
+name: managio
+
 services:
-
-  postgres:
-    image: postgres:16
-
-    container_name: managio-postgres
-
+  db:
+    image: postgres:17-alpine
     restart: unless-stopped
-
     environment:
       POSTGRES_DB: managio
-      POSTGRES_USER: managio_user
-      POSTGRES_PASSWORD: Nitinr@1103
-
-    ports:
-      - "5432:5432"
-
+      POSTGRES_USER: managio
+      POSTGRES_PASSWORD: ${MANAGIO_DB_PASSWORD:?Set MANAGIO_DB_PASSWORD in .env (see .env.example)}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-
+      - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U managio_user -d managio"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U managio -d managio"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
 
-
-
-  redis:
-    image: redis:7-alpine
-
-    container_name: managio-redis
-
+  api:
+    build: ./managio_backend
     restart: unless-stopped
-
-    ports:
-      - "6379:6379"
-
-
-
-  backend:
-    build:
-      context: ./managio_backend
-
-    container_name: managio-backend
-
-    restart: unless-stopped
-
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
-
-      redis:
-        condition: service_started
-
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:postgresql://db:5432/managio
+      DB_USERNAME: managio
+      DB_PASSWORD: ${MANAGIO_DB_PASSWORD:?Set MANAGIO_DB_PASSWORD in .env (see .env.example)}
+      JWT_SECRET: ${MANAGIO_JWT_SECRET:?Set MANAGIO_JWT_SECRET in .env (see .env.example)}
+      APP_URL: http://localhost:${MANAGIO_WEB_PORT:-3000}
+      CORS_ALLOWED_ORIGINS: http://localhost:${MANAGIO_WEB_PORT:-3000}
+      # Plain http on localhost; every real deployment keeps the default (true) behind HTTPS.
+      SECURE_COOKIES: "false"
+      RESEND_API_KEY: ${MANAGIO_RESEND_API_KEY:-}
+      MAIL_FROM: ${MANAGIO_MAIL_FROM:-Managio <onboarding@resend.dev>}
+      MAIL_LOG_CONTENT: ${MANAGIO_MAIL_LOG_CONTENT:-false}
+      GOOGLE_CLIENT_ID: ${MANAGIO_GOOGLE_CLIENT_ID:-}
+      PLATFORM_ADMIN_EMAILS: ${MANAGIO_PLATFORM_ADMIN_EMAILS:-}
+      API_PROXY_SECRET: ${MANAGIO_API_PROXY_SECRET:-}
 
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/managio
-      SPRING_DATASOURCE_USERNAME: managio_user
-      SPRING_DATASOURCE_PASSWORD: Nitinr@1103
-
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-
-      JWT_SECRET: bwjebfeaghrfbgahywg4eurgfagwueigafaebsduygfbu2i4lawgefgsfhsejgufgwa
-      JWT_REFRESH_SECRET: behsrvfawveysgfhweufgugsbbhdsvfveshbjbzgydwgfsiegfuawseufg
-
-      RESEND_API_KEY: re_cX4ocdYP_98BNEnpdVYDzbEVCN6QCPa9d
-
-      app.mail.from-email: onboarding@resend.dev
-      app.mail.from-name: Managio
-      app.frontend.url: http://localhost
-
-      PORT: 8080
-
-    expose:
-      - "8080"
-
-
-
-  frontend:
+  web:
     build:
       context: ./managio_frontend
-
-    container_name: managio-frontend
-
+      args:
+        API_ORIGIN: http://api:8080
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${MANAGIO_GOOGLE_CLIENT_ID:-}
     restart: unless-stopped
-
+    environment:
+      API_PROXY_SECRET: ${MANAGIO_API_PROXY_SECRET:-}
+      # Nothing in front of this stack overwrites X-Forwarded-For, so no visitor address is vouched for and all
+      # visitors share the web container's rate limits. Behind a reverse proxy, name the header it sets.
+      CLIENT_IP_HEADER: ${MANAGIO_CLIENT_IP_HEADER:-}
     depends_on:
-      - backend
-
-    expose:
-      - "3000"
-
-
-
-  nginx:
-    image: nginx:alpine
-
-    container_name: managio-nginx
-
-    restart: unless-stopped
-
-    depends_on:
-      - frontend
-      - backend
-
+      api:
+        condition: service_healthy
     ports:
-      - "80:80"
-
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-
-
+      - "${MANAGIO_WEB_PORT:-3000}:3000"
 
 volumes:
-  postgres-data:
-
+  db-data:

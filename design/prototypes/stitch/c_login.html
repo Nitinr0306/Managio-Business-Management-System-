@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign in — Managio</title>
+<!-- IBM Plex Sans Typography -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration with Design System Tokens -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary": "#56dacc",
+            "inverse-on-surface": "#52555d",
+            "on-primary": "#004943",
+            "primary-container": "#09aea0",
+            "on-surface-variant": "#a5abbd",
+            "inverse-primary": "#006b62",
+            "tertiary-fixed": "#b6e7fe",
+            "surface-container": "#151a24",
+            "surface": "#0b0e15",
+            "secondary-dim": "#a3beb9",
+            "tertiary": "#d8f2ff",
+            "on-error": "#490006",
+            "surface-container-lowest": "#000000",
+            "on-error-container": "#ff9993",
+            "error-container": "#871f21",
+            "on-tertiary": "#2d5e72",
+            "on-secondary-fixed": "#2b4440",
+            "secondary-container": "#27403c",
+            "surface-variant": "#1f2634",
+            "on-tertiary-fixed": "#084356",
+            "surface-container-high": "#1a202b",
+            "on-surface": "#dfe5f8",
+            "error": "#fa746f",
+            "error-dim": "#c54d4a",
+            "on-background": "#dfe5f8",
+            "primary-dim": "#44ccbe",
+            "tertiary-dim": "#a8d9ef",
+            "secondary-fixed-dim": "#bedad5",
+            "background": "#0b0e15",
+            "surface-dim": "#0b0e15",
+            "surface-tint": "#56dacc",
+            "on-secondary-container": "#a9c5c0",
+            "inverse-surface": "#f9f9ff",
+            "tertiary-fixed-dim": "#a8d9ef",
+            "primary-fixed": "#76f7e8",
+            "outline": "#6f7586",
+            "on-tertiary-container": "#235669",
+            "on-primary-fixed": "#004842",
+            "secondary-fixed": "#cce8e3",
+            "on-primary-fixed-variant": "#00675f",
+            "tertiary-container": "#b6e7fe",
+            "surface-bright": "#262c3a",
+            "on-secondary-fixed-variant": "#47605c",
+            "on-secondary": "#2c4541",
+            "surface-container-highest": "#1f2634",
+            "outline-variant": "#414857",
+            "on-tertiary-fixed-variant": "#2e6073",
+            "primary-fixed-dim": "#66e9da",
+            "on-primary-container": "#00221f",
+            "secondary": "#b1ccc7",
+            "surface-container-low": "#0f131c"
+          },
+          "borderRadius": {
+            "DEFAULT": "4px",
+            "lg": "4px",
+            "xl": "4px",
+            "full": "4px"
+          },
+          "fontFamily": {
+            "headline": ["IBM Plex Sans", "sans-serif"],
+            "display": ["IBM Plex Sans", "sans-serif"],
+            "body": ["IBM Plex Sans", "sans-serif"],
+            "label": ["IBM Plex Sans", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #12151C;
+      font-family: 'IBM Plex Sans', sans-serif;
+      color: #dfe5f8;
+      -webkit-font-smoothing: antialiased;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    input::placeholder {
+      color: #6f7586;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#12151C] text-on-surface flex flex-col justify-between selection:bg-primary-container selection:text-white">
+<!-- Main Canvas: Two-column Analytical Split Layout -->
+<main class="w-full flex-1 flex flex-col lg:flex-row items-stretch justify-center max-w-[1440px] mx-auto">
+<!-- Left Column: Fixed Width 480px, Rigorous Operational Authentication -->
+<div class="w-full lg:w-[480px] lg:min-w-[480px] flex flex-col justify-between p-8 sm:p-12 lg:p-14 lg:border-r border-outline-variant bg-[#12151C]">
+<!-- Top Brand Anchor -->
+<div>
+<div class="flex items-center gap-3">
+<!-- Monogram Mark -->
+<div class="w-8 h-8 rounded-[4px] bg-surface-container-high border border-outline-variant flex items-center justify-center">
+<svg class="w-4 h-4 text-primary" fill="currentColor" viewbox="0 0 16 16">
+<path d="M2 3.25C2 2.56 2.56 2 3.25 2H4.5L8 8.5L11.5 2H12.75C13.44 2 14 2.56 14 3.25V13.5H11.5V6.75L8.5 12H7.5L4.5 6.75V13.5H2V3.25Z"></path>
+</svg>
+</div>
+<span class="font-headline text-[18px] leading-[24px] font-medium tracking-tight text-on-surface">Managio</span>
+</div>
+</div>
+<!-- Center Operational Credentials Form -->
+<div class="my-auto py-10 w-full max-w-[368px] mx-auto lg:mx-0">
+<!-- Heading -->
+<h1 class="text-[20px] leading-[28px] font-medium text-on-surface mb-6">Sign in</h1>
+<!-- Role Tabs with aqua underline on active 'Owner' -->
+<div class="flex items-center border-b border-outline-variant mb-6 text-[13px] leading-[20px]">
+<button class="pb-2 mr-6 font-medium text-primary border-b-2 border-primary -mb-px focus:outline-none" type="button">
+            Owner
+          </button>
+<button class="pb-2 mr-6 text-on-surface-variant hover:text-on-surface transition-colors duration-150 focus:outline-none" type="button">
+            Staff
+          </button>
+<button class="pb-2 text-on-surface-variant hover:text-on-surface transition-colors duration-150 focus:outline-none" type="button">
+            Member
+          </button>
+</div>
+<!-- Form Elements -->
+<form class="space-y-4" onsubmit="event.preventDefault();">
+<!-- Email Input -->
+<div>
+<label class="block text-[13px] leading-[20px] font-medium text-on-surface-variant mb-1.5" for="email">Email</label>
+<input class="w-full h-8 px-3 text-[13px] leading-[20px] bg-[#1A1F29] border border-outline-variant rounded-[4px] text-on-surface focus:outline-none focus:border-primary focus:ring-0 transition-colors duration-150" id="email" name="email" required="" type="email" value="rahul.v@example.com"/>
+</div>
+<!-- Password Input -->
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<label class="text-[13px] leading-[20px] font-medium text-on-surface-variant" for="password">Password</label>
+<a class="text-[13px] leading-[20px] text-primary hover:text-primary-dim transition-colors duration-150" href="#">Forgot password?</a>
+</div>
+<input class="w-full h-8 px-3 text-[13px] leading-[20px] bg-[#1A1F29] border border-outline-variant rounded-[4px] text-on-surface focus:outline-none focus:border-primary focus:ring-0 transition-colors duration-150" id="password" name="password" required="" type="password" value="••••••••••••••••"/>
+</div>
+<!-- Primary Submit CTA Button: aqua background with dark text -->
+<div class="pt-2">
+<button class="w-full h-8 px-4 bg-primary text-on-primary-container font-medium text-[13px] leading-[20px] rounded-[4px] hover:bg-primary-dim transition-colors duration-150 flex items-center justify-center focus:outline-none" type="submit">
+              Sign in
+            </button>
+</div>
+<!-- Secondary Action: Continue with Google -->
+<div>
+<button class="w-full h-8 px-4 bg-[#1A1F29] border border-outline-variant rounded-[4px] text-on-surface text-[13px] leading-[20px] font-medium hover:border-outline transition-colors duration-150 flex items-center justify-center gap-2.5 focus:outline-none" type="button">
+<svg class="w-3.5 h-3.5 shrink-0" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"></path>
+</svg>
+              Continue with Google
+            </button>
+</div>
+</form>
+<!-- New Account Link -->
+<p class="mt-6 text-[13px] leading-[20px] text-on-surface-variant">
+          New here? <a class="text-primary hover:text-primary-dim transition-colors duration-150" href="#">Create a business account</a>
+</p>
+</div>
+<!-- Bottom System Status -->
+<div class="text-[12px] leading-[18px] text-outline flex items-center justify-between">
+<span>Portfolio Edition v2.4</span>
+<span class="inline-flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-[4px] bg-primary"></span>
+          All systems operational
+        </span>
+</div>
+</div>
+<!-- Right Side: Portfolio Console Preview & Analytical Depth -->
+<div class="flex-1 flex flex-col justify-center px-8 lg:px-16 py-12 lg:py-16 bg-[#12151C] overflow-hidden">
+<div class="w-full max-w-[760px] mx-auto">
+<!-- Live Analytical Context Header -->
+<div class="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] bg-[#1A1F29] border border-outline-variant text-[11px] leading-[16px] text-on-surface-variant">
+<span class="w-1.5 h-1.5 rounded-[4px] bg-primary"></span>
+                October 2025 · Real-time sync
+              </span>
+<span class="text-[11px] leading-[16px] text-outline">Press <kbd class="px-1 py-0.2 bg-[#1A1F29] border border-outline-variant rounded-[4px] text-on-surface-variant font-mono text-[10px]">Ctrl K</kbd> to jump</span>
+</div>
+<h2 class="font-headline text-[28px] leading-[32px] font-medium text-on-surface tracking-tight">
+              Every branch, one honest view.
+            </h2>
+</div>
+<!-- Consolidated Metric Badge -->
+<div class="h-8 px-3 rounded-[4px] bg-[#1A1F29] border border-outline-variant flex items-center gap-3 shrink-0">
+<span class="text-[12px] leading-[16px] text-on-surface-variant">Portfolio MRR</span>
+<span class="font-headline text-[13px] leading-[20px] font-medium text-on-surface tabular-nums">₹14,92,600</span>
+</div>
+</div>
+<!-- The Signature Branch Comparison Table Component -->
+<div class="w-full bg-[#1A1F29] border border-outline-variant rounded-[4px] overflow-hidden">
+<table class="w-full text-left border-collapse text-[13px] leading-[20px]">
+<!-- Table Header -->
+<thead>
+<tr class="h-10 bg-[#151A24] border-b border-outline-variant text-on-surface-variant font-medium">
+<th class="px-4 text-left font-medium">Business</th>
+<th class="px-4 text-right font-medium">Active members</th>
+<th class="px-4 text-right font-medium">Collected (Oct)</th>
+<th class="px-4 text-right font-medium w-44">Renewal rate</th>
+</tr>
+</thead>
+<!-- Table Rows with dense 40px row height and tabular numerals -->
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1: Ironwood Fitness Indiranagar -->
+<tr class="h-10 hover:bg-[#222835] transition-colors duration-150">
+<td class="px-4 font-medium text-on-surface flex items-center gap-2 h-10">
+<span class="w-1.5 h-1.5 rounded-[4px] bg-primary"></span>
+                  Ironwood Fitness Indiranagar
+                </td>
+<td class="px-4 text-right tabular-nums text-on-surface">412</td>
+<td class="px-4 text-right tabular-nums font-medium text-on-surface">₹6,84,200</td>
+<td class="px-4 text-right">
+<div class="flex items-center justify-end gap-2.5">
+<div class="w-20 h-1.5 bg-[#2C3342] rounded-[4px] overflow-hidden">
+<div class="bg-primary h-full rounded-[4px]" style="width: 84%"></div>
+</div>
+<span class="tabular-nums text-on-surface text-[12px] w-7 text-right">84%</span>
+</div>
+</td>
+</tr>
+<!-- Row 2: Ironwood Fitness HSR Layout -->
+<tr class="h-10 hover:bg-[#222835] transition-colors duration-150">
+<td class="px-4 font-medium text-on-surface flex items-center gap-2 h-10">
+<span class="w-1.5 h-1.5 rounded-[4px] bg-primary"></span>
+                  Ironwood Fitness HSR Layout
+                </td>
+<td class="px-4 text-right tabular-nums text-on-surface">338</td>
+<td class="px-4 text-right tabular-nums font-medium text-on-surface">₹4,71,900</td>
+<td class="px-4 text-right">
+<div class="flex items-center justify-end gap-2.5">
+<div class="w-20 h-1.5 bg-[#2C3342] rounded-[4px] overflow-hidden">
+<div class="bg-primary h-full rounded-[4px]" style="width: 72%"></div>
+</div>
+<span class="tabular-nums text-on-surface text-[12px] w-7 text-right">72%</span>
+</div>
+</td>
+</tr>
+<!-- Row 3: Prana Yoga Studio -->
+<tr class="h-10 hover:bg-[#222835] transition-colors duration-150">
+<td class="px-4 font-medium text-on-surface flex items-center gap-2 h-10">
+<span class="w-1.5 h-1.5 rounded-[4px] bg-primary"></span>
+                  Prana Yoga Studio
+                </td>
+<td class="px-4 text-right tabular-nums text-on-surface">196</td>
+<td class="px-4 text-right tabular-nums font-medium text-on-surface">₹2,18,400</td>
+<td class="px-4 text-right">
+<div class="flex items-center justify-end gap-2.5">
+<div class="w-20 h-1.5 bg-[#2C3342] rounded-[4px] overflow-hidden">
+<div class="bg-primary h-full rounded-[4px]" style="width: 89%"></div>
+</div>
+<span class="tabular-nums text-on-surface text-[12px] w-7 text-right">89%</span>
+</div>
+</td>
+</tr>
+<!-- Row 4: Taal Dance Academy -->
+<tr class="h-10 hover:bg-[#222835] transition-colors duration-150">
+<td class="px-4 font-medium text-on-surface flex items-center gap-2 h-10">
+<span class="w-1.5 h-1.5 rounded-[4px] bg-primary"></span>
+                  Taal Dance Academy
+                </td>
+<td class="px-4 text-right tabular-nums text-on-surface">100</td>
+<td class="px-4 text-right tabular-nums font-medium text-on-surface">₹1,18,100</td>
+<td class="px-4 text-right">
+<div class="flex items-center justify-end gap-2.5">
+<div class="w-20 h-1.5 bg-[#2C3342] rounded-[4px] overflow-hidden">
+<div class="bg-primary h-full rounded-[4px]" style="width: 80%"></div>
+</div>
+<span class="tabular-nums text-on-surface text-[12px] w-7 text-right">80%</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Comparison Footer Sub-Bar -->
+<div class="h-9 px-4 bg-[#151A24] border-t border-outline-variant flex items-center justify-between text-[12px] leading-[16px] text-on-surface-variant">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-outline" data-icon="sync">sync</span>
+              Synced 4 of 4 locations across Bengaluru
+            </span>
+<div class="flex items-center gap-4 tabular-nums">
+<span>Total members: <strong class="text-on-surface font-medium">1,046</strong></span>
+<span>Avg renewal: <strong class="text-primary font-medium">81.2%</strong></span>
+</div>
+</div>
+</div>
+<!-- Additional Operational Summary Strip -->
+<div class="mt-4 grid grid-cols-3 gap-3">
+<div class="p-3 bg-[#1A1F29] border border-outline-variant rounded-[4px]">
+<div class="text-[11px] leading-[16px] text-on-surface-variant mb-0.5">Expiring in 7 days</div>
+<div class="flex items-baseline justify-between">
+<span class="text-[18px] leading-[24px] font-medium text-[#E3A93B] tabular-nums">48 members</span>
+<span class="text-[11px] text-outline">Action required</span>
+</div>
+</div>
+<div class="p-3 bg-[#1A1F29] border border-outline-variant rounded-[4px]">
+<div class="text-[11px] leading-[16px] text-on-surface-variant mb-0.5">Collections target</div>
+<div class="flex items-baseline justify-between">
+<span class="text-[18px] leading-[24px] font-medium text-primary tabular-nums">94.2%</span>
+<span class="text-[11px] text-outline">₹15.8L goal</span>
+</div>
+</div>
+<div class="p-3 bg-[#1A1F29] border border-outline-variant rounded-[4px]">
+<div class="text-[11px] leading-[16px] text-on-surface-variant mb-0.5">Overdue / Lapsed</div>
+<div class="flex items-baseline justify-between">
+<span class="text-[18px] leading-[24px] font-medium text-error tabular-nums">14</span>
+<span class="text-[11px] text-outline">₹42,000 at risk</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Shared Component: Footer (from Shared Components JSON) -->
+<footer class="w-full py-6 px-8 flex flex-col md:flex-row justify-between items-center text-xs bg-surface-container-low dark:bg-surface-container-low border-t border-outline-variant dark:border-outline-variant font-body text-[13px] leading-[20px] text-on-surface-variant">
+<div class="mb-4 md:mb-0">
+      © 2025 Managio Platforms Pvt Ltd. Built for multi-branch membership businesses.
+    </div>
+<div class="flex items-center gap-6">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Security</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Terms of Service</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Branch System Status</a>
+</div>
+</footer>
+</body></html>

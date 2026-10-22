@@ -1,38 +1,32 @@
-# =========================
-# Stage 1 — Build
-# =========================
-FROM maven:3.9.8-eclipse-temurin-21 AS build
+# Managio API image. Build from managio_backend: docker build -t managio-api .
+# Configuration comes only from environment variables (docs/ENVIRONMENT.md); nothing secret is baked in.
 
-WORKDIR /app
+# ── Build ─────────────────────────────────────────────────────────────────────
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /src
 
-COPY pom.xml .
+# Dependencies first, so source changes don't re-download them.
 COPY .mvn .mvn
-COPY mvnw .
+COPY mvnw pom.xml ./
+RUN ./mvnw -B -q dependency:go-offline
 
-RUN chmod +x mvnw
+COPY src src
+# Tests run in CI (they need Docker for Testcontainers), not inside the image build.
+RUN ./mvnw -B -q package -DskipTests && cp target/managio-api-*.jar app.jar
 
-# Dependency cache optimization
-RUN ./mvnw dependency:go-offline
-
-COPY src ./src
-
-RUN ./mvnw clean package -DskipTests
-
-
-# =========================
-# Stage 2 — Runtime
-# =========================
+# ── Run ───────────────────────────────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-alpine
-
 WORKDIR /app
+RUN addgroup -S managio && adduser -S managio -G managio
+COPY --from=build --chown=managio:managio /src/app.jar app.jar
+USER managio
 
-# Create non-root user
-RUN addgroup -S spring && adduser -S spring -G spring
-
-USER spring:spring
-
-COPY --from=build /app/target/*.jar app.jar
-
+ENV PORT=8080
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
+# Ready means the app has started and can take traffic; hosts like Render can use the same path.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
+  CMD wget -qO- "http://127.0.0.1:${PORT}/actuator/health/readiness" > /dev/null || exit 1
+
+# Leave a quarter of the container's memory to the JVM itself and the OS.
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-XX:+ExitOnOutOfMemoryError", "-jar", "app.jar"]

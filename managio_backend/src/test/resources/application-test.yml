@@ -1,0 +1,24 @@
+# Tests never use the developer's .env values for these.
+managio:
+  app-url: http://localhost:3000
+  security:
+    jwt-secret: test-secret-that-is-long-enough-for-hs256-signing
+    secure-cookies: false
+    cors-allowed-origins: http://localhost:3000
+    proxy-secret: test-proxy-secret-shared-with-the-web-app
+  google:
+    client-id: ""
+  mail:
+    resend-api-key: ""
+    log-content: false
+  admin:
+    emails: platform.admin@managio.test
+
+springdoc:
+  api-docs:
+    enabled: true
+
+logging:
+  level:
+    root: warn
+    com.managio: warn

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Managio Portfolio — Owner Console</title>
+<!-- Google Fonts: IBM Plex Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#000000",
+            "on-primary": "#004943",
+            "primary-fixed": "#76f7e8",
+            "secondary-container": "#27403c",
+            "on-tertiary-fixed": "#084356",
+            "tertiary-dim": "#a8d9ef",
+            "on-secondary-container": "#a9c5c0",
+            "on-error-container": "#ff9993",
+            "outline-variant": "#414857",
+            "surface-container-low": "#0f131c",
+            "on-secondary-fixed": "#2b4440",
+            "surface-tint": "#56dacc",
+            "outline": "#6f7586",
+            "error-dim": "#c54d4a",
+            "error": "#fa746f",
+            "surface-container": "#151a24",
+            "on-tertiary-container": "#235669",
+            "primary-container": "#09aea0",
+            "secondary-fixed": "#cce8e3",
+            "on-surface": "#dfe5f8",
+            "inverse-on-surface": "#52555d",
+            "surface-dim": "#0b0e15",
+            "on-secondary": "#2c4541",
+            "surface-bright": "#262c3a",
+            "inverse-surface": "#f9f9ff",
+            "on-surface-variant": "#a5abbd",
+            "surface-container-highest": "#1f2634",
+            "on-secondary-fixed-variant": "#47605c",
+            "background": "#0b0e15",
+            "primary-fixed-dim": "#66e9da",
+            "surface-variant": "#1f2634",
+            "tertiary-fixed": "#b6e7fe",
+            "secondary-dim": "#a3beb9",
+            "primary-dim": "#44ccbe",
+            "error-container": "#871f21",
+            "on-tertiary-fixed-variant": "#2e6073",
+            "on-primary-fixed": "#004842",
+            "on-tertiary": "#2d5e72",
+            "tertiary-container": "#b6e7fe",
+            "tertiary": "#d8f2ff",
+            "on-primary-container": "#00221f",
+            "on-error": "#490006",
+            "on-background": "#dfe5f8",
+            "secondary-fixed-dim": "#bedad5",
+            "inverse-primary": "#006b62",
+            "tertiary-fixed-dim": "#a8d9ef",
+            "secondary": "#b1ccc7",
+            "surface": "#0b0e15",
+            "primary": "#56dacc",
+            "surface-container-high": "#1a202b",
+            "on-primary-fixed-variant": "#00675f"
+          },
+          borderRadius: {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          fontFamily: {
+            headline: ["IBM Plex Sans", "sans-serif"],
+            display: ["IBM Plex Sans", "sans-serif"],
+            body: ["IBM Plex Sans", "sans-serif"],
+            label: ["IBM Plex Sans", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Precision styling guarantees: tabular figures and strict geometry */
+    body {
+      font-feature-settings: "tnum" 1, "cv05" 1;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    .material-symbols-outlined {
+      font-size: 19px;
+      line-height: 1;
+      font-variation-settings: 'FILL' 0, 'wght' 350, 'GRAD' 0, 'opsz' 20;
+    }
+    .tabular-numbers {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Scrollbar styling for analytical desktop */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f131c;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27403c;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body h-screen w-screen overflow-hidden flex select-none">
+<!-- 1. Left 64px Icon Rail (Semantic SideNavBar Component) -->
+<aside class="fixed top-0 left-0 h-screen w-16 z-40 flex flex-col justify-between items-center py-3 bg-surface-container border-r border-outline-variant/30">
+<!-- Top Brand & Navigation Section -->
+<div class="flex flex-col items-center w-full">
+<!-- Managio Brand Mark -->
+<div class="mb-4 flex flex-col items-center justify-center">
+<div class="w-8 h-8 rounded bg-surface-container-highest border border-outline-variant/40 flex items-center justify-center text-primary font-headline font-semibold text-base tracking-tight">
+          M
+        </div>
+<span class="font-headline text-[9px] font-medium text-primary mt-1 tracking-wider uppercase">Managio</span>
+</div>
+<!-- Nav Items Rail -->
+<nav class="flex flex-col w-full space-y-1">
+<!-- Dashboard (Active) -->
+<a class="text-primary border-l-2 border-primary bg-surface-container-high/40 flex flex-col items-center justify-center py-2.5 w-full transition-colors duration-150 ease-in-out group" href="#portfolio" title="Portfolio Overview">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body text-[10px] font-medium tracking-tight mt-1 text-primary">Dashboard</span>
+</a>
+<!-- Branches -->
+<a class="text-on-surface-variant flex flex-col items-center justify-center py-2.5 w-full hover:bg-surface-container-high/60 hover:text-on-surface transition-colors duration-150 ease-in-out group" href="#branches" title="Branches">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+<span class="font-body text-[10px] font-normal tracking-tight mt-1">Branches</span>
+</a>
+<!-- Members -->
+<a class="text-on-surface-variant flex flex-col items-center justify-center py-2.5 w-full hover:bg-surface-container-high/60 hover:text-on-surface transition-colors duration-150 ease-in-out group" href="#members" title="Members">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body text-[10px] font-normal tracking-tight mt-1">Members</span>
+</a>
+<!-- Finances -->
+<a class="text-on-surface-variant flex flex-col items-center justify-center py-2.5 w-full hover:bg-surface-container-high/60 hover:text-on-surface transition-colors duration-150 ease-in-out group" href="#finances" title="Finances">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-body text-[10px] font-normal tracking-tight mt-1">Finances</span>
+</a>
+<!-- Settings -->
+<a class="text-on-surface-variant flex flex-col items-center justify-center py-2.5 w-full hover:bg-surface-container-high/60 hover:text-on-surface transition-colors duration-150 ease-in-out group" href="#settings" title="Settings">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body text-[10px] font-normal tracking-tight mt-1">Settings</span>
+</a>
+</nav>
+</div>
+<!-- Bottom Actions Section -->
+<div class="flex flex-col items-center w-full space-y-1">
+<!-- Support -->
+<button class="text-on-surface-variant flex flex-col items-center justify-center py-2 w-full hover:bg-surface-container-high/60 hover:text-on-surface transition-colors duration-150 ease-in-out" title="Support" type="button">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body text-[10px] font-normal tracking-tight mt-0.5">Support</span>
+</button>
+<!-- Account Avatar -->
+<button class="text-on-surface-variant flex flex-col items-center justify-center py-2 w-full hover:bg-surface-container-high/60 hover:text-on-surface transition-colors duration-150 ease-in-out" title="Account" type="button">
+<span class="material-symbols-outlined text-primary-dim" data-icon="account_circle">account_circle</span>
+<span class="font-body text-[10px] font-normal tracking-tight mt-0.5">Account</span>
+</button>
+</div>
+</aside>
+<!-- Shell Wrapper -->
+<div class="pl-16 w-full h-full flex flex-col">
+<!-- 2. Top Bar (Command Bar Component) -->
+<header class="fixed top-0 left-16 right-0 h-12 z-30 flex items-center justify-between px-4 bg-surface-dim border-b border-outline-variant/30">
+<!-- Search Command Input on Left -->
+<div class="flex items-center space-x-6">
+<div class="relative w-80">
+<span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined" data-icon="search" style="font-size: 16px;">search</span>
+</span>
+<input class="w-full h-8 pl-8 pr-14 text-xs font-body bg-surface-container-low border border-outline-variant/40 rounded text-on-surface placeholder:text-outline focus:outline-none focus:border-primary cursor-pointer hover:border-outline transition-colors" placeholder="Search or jump to..." readonly="" type="text"/>
+<div class="absolute inset-y-0 right-1.5 flex items-center pointer-events-none">
+<kbd class="px-1.5 py-0.5 text-[10px] font-mono bg-surface-container-highest border border-outline-variant/50 text-on-surface-variant rounded">Ctrl K</kbd>
+</div>
+</div>
+<!-- Navigation Tabs from Anchor JSON -->
+<nav class="hidden md:flex items-center space-x-5 text-xs font-headline">
+<a class="text-on-surface-variant hover:text-on-surface font-normal transition-colors" href="#branches">Branches</a>
+<a class="text-primary font-medium border-b-2 border-primary pb-1" href="#consolidated">Consolidated</a>
+<a class="text-on-surface-variant hover:text-on-surface font-normal transition-colors" href="#cashflow">Cash Flow</a>
+</nav>
+</div>
+<!-- Trailing Controls & User Profile -->
+<div class="flex items-center space-x-3">
+<!-- Period Selector -->
+<button class="h-8 px-2.5 bg-surface-container-low border border-outline-variant/40 rounded flex items-center space-x-1.5 text-xs font-body text-on-surface hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-outline" data-icon="calendar_today" style="font-size: 15px;">calendar_today</span>
+<span>October 2026</span>
+<span class="material-symbols-outlined text-outline" data-icon="expand_more" style="font-size: 15px;">expand_more</span>
+</button>
+<!-- Trailing Primary Action -->
+<button class="h-8 px-3 bg-primary-container text-on-primary-container font-headline text-xs font-medium rounded hover:bg-primary transition-colors flex items-center space-x-1 active:scale-[0.99]" type="button">
+<span class="material-symbols-outlined" data-icon="add" style="font-size: 16px;">add</span>
+<span>Add Business</span>
+</button>
+<!-- Divider line -->
+<div class="h-4 w-px bg-outline-variant/40"></div>
+<!-- Icon Quick Actions -->
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Notifications" type="button">
+<span class="material-symbols-outlined" data-icon="notifications" style="font-size: 18px;">notifications</span>
+</button>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Tune Settings" type="button">
+<span class="material-symbols-outlined" data-icon="tune" style="font-size: 18px;">tune</span>
+</button>
+<!-- Owner Profile Indicator -->
+<div class="flex items-center space-x-2 pl-2 border-l border-outline-variant/30">
+<div class="w-7 h-7 rounded bg-secondary-container text-secondary flex items-center justify-center font-headline text-xs font-semibold">
+            AR
+          </div>
+<div class="flex flex-col text-left leading-tight">
+<span class="text-xs font-medium text-on-surface">Ananya Rao</span>
+<span class="text-[10px] text-on-surface-variant">Multi-business owner</span>
+</div>
+</div>
+</div>
+</header>
+<!-- 3. Main Content Container (Desktop 1440x1024 fit, high density layout) -->
+<main class="mt-12 flex-1 overflow-y-auto bg-surface p-6 space-y-5">
+<!-- Header Area: Page Title + Badge -->
+<div class="flex items-center justify-between">
+<div class="flex items-baseline space-x-3">
+<h1 class="text-2xl font-medium tracking-tight text-white font-headline">Portfolio</h1>
+<span class="px-2 py-0.5 text-xs font-normal text-on-surface-variant bg-surface-container-high border border-outline-variant/30 rounded">
+            4 businesses
+          </span>
+<span class="text-xs text-outline font-normal">All locations active</span>
+</div>
+<!-- Quick Summary Timestamp / Export -->
+<div class="flex items-center space-x-2 text-xs text-on-surface-variant font-normal">
+<span>Data synced 4m ago</span>
+<span class="text-outline-variant">•</span>
+<button class="hover:text-primary transition-colors flex items-center space-x-1" type="button">
+<span class="material-symbols-outlined" data-icon="refresh" style="font-size: 14px;">refresh</span>
+<span>Sync</span>
+</button>
+</div>
+</div>
+<!-- Metric Line: 4 summary metrics separated by 1px vertical borders, strictly flat -->
+<section class="grid grid-cols-4 bg-surface-container-low border border-outline-variant/30 rounded">
+<!-- 1. Collected in October -->
+<div class="p-3.5 border-r border-outline-variant/30 flex flex-col justify-between">
+<span class="text-xs text-on-surface-variant font-normal">Collected in October</span>
+<div class="mt-1.5 flex items-baseline space-x-2">
+<span class="text-2xl font-medium text-white tabular-numbers tracking-tight font-headline">₹14,92,600</span>
+<span class="text-xs font-medium text-primary flex items-center tabular-numbers">
+              +9%
+              <span class="material-symbols-outlined ml-0.5" data-icon="north" style="font-size: 12px;">north</span>
+</span>
+</div>
+<span class="text-[11px] text-outline mt-0.5">vs September (₹13,69,400)</span>
+</div>
+<!-- 2. Active Members -->
+<div class="p-3.5 border-r border-outline-variant/30 flex flex-col justify-between">
+<span class="text-xs text-on-surface-variant font-normal">Active members</span>
+<div class="mt-1.5 flex items-baseline space-x-2">
+<span class="text-2xl font-medium text-white tabular-numbers tracking-tight font-headline">1,046</span>
+<span class="text-xs text-outline font-normal">across 4 locations</span>
+</div>
+<span class="text-[11px] text-outline mt-0.5">+34 new signups this month</span>
+</div>
+<!-- 3. Renewal Rate -->
+<div class="p-3.5 border-r border-outline-variant/30 flex flex-col justify-between">
+<span class="text-xs text-on-surface-variant font-normal">Renewal rate</span>
+<div class="mt-1.5 flex items-baseline space-x-2">
+<span class="text-2xl font-medium text-white tabular-numbers tracking-tight font-headline">81%</span>
+<span class="text-[11px] text-on-surface-variant font-normal">(last 90 days)</span>
+</div>
+<span class="text-[11px] text-outline mt-0.5">Portfolio target: 80%</span>
+</div>
+<!-- 4. Ending in 7 days -->
+<div class="p-3.5 flex flex-col justify-between">
+<span class="text-xs text-on-surface-variant font-normal">Ending in 7 days</span>
+<div class="mt-1.5 flex items-baseline space-x-2">
+<span class="text-2xl font-medium text-error tabular-numbers tracking-tight font-headline">57</span>
+<span class="text-xs text-on-surface-variant">members at risk</span>
+</div>
+<span class="text-[11px] text-outline mt-0.5">₹4,12,000 pending renewal</span>
+</div>
+</section>
+<!-- 4. Signature Branch Comparison Table -->
+<section class="bg-surface-container border border-outline-variant/30 rounded overflow-hidden">
+<div class="px-4 py-2.5 border-b border-outline-variant/30 flex items-center justify-between bg-surface-container-low">
+<div class="flex items-center space-x-2">
+<span class="text-xs font-medium text-on-surface">Branch Performance Comparison</span>
+<span class="text-[11px] text-outline">(Click row to inspect unit health)</span>
+</div>
+<div class="flex items-center space-x-3 text-xs text-on-surface-variant">
+<span class="flex items-center space-x-1.5">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-[11px]">Selected: HSR Layout</span>
+</span>
+</div>
+</div>
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse text-xs">
+<thead>
+<tr class="h-8 border-b border-outline-variant/30 text-[11px] font-medium text-outline bg-surface-container-low/50 uppercase tracking-wider">
+<th class="pl-4 pr-3 py-1 font-medium w-64">Business</th>
+<th class="px-3 py-1 text-right font-medium">Active members</th>
+<th class="px-3 py-1 text-right font-medium">Collected (Oct)</th>
+<th class="px-3 py-1 text-right font-medium">vs Sep</th>
+<th class="px-4 py-1 font-medium w-48">Renewal rate</th>
+<th class="px-3 py-1 text-right font-medium">Ending in 7d</th>
+<th class="px-3 py-1 text-right font-medium">Lapsed (30d)</th>
+<th class="pr-4 pl-3 py-1 text-right font-medium w-36">Last 12 months</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20 font-body">
+<!-- Row 1: Ironwood Fitness Indiranagar -->
+<tr class="h-10 hover:bg-surface-container-high/40 transition-colors cursor-pointer group">
+<td class="pl-4 pr-3 py-2 flex items-center space-x-2.5">
+<div class="w-2 h-2 rounded-full bg-outline"></div>
+<span class="font-medium text-on-surface group-hover:text-primary transition-colors">Ironwood Fitness Indiranagar</span>
+</td>
+<td class="px-3 py-2 text-right tabular-numbers text-on-surface">412</td>
+<td class="px-3 py-2 text-right tabular-numbers font-medium text-white">₹6,84,200</td>
+<td class="px-3 py-2 text-right tabular-numbers text-primary font-medium">+12%</td>
+<td class="px-4 py-2">
+<div class="flex items-center space-x-2.5">
+<span class="w-7 tabular-numbers text-on-surface font-medium">84%</span>
+<div class="w-28 h-1.5 bg-surface-container-highest rounded-none overflow-hidden">
+<div class="h-full bg-primary" style="width: 84%;"></div>
+</div>
+</div>
+</td>
+<td class="px-3 py-2 text-right tabular-numbers text-on-surface">23</td>
+<td class="px-3 py-2 text-right tabular-numbers text-on-surface-variant">17</td>
+<td class="pr-4 pl-3 py-2 text-right">
+<!-- Sparkline 1: Steady uptrend -->
+<div class="flex justify-end items-center">
+<svg class="w-24 h-5 stroke-primary fill-none" stroke-width="1.5" viewbox="0 0 96 20">
+<path d="M 0,16 Q 16,14 24,13 T 48,10 T 72,6 T 96,2" stroke-linecap="round"></path>
+</svg>
+</div>
+</td>
+</tr>
+<!-- Row 2: Ironwood Fitness HSR Layout (SELECTED ROW) -->
+<tr class="h-10 bg-surface-container-high/60 border-l-2 border-primary transition-colors cursor-pointer relative">
+<td class="pl-3.5 pr-3 py-2 flex items-center space-x-2.5">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="font-medium text-white">Ironwood Fitness HSR Layout</span>
+<span class="px-1.5 py-0.2 text-[10px] bg-secondary-container text-secondary rounded">Focus</span>
+</td>
+<td class="px-3 py-2 text-right tabular-numbers text-on-surface">338</td>
+<td class="px-3 py-2 text-right tabular-numbers font-medium text-white">₹4,71,900</td>
+<td class="px-3 py-2 text-right tabular-numbers text-error font-medium">-4%</td>
+<td class="px-4 py-2">
+<div class="flex items-center space-x-2.5">
+<span class="w-7 tabular-numbers text-on-surface font-medium">72%</span>
+<div class="w-28 h-1.5 bg-surface-container-highest rounded-none overflow-hidden">
+<div class="h-full bg-[#E3A93B]" style="width: 72%;"></div>
+</div>
+</div>
+</td>
+<td class="px-3 py-2 text-right tabular-numbers text-error font-medium">21</td>
+<td class="px-3 py-2 text-right tabular-numbers text-error font-medium">26</td>
+<td class="pr-4 pl-3 py-2 text-right">
+<!-- Sparkline 2: Dip in last quarter -->
+<div class="flex justify-end items-center">
+<svg class="w-24 h-5 stroke-[#E3A93B] fill-none" stroke-width="1.5" viewbox="0 0 96 20">
+<path d="M 0,5 Q 16,4 32,5 T 56,8 T 76,14 T 96,15" stroke-linecap="round"></path>
+</svg>
+</div>
+</td>
+</tr>
+<!-- Row 3: Prana Yoga Studio -->
+<tr class="h-10 hover:bg-surface-container-high/40 transition-colors cursor-pointer group">
+<td class="pl-4 pr-3 py-2 flex items-center space-x-2.5">
+<div class="w-2 h-2 rounded-full bg-outline"></div>
+<span class="font-medium text-on-surface group-hover:text-primary transition-colors">Prana Yoga Studio</span>
+</td>
+<td class="px-3 py-2 text-right tabular-numbers text-on-surface">196</td>
+<td class="px-3 py-2 text-right tabular-numbers font-medium text-white">₹2,18,400</td>
+<td class="px-3 py-2 text-right tabular-numbers text-primary font-medium">+18%</td>
+<td class="px-4 py-2">
+<div class="flex items-center space-x-2.5">
+<span class="w-7 tabular-numbers text-on-surface font-medium">89%</span>
+<div class="w-28 h-1.5 bg-surface-container-highest rounded-none overflow-hidden">
+<div class="h-full bg-primary" style="width: 89%;"></div>
+</div>
+</div>
+</td>
+<td class="px-3 py-2 text-right tabular-numbers text-on-surface">9</td>
+<td class="px-3 py-2 text-right tabular-numbers text-on-surface-variant">4</td>
+<td class="pr-4 pl-3 py-2 text-right">
+<!-- Sparkline 3: Strong growth -->
+<div class="flex justify-end items-center">
+<svg class="w-24 h-5 stroke-primary fill-none" stroke-width="1.5" viewbox="0 0 96 20">
+<path d="M 0,18 Q 20,16 38,13 T 64,8 T 80,4 T 96,1" stroke-linecap="round"></path>
+</svg>
+</div>
+</td>
+</tr>
+<!-- Row 4: Taal Dance Academy -->
+<tr class="h-10 hover:bg-surface-container-high/40 transition-colors cursor-pointer group">
+<td class="pl-4 pr-3 py-2 flex items-center space-x-2.5">
+<div class="w-2 h-2 rounded-full bg-outline"></div>
+<span class="font-medium text-on-surface group-hover:text-primary transition-colors">Taal Dance Academy</span>
+</td>
+<td class="px-3 py-2 text-right tabular-numbers text-on-surface">100</td>
+<td class="px-3 py-2 text-right tabular-numbers font-medium text-white">₹1,18,100</td>
+<td class="px-3 py-2 text-right tabular-numbers text-primary font-medium">+6%</td>
+<td class="px-4 py-2">
+<div class="flex items-center space-x-2.5">
+<span class="w-7 tabular-numbers text-on-surface font-medium">80%</span>
+<div class="w-28 h-1.5 bg-surface-container-highest rounded-none overflow-hidden">
+<div class="h-full bg-primary" style="width: 80%;"></div>
+</div>
+</div>
+</td>
+<td class="px-3 py-2 text-right tabular-numbers text-on-surface">4</td>
+<td class="px-3 py-2 text-right tabular-numbers text-on-surface-variant">3</td>
+<td class="pr-4 pl-3 py-2 text-right">
+<!-- Sparkline 4: Steady -->
+<div class="flex justify-end items-center">
+<svg class="w-24 h-5 stroke-primary fill-none" stroke-width="1.5" viewbox="0 0 96 20">
+<path d="M 0,12 Q 24,10 44,11 T 70,9 T 96,8" stroke-linecap="round"></path>
+</svg>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- 5. Two Panels Side-by-Side -->
+<section class="grid grid-cols-12 gap-5 pb-6">
+<!-- Left Panel (7 cols): Collections by month (Stacked 12M Chart) -->
+<div class="col-span-7 bg-surface-container border border-outline-variant/30 rounded p-4 flex flex-col justify-between">
+<div>
+<!-- Panel Header & Legend -->
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+<div>
+<h2 class="text-sm font-medium text-white font-headline">Collections by month</h2>
+<span class="text-[11px] text-outline">Nov 2025 – Oct 2026 (12-month consolidated)</span>
+</div>
+<div class="flex items-center space-x-3 text-[11px]">
+<div class="flex items-center space-x-1.5">
+<span class="w-2.5 h-2.5 bg-primary rounded-none"></span>
+<span class="text-on-surface font-medium">HSR Layout</span>
+</div>
+<div class="flex items-center space-x-1.5">
+<span class="w-2.5 h-2.5 bg-outline-variant rounded-none"></span>
+<span class="text-outline">Other 3 branches</span>
+</div>
+</div>
+</div>
+<!-- Visualization Canvas with Y-Axis in ₹ Lakh -->
+<div class="mt-4 flex">
+<!-- Y-Axis Labels -->
+<div class="w-8 flex flex-col justify-between text-[10px] text-outline tabular-numbers text-right pr-2 h-36">
+<span>15L</span>
+<span>10L</span>
+<span>5L</span>
+<span>0L</span>
+</div>
+<!-- Stacked Bars Container -->
+<div class="flex-1 flex flex-col justify-between h-36 relative">
+<!-- Grid Lines (Flat lines, no glow) -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+<div class="border-b border-outline-variant/20 w-full"></div>
+<div class="border-b border-outline-variant/20 w-full"></div>
+<div class="border-b border-outline-variant/20 w-full"></div>
+<div class="border-b border-outline-variant/30 w-full"></div>
+</div>
+<!-- 12 Stacked Bars -->
+<div class="h-full flex items-end justify-between px-2 pt-2 z-10 space-x-2">
+<!-- Nov 25 -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="Nov: ₹11,40,000">
+<div class="w-full max-w-[20px] bg-outline-variant/60 rounded-none h-[48%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[28%] mt-[1px]"></div>
+</div>
+<!-- Dec 25 -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="Dec: ₹12,10,000">
+<div class="w-full max-w-[20px] bg-outline-variant/60 rounded-none h-[50%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[30%] mt-[1px]"></div>
+</div>
+<!-- Jan 26 -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="Jan: ₹13,50,000">
+<div class="w-full max-w-[20px] bg-outline-variant/60 rounded-none h-[54%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[35%] mt-[1px]"></div>
+</div>
+<!-- Feb 26 -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="Feb: ₹12,80,000">
+<div class="w-full max-w-[20px] bg-outline-variant/60 rounded-none h-[52%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[32%] mt-[1px]"></div>
+</div>
+<!-- Mar 26 -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="Mar: ₹14,10,000">
+<div class="w-full max-w-[20px] bg-outline-variant/60 rounded-none h-[56%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[36%] mt-[1px]"></div>
+</div>
+<!-- Apr 26 -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="Apr: ₹13,90,000">
+<div class="w-full max-w-[20px] bg-outline-variant/60 rounded-none h-[55%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[35%] mt-[1px]"></div>
+</div>
+<!-- May 26 -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="May: ₹14,20,000">
+<div class="w-full max-w-[20px] bg-outline-variant/60 rounded-none h-[57%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[36%] mt-[1px]"></div>
+</div>
+<!-- Jun 26 -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="Jun: ₹14,60,000">
+<div class="w-full max-w-[20px] bg-outline-variant/60 rounded-none h-[59%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[37%] mt-[1px]"></div>
+</div>
+<!-- Jul 26 -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="Jul: ₹14,80,000">
+<div class="w-full max-w-[20px] bg-outline-variant/60 rounded-none h-[61%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[36%] mt-[1px]"></div>
+</div>
+<!-- Aug 26 -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="Aug: ₹14,10,000">
+<div class="w-full max-w-[20px] bg-outline-variant/60 rounded-none h-[61%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[31%] mt-[1px]"></div>
+</div>
+<!-- Sep 26 -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="Sep: ₹13,69,400">
+<div class="w-full max-w-[20px] bg-outline-variant/60 rounded-none h-[60%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[29%] mt-[1px]"></div>
+</div>
+<!-- Oct 26 (Current) -->
+<div class="flex-1 flex flex-col justify-end items-center h-full group cursor-pointer" title="Oct: ₹14,92,600">
+<div class="w-full max-w-[20px] bg-outline-variant rounded-none h-[67%]"></div>
+<div class="w-full max-w-[20px] bg-primary rounded-none h-[30%] mt-[1px]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- X-Axis Month Labels -->
+<div class="flex pl-8 pr-2 pt-1.5 justify-between text-[10px] text-outline font-medium">
+<span class="flex-1 text-center">Nov</span>
+<span class="flex-1 text-center">Dec</span>
+<span class="flex-1 text-center">Jan</span>
+<span class="flex-1 text-center">Feb</span>
+<span class="flex-1 text-center">Mar</span>
+<span class="flex-1 text-center">Apr</span>
+<span class="flex-1 text-center">May</span>
+<span class="flex-1 text-center">Jun</span>
+<span class="flex-1 text-center">Jul</span>
+<span class="flex-1 text-center">Aug</span>
+<span class="flex-1 text-center">Sep</span>
+<span class="flex-1 text-center text-primary font-semibold">Oct</span>
+</div>
+</div>
+<!-- Bottom Micro Stat -->
+<div class="pt-3 border-t border-outline-variant/20 flex items-center justify-between text-xs text-on-surface-variant">
+<span>Peak portfolio collection: <strong class="text-white font-medium">₹14,92,600</strong> in October 2026</span>
+<a class="text-primary hover:underline text-[11px] font-medium flex items-center" href="#finances">
+              View breakdown
+              <span class="material-symbols-outlined ml-0.5" data-icon="chevron_right" style="font-size: 14px;">chevron_right</span>
+</a>
+</div>
+</div>
+<!-- Right Panel (5 cols): Needs your attention -->
+<div class="col-span-5 bg-surface-container border border-outline-variant/30 rounded p-4 flex flex-col justify-between">
+<div>
+<!-- Header with Count Badge -->
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+<div class="flex items-center space-x-2">
+<h2 class="text-sm font-medium text-white font-headline">Needs your attention</h2>
+<span class="px-1.5 py-0.2 text-[10px] bg-error-container text-on-error-container font-mono font-medium rounded">4</span>
+</div>
+<span class="text-[11px] text-outline">Prioritized by impact</span>
+</div>
+<!-- Actionable Short List with Coral / Amber / Aqua Markers -->
+<div class="mt-3 space-y-2.5">
+<!-- Item 1 (Coral - Critical Risk) -->
+<div class="p-2.5 bg-surface-container-low border border-outline-variant/30 rounded flex items-start space-x-2.5 hover:border-error/50 transition-colors">
+<span class="w-2 h-2 mt-1.5 rounded-none bg-error shrink-0"></span>
+<div class="flex-1 min-w-0">
+<p class="text-xs text-on-surface leading-snug">
+<strong class="font-medium text-white">HSR Layout</strong> renewal rate fell from 79% to 72% since July
+                  </p>
+<div class="mt-1 flex items-center space-x-3 text-[11px]">
+<span class="text-error font-medium">-7 percentage points</span>
+<a class="text-primary hover:underline font-medium" href="#drilldown">View cohort drop-off</a>
+</div>
+</div>
+</div>
+<!-- Item 2 (Coral - Lapsed members) -->
+<div class="p-2.5 bg-surface-container-low border border-outline-variant/30 rounded flex items-start space-x-2.5 hover:border-error/50 transition-colors">
+<span class="w-2 h-2 mt-1.5 rounded-none bg-error shrink-0"></span>
+<div class="flex-1 min-w-0">
+<p class="text-xs text-on-surface leading-snug">
+<strong class="font-medium text-white">26 members</strong> lapsed at HSR Layout in the last 30 days
+                  </p>
+<div class="mt-1 flex items-center space-x-3 text-[11px]">
+<span class="text-outline">Estimated ₹1,82,000 lost ARR</span>
+<a class="text-primary hover:underline font-medium" href="#winback">Open win-back list</a>
+</div>
+</div>
+</div>
+<!-- Item 3 (Amber - Operational Discrepancy) -->
+<div class="p-2.5 bg-surface-container-low border border-outline-variant/30 rounded flex items-start space-x-2.5 hover:border-[#E3A93B]/50 transition-colors">
+<span class="w-2 h-2 mt-1.5 rounded-none bg-[#E3A93B] shrink-0"></span>
+<div class="flex-1 min-w-0">
+<p class="text-xs text-on-surface leading-snug">
+<strong class="font-medium text-white">3 staff salaries</strong> for October are unpaid at HSR Layout
+                  </p>
+<div class="mt-1 flex items-center space-x-3 text-[11px]">
+<span class="text-[#E3A93B] font-medium">₹84,000 pending payroll</span>
+<a class="text-primary hover:underline font-medium" href="#payroll">Approve payouts</a>
+</div>
+</div>
+</div>
+<!-- Item 4 (Aqua - Positive Growth Signal) -->
+<div class="p-2.5 bg-surface-container-low border border-outline-variant/30 rounded flex items-start space-x-2.5 hover:border-primary/50 transition-colors">
+<span class="w-2 h-2 mt-1.5 rounded-none bg-primary shrink-0"></span>
+<div class="flex-1 min-w-0">
+<p class="text-xs text-on-surface leading-snug">
+<strong class="font-medium text-white">Prana Yoga Studio</strong> is your fastest-growing business this quarter (+18%)
+                  </p>
+<div class="mt-1 flex items-center space-x-3 text-[11px]">
+<span class="text-primary font-medium">89% retention efficiency</span>
+<a class="text-primary hover:underline font-medium" href="#prana">Review capacity</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Action link -->
+<div class="pt-3 border-t border-outline-variant/20 flex items-center justify-between text-[11px] text-outline">
+<span>Automated alert triage</span>
+<button class="text-primary hover:underline font-medium" type="button">
+              Dismiss cleared items (2)
+            </button>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- Micro-interaction script: Simple Tab and Row Keyboard helper -->
+<script>
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[type="text"]');
+        if (searchInput) searchInput.focus();
+      }
+    });
+  </script>
+</body></html>

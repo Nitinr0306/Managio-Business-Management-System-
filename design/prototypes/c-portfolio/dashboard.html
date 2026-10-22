@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en" class="bg-[#12151C]">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portfolio — Managio (Portfolio)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@0.453.0/dist/umd/lucide.min.js"></script>
+  <script src="../data.js"></script>
+  <script src="shell.js"></script>
+  <style>body{font-feature-settings:'tnum' 1}</style>
+</head>
+<body class="bg-canvas text-ink antialiased">
+<div class="flex min-h-screen">
+  <div id="rail"></div>
+  <div class="flex-1 min-w-0">
+    <div id="topbar"></div>
+    <main class="px-5 sm:px-8 py-6 max-w-[1320px]">
+      <div class="flex flex-wrap items-baseline gap-3">
+        <h1 class="text-[20px] leading-7 font-medium">Portfolio</h1>
+        <span class="text-[13px] text-muted">4 businesses</span>
+      </div>
+
+      <dl id="summary" class="mt-5 grid grid-cols-2 lg:grid-cols-4 border-y border-line divide-line"></dl>
+
+      <section class="mt-6 bg-surface border border-line rounded" aria-labelledby="cmp">
+        <div class="flex items-center justify-between px-4 h-11 border-b border-line">
+          <h2 id="cmp" class="text-[14px] font-medium">Businesses</h2>
+          <span class="text-[12px] text-faint">Select a row to open that business</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-[13px] min-w-[880px]">
+            <thead class="text-faint text-left">
+              <tr class="h-9 border-b border-line">
+                <th class="pl-4 font-normal">Business</th><th class="font-normal text-right">Active members</th>
+                <th class="font-normal text-right">Collected (Oct)</th><th class="font-normal text-right">vs Sep</th>
+                <th class="font-normal pl-8">Renewal rate</th><th class="font-normal text-right">Ending in 7 days</th>
+                <th class="font-normal text-right">Lapsed (30 days)</th><th class="font-normal pr-4 pl-6">Last 12 months</th>
+              </tr>
+            </thead>
+            <tbody id="branches" class="divide-y divide-line"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="mt-6 grid xl:grid-cols-[1.3fr_1fr] gap-6 [&>*]:min-w-0">
+        <section class="bg-surface border border-line rounded p-4" aria-labelledby="cbm">
+          <div class="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="cbm" class="text-[14px] font-medium">Collections by month</h2>
+            <span class="flex items-center gap-4 text-[12px] text-muted">
+              <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-aqua"></span>HSR Layout</span>
+              <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-[#3A4356]"></span>Other businesses</span>
+            </span>
+          </div>
+          <div class="mt-5 flex gap-3">
+            <div class="flex flex-col justify-between text-[11px] text-faint h-[180px] text-right w-8"><span>₹15L</span><span>₹10L</span><span>₹5L</span><span>0</span></div>
+            <div class="flex-1">
+              <div id="months" class="flex items-end gap-1 sm:gap-2 h-[180px] border-b border-line"></div>
+              <div id="month-axis" class="flex gap-1 sm:gap-2 mt-1.5 text-[11px] text-faint"></div>
+            </div>
+          </div>
+        </section>
+        <section class="bg-surface border border-line rounded" aria-labelledby="att">
+          <h2 id="att" class="px-4 h-11 flex items-center border-b border-line text-[14px] font-medium">Needs your attention</h2>
+          <ul class="divide-y divide-line text-[13px]">
+            <li class="flex gap-3 px-4 py-3"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-neg shrink-0"></span><div><p>HSR Layout renewal rate fell from 79% to 72% since July.</p><a href="#" class="text-aqua hover:underline">See who didn't renew</a></div></li>
+            <li class="flex gap-3 px-4 py-3"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-neg shrink-0"></span><div><p>26 members lapsed at HSR Layout in the last 30 days.</p><a href="#" class="text-aqua hover:underline">Open lapsed members</a></div></li>
+            <li class="flex gap-3 px-4 py-3"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-risk shrink-0"></span><div><p>3 October salaries are unpaid at HSR Layout.</p><a href="#" class="text-aqua hover:underline">Open salaries</a></div></li>
+            <li class="flex gap-3 px-4 py-3"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-aqua shrink-0"></span><div><p>Prana Yoga Studio collected 18% more than in September.</p></div></li>
+          </ul>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  const { branches, portfolio: p, months, inr, lakh } = MANAGIO;
+  document.getElementById('rail').outerHTML = C.rail('Portfolio');
+  document.getElementById('topbar').outerHTML = C.topbar(
+    `<button class="h-8 px-3 rounded border border-line text-[13px] text-muted hover:text-ink inline-flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i>October 2026<i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>`);
+
+  const summary = [
+    ['Collected in October', inr(p.collected), `+${p.delta}% vs September`, 'text-aqua'],
+    ['Active members', p.members.toLocaleString('en-IN'), 'across 4 businesses', 'text-muted'],
+    ['Renewal rate', `${p.renewal}%`, 'last 90 days', 'text-muted'],
+    ['Ending in 7 days', p.ending, 'renewals to chase', 'text-risk'],
+  ];
+  document.getElementById('summary').innerHTML = summary.map(([k, v, n, t], i) => `
+    <div class="py-4 ${i ? 'lg:pl-6 lg:border-l' : ''} ${i % 2 ? 'pl-6 border-l' : ''} ${i > 1 ? 'border-t lg:border-t-0' : ''} border-line">
+      <dt class="text-[12px] text-muted">${k}</dt>
+      <dd class="mt-1 text-[28px] leading-8 font-medium">${v}</dd>
+      <dd class="text-[12px] ${t}">${n}</dd>
+    </div>`).join('');
+
+  document.getElementById('branches').innerHTML = branches.map(b => {
+    const sel = b.short === 'HSR Layout';
+    const weak = b.renewal < 80;
+    return `<tr class="h-11 ${sel ? 'bg-aqua-soft/40 shadow-[inset_2px_0_0_#36C2B4]' : 'hover:bg-raised/60'} cursor-pointer">
+      <td class="pl-4 font-medium">${b.name}</td>
+      <td class="text-right">${b.members}</td>
+      <td class="text-right">${inr(b.collected)}</td>
+      <td class="text-right ${b.delta < 0 ? 'text-neg' : 'text-aqua'}">${b.delta > 0 ? '+' : ''}${b.delta}%</td>
+      <td class="pl-8"><span class="inline-flex items-center gap-2.5"><span class="w-8 text-right">${b.renewal}%</span><span class="w-24 h-1.5 rounded-full bg-line overflow-hidden"><span class="block h-full ${weak ? 'bg-risk' : 'bg-aqua'}" style="width:${b.renewal}%"></span></span></span></td>
+      <td class="text-right">${b.ending}</td>
+      <td class="text-right ${b.lapsed > 20 ? 'text-neg' : ''}">${b.lapsed}</td>
+      <td class="pr-4 pl-6">${C.spark(b.series, b.delta < 0 ? '#EF7A63' : '#36C2B4')}</td>
+    </tr>`;
+  }).join('');
+
+  const hsr = branches.find(b => b.short === 'HSR Layout');
+  const totals = months.map((_, i) => branches.reduce((s, b) => s + b.series[i], 0));
+  document.getElementById('months').innerHTML = totals.map((t, i) => `
+    <div class="flex-1 flex flex-col justify-end h-full" title="${months[i]}: ${inr(t)}">
+      <div class="bg-[#3A4356] rounded-t-sm" style="height:${(t - hsr.series[i]) / 1500000 * 100}%"></div>
+      <div class="bg-aqua" style="height:${hsr.series[i] / 1500000 * 100}%"></div>
+    </div>`).join('');
+  document.getElementById('month-axis').innerHTML = months.map((m, i) => `<span class="flex-1 text-center ${i === 11 ? 'text-ink' : ''}">${m}</span>`).join('');
+  lucide.createIcons();
+</script>
+</body>
+</html>

@@ -4,6 +4,8 @@
 .env
 .env.*
 *.env
+# Examples hold placeholders only and are committed.
+!.env.example
 application-local.properties
 
 # =====================================================
@@ -83,3 +85,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# =====================================================
+# TOOL OUTPUT
+# =====================================================
+# Browser automation snapshots and screenshots
+.playwright-mcp/

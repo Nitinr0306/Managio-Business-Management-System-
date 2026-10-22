@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Managio — Members</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "outline-variant": "#96b3e3",
+            "secondary-fixed": "#e4e1e6",
+            "on-error-container": "#782232",
+            "surface": "#f9f9ff",
+            "on-secondary-fixed-variant": "#5b5b5f",
+            "inverse-primary": "#6889ff",
+            "surface-variant": "#d5e3ff",
+            "error-dim": "#4f0116",
+            "background": "#f9f9ff",
+            "secondary-dim": "#535356",
+            "primary-container": "#dce1ff",
+            "on-error": "#fff7f7",
+            "tertiary-fixed-dim": "#dacff0",
+            "surface-container": "#e7eeff",
+            "primary-dim": "#1946c1",
+            "on-secondary-container": "#525155",
+            "surface-container-lowest": "#ffffff",
+            "outline": "#5f7ca8",
+            "surface-container-low": "#f0f3ff",
+            "inverse-surface": "#060e1c",
+            "surface-bright": "#f9f9ff",
+            "primary": "#2b54ce",
+            "tertiary-dim": "#574f6a",
+            "surface-container-high": "#dee8ff",
+            "tertiary": "#635b77",
+            "on-primary": "#f8f7ff",
+            "secondary-container": "#e4e1e6",
+            "on-primary-fixed-variant": "#2751cb",
+            "on-secondary-fixed": "#3f3f43",
+            "on-primary-fixed": "#0033a2",
+            "surface-container-highest": "#d5e3ff",
+            "surface-tint": "#2b54ce",
+            "tertiary-container": "#e9ddff",
+            "on-secondary": "#fbf8fc",
+            "inverse-on-surface": "#949daf",
+            "on-surface-variant": "#43608b",
+            "on-tertiary-container": "#554e69",
+            "primary-fixed-dim": "#c9d2ff",
+            "surface-dim": "#c7dbff",
+            "primary-fixed": "#dce1ff",
+            "error": "#9e3f4e",
+            "secondary-fixed-dim": "#d6d3d8",
+            "secondary": "#5f5f62",
+            "on-tertiary-fixed-variant": "#5f5773",
+            "on-background": "#11335b",
+            "on-tertiary-fixed": "#433b56",
+            "error-container": "#ff8b9a",
+            "on-tertiary": "#fdf7ff",
+            "on-primary-container": "#1746c0",
+            "tertiary-fixed": "#e9ddff",
+            "on-surface": "#11335b",
+            /* Operational Status Tokens per Design System */
+            "brand-canvas": "#F5F6F8",
+            "brand-surface": "#FFFFFF",
+            "brand-ink": "#17202E",
+            "brand-muted": "#5B6577",
+            "brand-hairline": "#E3E6EB",
+            "brand-cobalt": "#2952CC",
+            "status-active": "#1E8E5A",
+            "status-due": "#B7791F",
+            "status-lapsed": "#C8382E",
+            "status-lapsed-dim": "#FCEDEC",
+            "status-active-dim": "#EDF8F2",
+            "status-due-dim": "#FEF7EC"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Public Sans", "sans-serif"],
+            "display": ["Public Sans", "sans-serif"],
+            "body": ["Public Sans", "sans-serif"],
+            "label": ["Public Sans", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .material-symbols-outlined.icon-16 {
+      font-size: 16px;
+    }
+    .material-symbols-outlined.icon-20 {
+      font-size: 20px;
+    }
+    /* Tabular figures for operational financial readability */
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Custom scrollbar matching lightweight hairline tone */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F5F6F8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D8DCE3;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-brand-canvas text-brand-ink font-body text-[14px] leading-[20px] antialiased select-none overflow-hidden h-screen w-screen">
+<div class="flex h-screen w-screen overflow-hidden">
+<!-- ========================================================================= -->
+<!-- PREDICTED COMPONENT: SideNavBar (Shared Components JSON Anchor)          -->
+<!-- ========================================================================= -->
+<aside class="fixed left-0 top-0 h-screen w-64 border-r border-outline-variant/30 bg-surface flex flex-col justify-between p-4 z-30 select-none">
+<!-- Top header branding & switcher -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3 px-2 py-1.5">
+<div class="h-8 w-8 rounded bg-primary flex items-center justify-center text-on-primary font-bold text-base shadow-none">
+            M
+          </div>
+<div class="flex flex-col">
+<span class="font-headline text-[15px] font-semibold text-on-surface tracking-tight leading-snug">Managio</span>
+<span class="text-[11px] font-normal text-on-surface-variant truncate max-w-[155px]">FitLife Studio Indiranagar</span>
+</div>
+</div>
+<!-- Navigation Tabs: Exact JSON labels & icons -->
+<nav class="flex flex-col gap-0.5 mt-2 font-body text-[13px] leading-[18px]">
+<!-- Dashboard (inactive) -->
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant font-normal hover:bg-surface-container-low hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-outline">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Members (Active tab - Context Match to Page) -->
+<a class="flex items-center gap-3 px-3 py-2 rounded text-primary font-semibold bg-surface-container-high/40 transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-primary font-medium">group</span>
+<span>Members</span>
+</a>
+<!-- Attendance (inactive) -->
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant font-normal hover:bg-surface-container-low hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-outline">fact_check</span>
+<span>Attendance</span>
+</a>
+<!-- Plans (inactive) -->
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant font-normal hover:bg-surface-container-low hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-outline">card_membership</span>
+<span>Plans</span>
+</a>
+<!-- Payments (inactive) -->
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant font-normal hover:bg-surface-container-low hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-outline">payments</span>
+<span>Payments</span>
+</a>
+<!-- Reports (inactive) -->
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant font-normal hover:bg-surface-container-low hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-outline">bar_chart</span>
+<span>Reports</span>
+</a>
+<!-- Settings (inactive) -->
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant font-normal hover:bg-surface-container-low hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-outline">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+</div>
+<!-- Bottom footer area -->
+<div class="flex flex-col gap-2 pt-3 border-t border-brand-hairline">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant font-normal hover:bg-surface-container-low hover:text-on-surface transition-colors text-[13px]" href="#">
+<span class="material-symbols-outlined text-outline">help_outline</span>
+<span>Support</span>
+</a>
+<!-- Branch / User meta card -->
+<div class="flex items-center gap-2.5 px-3 py-2 mt-1 rounded bg-brand-canvas border border-brand-hairline">
+<div class="h-6 w-6 rounded-full bg-surface-container-highest flex items-center justify-center text-primary text-[10px] font-semibold border border-outline-variant/30">
+            FS
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="text-[12px] font-medium text-brand-ink leading-tight truncate">Indiranagar Branch</span>
+<span class="text-[11px] text-brand-muted leading-tight">Manager</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- ========================================================================= -->
+<!-- PREDICTED COMPONENT: TopNavBar / Header Shell (Integrated with Content)  -->
+<!-- ========================================================================= -->
+<header class="fixed top-0 right-0 left-64 h-14 border-b border-brand-hairline bg-brand-surface z-20 flex items-center justify-between px-6">
+<div class="flex items-center gap-3">
+<h1 class="font-headline text-[18px] font-semibold text-brand-ink tracking-tight">Members</h1>
+<div class="h-4 w-[1px] bg-brand-hairline"></div>
+<span class="text-[13px] text-brand-muted font-normal">412 active of 486</span>
+</div>
+<!-- Trailing Action Buttons -->
+<div class="flex items-center gap-2">
+<button class="h-8 px-3 rounded border border-brand-hairline bg-brand-surface text-brand-ink text-[13px] font-medium hover:bg-brand-canvas transition-colors active:scale-[0.98] duration-100 flex items-center gap-1.5">
+<span class="material-symbols-outlined icon-16 text-brand-muted">upload</span>
+<span>Import CSV</span>
+</button>
+<button class="h-8 px-3 rounded border border-brand-hairline bg-brand-surface text-brand-ink text-[13px] font-medium hover:bg-brand-canvas transition-colors active:scale-[0.98] duration-100 flex items-center gap-1.5">
+<span class="material-symbols-outlined icon-16 text-brand-muted">download</span>
+<span>Export</span>
+</button>
+<button class="h-8 px-3 rounded bg-primary text-on-primary text-[13px] font-medium hover:bg-primary-dim transition-colors active:scale-[0.98] duration-100 flex items-center gap-1.5 ml-1">
+<span class="material-symbols-outlined icon-16">add</span>
+<span>Add member</span>
+</button>
+</div>
+</header>
+<!-- ========================================================================= -->
+<!-- MAIN WORKSPACE: Table canvas (Center-Left) + Detail Drawer (Right 400px)   -->
+<!-- ========================================================================= -->
+<main class="ml-64 mt-14 flex-1 flex h-[calc(100vh-3.5rem)] overflow-hidden bg-brand-canvas">
+<!-- LEFT: Work table section -->
+<section class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+<!-- Toolbar: Search + Underline Filter Tabs + Plan/Sort Dropdowns -->
+<div class="bg-brand-surface border-b border-brand-hairline px-6 pt-3 pb-0 flex flex-col gap-3">
+<div class="flex items-center justify-between gap-4">
+<!-- Search bar -->
+<div class="relative w-80">
+<span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-muted icon-16 pointer-events-none">search</span>
+<input class="w-full h-8 pl-8 pr-3 text-[13px] border border-brand-hairline rounded bg-brand-surface text-brand-ink placeholder:text-brand-muted/70 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-normal" placeholder="Search name, phone or member ID" type="text" value=""/>
+</div>
+<!-- Right toolbar filter buttons -->
+<div class="flex items-center gap-2">
+<button class="h-8 px-2.5 border border-brand-hairline rounded text-[13px] font-medium text-brand-ink bg-brand-surface hover:bg-brand-canvas flex items-center gap-1.5 transition-colors">
+<span class="text-brand-muted font-normal">Plan:</span>
+<span>All plans</span>
+<span class="material-symbols-outlined icon-16 text-brand-muted">expand_more</span>
+</button>
+<button class="h-8 px-2.5 border border-brand-hairline rounded text-[13px] font-medium text-brand-ink bg-brand-surface hover:bg-brand-canvas flex items-center gap-1.5 transition-colors">
+<span class="text-brand-muted font-normal">Sort:</span>
+<span>Ends soonest</span>
+<span class="material-symbols-outlined icon-16 text-brand-muted">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Underline-style filter tabs with counts -->
+<div class="flex items-center gap-6 overflow-x-auto text-[13px] border-b border-transparent -mb-[1px]">
+<a class="pb-2.5 font-medium text-brand-muted hover:text-brand-ink transition-colors flex items-center gap-1.5" href="#">
+<span>All</span>
+<span class="text-[11px] px-1.5 py-0.2 rounded-full bg-brand-canvas text-brand-muted border border-brand-hairline">486</span>
+</a>
+<a class="pb-2.5 font-medium text-brand-muted hover:text-brand-ink transition-colors flex items-center gap-1.5" href="#">
+<span>Active</span>
+<span class="text-[11px] px-1.5 py-0.2 rounded-full bg-brand-canvas text-brand-muted border border-brand-hairline">412</span>
+</a>
+<!-- Selected Tab -->
+<a class="pb-2.5 font-semibold text-primary border-b-2 border-primary flex items-center gap-1.5" href="#">
+<span>Ending in 7 days</span>
+<span class="text-[11px] px-1.5 py-0.2 rounded-full bg-primary-container text-on-primary-container font-semibold">23</span>
+</a>
+<a class="pb-2.5 font-medium text-brand-muted hover:text-brand-ink transition-colors flex items-center gap-1.5" href="#">
+<span>Lapsed</span>
+<span class="text-[11px] px-1.5 py-0.2 rounded-full bg-brand-canvas text-brand-muted border border-brand-hairline">34</span>
+</a>
+<a class="pb-2.5 font-medium text-brand-muted hover:text-brand-ink transition-colors flex items-center gap-1.5" href="#">
+<span>No plan</span>
+<span class="text-[11px] px-1.5 py-0.2 rounded-full bg-brand-canvas text-brand-muted border border-brand-hairline">40</span>
+</a>
+</div>
+</div>
+<!-- Table Viewport container -->
+<div class="flex-1 overflow-auto bg-brand-surface">
+<table class="w-full border-collapse text-left text-[13px]">
+<thead class="sticky top-0 bg-brand-canvas border-b border-brand-hairline z-10 text-brand-muted font-medium text-[12px] uppercase tracking-wider">
+<tr class="h-9">
+<th class="w-10 px-4 text-center">
+<input class="rounded border-brand-hairline text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5 cursor-pointer" type="checkbox"/>
+</th>
+<th class="px-3 font-semibold text-brand-ink">Member</th>
+<th class="px-3 font-normal">Phone</th>
+<th class="px-3 font-normal">Plan name</th>
+<th class="px-3 font-normal">Ends</th>
+<th class="px-3 font-normal">Status</th>
+<th class="px-3 text-right font-normal">Last payment</th>
+<th class="w-10 px-3 text-center"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-brand-hairline">
+<!-- ROW 1: Actively Selected Row (Rohan Mehta) -->
+<tr class="h-[44px] bg-primary-container/20 border-l-[3px] border-l-primary hover:bg-primary-container/30 transition-colors cursor-pointer group">
+<td class="w-10 px-4 text-center">
+<input checked="" class="rounded border-brand-hairline text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-1">
+<div class="flex flex-col">
+<span class="font-medium text-primary text-[13px] leading-tight group-hover:underline">Rohan Mehta</span>
+<span class="text-[11px] text-brand-muted leading-tight tabular-nums">MBR-7K2Q9XLD</span>
+</div>
+</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">+91 98450 12873</td>
+<td class="px-3 py-1 text-brand-ink font-normal whitespace-nowrap">Quarterly Strength</td>
+<td class="px-3 py-1 text-brand-ink tabular-nums whitespace-nowrap font-medium text-status-due">24 Oct 2026</td>
+<td class="px-3 py-1 whitespace-nowrap">
+<!-- Due pill (amber) -->
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border border-[#E9C377] bg-status-due-dim text-[#8F5B12]">
+<span class="h-1.5 w-1.5 rounded-full bg-status-due"></span>
+                    Due in 4 days
+                  </span>
+</td>
+<td class="px-3 py-1 text-right whitespace-nowrap">
+<div class="flex flex-col items-end">
+<span class="font-medium text-brand-ink tabular-nums">₹6,499</span>
+<span class="text-[11px] text-brand-muted tabular-nums">26 Jul 2026</span>
+</div>
+</td>
+<td class="w-10 px-3 text-center text-brand-muted group-hover:text-brand-ink">
+<button class="h-6 w-6 rounded hover:bg-brand-canvas inline-flex items-center justify-center">
+<span class="material-symbols-outlined icon-16">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- ROW 2: Priya Nair -->
+<tr class="h-[44px] hover:bg-brand-canvas transition-colors cursor-pointer group">
+<td class="w-10 px-4 text-center">
+<input class="rounded border-brand-hairline text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-1">
+<div class="flex flex-col">
+<span class="font-medium text-brand-ink text-[13px] leading-tight group-hover:text-primary">Priya Nair</span>
+<span class="text-[11px] text-brand-muted leading-tight tabular-nums">MBR-3HD8Q2LM</span>
+</div>
+</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">+91 99001 45211</td>
+<td class="px-3 py-1 text-brand-ink font-normal whitespace-nowrap">Annual Unlimited</td>
+<td class="px-3 py-1 text-brand-ink tabular-nums whitespace-nowrap">12 Mar 2027</td>
+<td class="px-3 py-1 whitespace-nowrap">
+<!-- Active pill (green) -->
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border border-[#94D6B5] bg-status-active-dim text-[#13663F]">
+<span class="h-1.5 w-1.5 rounded-full bg-status-active"></span>
+                    Active (143 days left)
+                  </span>
+</td>
+<td class="px-3 py-1 text-right whitespace-nowrap">
+<div class="flex flex-col items-end">
+<span class="font-medium text-brand-ink tabular-nums">₹21,999</span>
+<span class="text-[11px] text-brand-muted tabular-nums">12 Mar 2026</span>
+</div>
+</td>
+<td class="w-10 px-3 text-center text-brand-muted group-hover:text-brand-ink">
+<button class="h-6 w-6 rounded hover:bg-brand-canvas inline-flex items-center justify-center">
+<span class="material-symbols-outlined icon-16">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- ROW 3: Arjun Shetty -->
+<tr class="h-[44px] hover:bg-brand-canvas transition-colors cursor-pointer group">
+<td class="w-10 px-4 text-center">
+<input class="rounded border-brand-hairline text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-1">
+<div class="flex flex-col">
+<span class="font-medium text-brand-ink text-[13px] leading-tight group-hover:text-primary">Arjun Shetty</span>
+<span class="text-[11px] text-brand-muted leading-tight tabular-nums">MBR-9PX4T7AC</span>
+</div>
+</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">+91 97409 88310</td>
+<td class="px-3 py-1 text-brand-ink font-normal whitespace-nowrap">Monthly Unlimited</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">Ended 15 Oct 2026</td>
+<td class="px-3 py-1 whitespace-nowrap">
+<!-- Lapsed pill (red) -->
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border border-[#F3B3AE] bg-status-lapsed-dim text-status-lapsed">
+<span class="h-1.5 w-1.5 rounded-full bg-status-lapsed"></span>
+                    Lapsed 5 days
+                  </span>
+</td>
+<td class="px-3 py-1 text-right whitespace-nowrap">
+<div class="flex flex-col items-end">
+<span class="font-medium text-brand-ink tabular-nums">₹2,499</span>
+<span class="text-[11px] text-brand-muted tabular-nums">15 Sep 2026</span>
+</div>
+</td>
+<td class="w-10 px-3 text-center text-brand-muted group-hover:text-brand-ink">
+<button class="h-6 w-6 rounded hover:bg-brand-canvas inline-flex items-center justify-center">
+<span class="material-symbols-outlined icon-16">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- ROW 4: Kavya Iyer -->
+<tr class="h-[44px] hover:bg-brand-canvas transition-colors cursor-pointer group">
+<td class="w-10 px-4 text-center">
+<input class="rounded border-brand-hairline text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-1">
+<div class="flex flex-col">
+<span class="font-medium text-brand-ink text-[13px] leading-tight group-hover:text-primary">Kavya Iyer</span>
+<span class="text-[11px] text-brand-muted leading-tight tabular-nums">MBR-2MN6R5WE</span>
+</div>
+</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">+91 90080 31942</td>
+<td class="px-3 py-1 text-brand-ink font-normal whitespace-nowrap">Yoga 3x/week Monthly</td>
+<td class="px-3 py-1 text-brand-ink tabular-nums whitespace-nowrap font-medium text-status-due">21 Oct 2026</td>
+<td class="px-3 py-1 whitespace-nowrap">
+<!-- Due pill (amber) -->
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border border-[#E9C377] bg-status-due-dim text-[#8F5B12]">
+<span class="h-1.5 w-1.5 rounded-full bg-status-due"></span>
+                    Due tomorrow
+                  </span>
+</td>
+<td class="px-3 py-1 text-right whitespace-nowrap">
+<div class="flex flex-col items-end">
+<span class="font-medium text-brand-ink tabular-nums">₹1,999</span>
+<span class="text-[11px] text-brand-muted tabular-nums">21 Sep 2026</span>
+</div>
+</td>
+<td class="w-10 px-3 text-center text-brand-muted group-hover:text-brand-ink">
+<button class="h-6 w-6 rounded hover:bg-brand-canvas inline-flex items-center justify-center">
+<span class="material-symbols-outlined icon-16">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- ROW 5: Sameer Khan -->
+<tr class="h-[44px] hover:bg-brand-canvas transition-colors cursor-pointer group">
+<td class="w-10 px-4 text-center">
+<input class="rounded border-brand-hairline text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-1">
+<div class="flex flex-col">
+<span class="font-medium text-brand-ink text-[13px] leading-tight group-hover:text-primary">Sameer Khan</span>
+<span class="text-[11px] text-brand-muted leading-tight tabular-nums">MBR-8QZ1K3VB</span>
+</div>
+</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">+91 98860 22407</td>
+<td class="px-3 py-1 text-brand-ink font-normal whitespace-nowrap">Annual Unlimited</td>
+<td class="px-3 py-1 text-brand-ink tabular-nums whitespace-nowrap">30 Jun 2027</td>
+<td class="px-3 py-1 whitespace-nowrap">
+<!-- Active pill (green) -->
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border border-[#94D6B5] bg-status-active-dim text-[#13663F]">
+<span class="h-1.5 w-1.5 rounded-full bg-status-active"></span>
+                    Active
+                  </span>
+</td>
+<td class="px-3 py-1 text-right whitespace-nowrap">
+<div class="flex flex-col items-end">
+<span class="font-medium text-brand-ink tabular-nums">₹21,999</span>
+<span class="text-[11px] text-brand-muted tabular-nums">30 Jun 2026</span>
+</div>
+</td>
+<td class="w-10 px-3 text-center text-brand-muted group-hover:text-brand-ink">
+<button class="h-6 w-6 rounded hover:bg-brand-canvas inline-flex items-center justify-center">
+<span class="material-symbols-outlined icon-16">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- ROW 6: Neha Gupta -->
+<tr class="h-[44px] hover:bg-brand-canvas transition-colors cursor-pointer group">
+<td class="w-10 px-4 text-center">
+<input class="rounded border-brand-hairline text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-1">
+<div class="flex flex-col">
+<span class="font-medium text-brand-ink text-[13px] leading-tight group-hover:text-primary">Neha Gupta</span>
+<span class="text-[11px] text-brand-muted leading-tight tabular-nums">MBR-5TY7U2PS</span>
+</div>
+</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">+91 96111 70358</td>
+<td class="px-3 py-1 text-brand-ink font-normal whitespace-nowrap">Quarterly Strength</td>
+<td class="px-3 py-1 text-brand-ink tabular-nums whitespace-nowrap font-medium text-status-due">26 Oct 2026</td>
+<td class="px-3 py-1 whitespace-nowrap">
+<!-- Due pill (amber) -->
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border border-[#E9C377] bg-status-due-dim text-[#8F5B12]">
+<span class="h-1.5 w-1.5 rounded-full bg-status-due"></span>
+                    Due in 6 days
+                  </span>
+</td>
+<td class="px-3 py-1 text-right whitespace-nowrap">
+<div class="flex flex-col items-end">
+<span class="font-medium text-brand-ink tabular-nums">₹6,499</span>
+<span class="text-[11px] text-brand-muted tabular-nums">26 Jul 2026</span>
+</div>
+</td>
+<td class="w-10 px-3 text-center text-brand-muted group-hover:text-brand-ink">
+<button class="h-6 w-6 rounded hover:bg-brand-canvas inline-flex items-center justify-center">
+<span class="material-symbols-outlined icon-16">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- ROW 7: Vikram Joshi -->
+<tr class="h-[44px] hover:bg-brand-canvas transition-colors cursor-pointer group">
+<td class="w-10 px-4 text-center">
+<input class="rounded border-brand-hairline text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-1">
+<div class="flex flex-col">
+<span class="font-medium text-brand-ink text-[13px] leading-tight group-hover:text-primary">Vikram Joshi</span>
+<span class="text-[11px] text-brand-muted leading-tight tabular-nums">MBR-6RF9D4NH</span>
+</div>
+</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">+91 99860 51129</td>
+<td class="px-3 py-1 text-brand-ink font-normal whitespace-nowrap">Monthly Unlimited</td>
+<td class="px-3 py-1 text-brand-ink tabular-nums whitespace-nowrap">18 Nov 2026</td>
+<td class="px-3 py-1 whitespace-nowrap">
+<!-- Active pill (green) -->
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border border-[#94D6B5] bg-status-active-dim text-[#13663F]">
+<span class="h-1.5 w-1.5 rounded-full bg-status-active"></span>
+                    Active (29 days left)
+                  </span>
+</td>
+<td class="px-3 py-1 text-right whitespace-nowrap">
+<div class="flex flex-col items-end">
+<span class="font-medium text-brand-ink tabular-nums">₹2,499</span>
+<span class="text-[11px] text-brand-muted tabular-nums">18 Oct 2026</span>
+</div>
+</td>
+<td class="w-10 px-3 text-center text-brand-muted group-hover:text-brand-ink">
+<button class="h-6 w-6 rounded hover:bg-brand-canvas inline-flex items-center justify-center">
+<span class="material-symbols-outlined icon-16">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- ROW 8: Ishita Banerjee -->
+<tr class="h-[44px] hover:bg-brand-canvas transition-colors cursor-pointer group">
+<td class="w-10 px-4 text-center">
+<input class="rounded border-brand-hairline text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-1">
+<div class="flex flex-col">
+<span class="font-medium text-brand-ink text-[13px] leading-tight group-hover:text-primary">Ishita Banerjee</span>
+<span class="text-[11px] text-brand-muted leading-tight tabular-nums">MBR-4WC2X8JK</span>
+</div>
+</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">+91 98201 66734</td>
+<td class="px-3 py-1 text-brand-muted italic whitespace-nowrap">No plan yet</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">Joined 18 Oct 2026</td>
+<td class="px-3 py-1 whitespace-nowrap">
+<!-- Grey pill -->
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border border-brand-hairline bg-brand-canvas text-brand-muted">
+<span class="h-1.5 w-1.5 rounded-full bg-brand-muted/50"></span>
+                    No plan
+                  </span>
+</td>
+<td class="px-3 py-1 text-right text-brand-muted tabular-nums whitespace-nowrap">
+                  —
+                </td>
+<td class="w-10 px-3 text-center text-brand-muted group-hover:text-brand-ink">
+<button class="h-6 w-6 rounded hover:bg-brand-canvas inline-flex items-center justify-center">
+<span class="material-symbols-outlined icon-16">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- ROW 9: Aditya Kulkarni -->
+<tr class="h-[44px] hover:bg-brand-canvas transition-colors cursor-pointer group">
+<td class="w-10 px-4 text-center">
+<input class="rounded border-brand-hairline text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-1">
+<div class="flex flex-col">
+<span class="font-medium text-brand-ink text-[13px] leading-tight group-hover:text-primary">Aditya Kulkarni</span>
+<span class="text-[11px] text-brand-muted leading-tight tabular-nums">MBR-1LB5M9QT</span>
+</div>
+</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">+91 97311 20945</td>
+<td class="px-3 py-1 text-brand-ink font-normal whitespace-nowrap">Quarterly Strength</td>
+<td class="px-3 py-1 text-brand-ink tabular-nums whitespace-nowrap">9 Jan 2027</td>
+<td class="px-3 py-1 whitespace-nowrap">
+<!-- Active pill (green) -->
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border border-[#94D6B5] bg-status-active-dim text-[#13663F]">
+<span class="h-1.5 w-1.5 rounded-full bg-status-active"></span>
+                    Active
+                  </span>
+</td>
+<td class="px-3 py-1 text-right whitespace-nowrap">
+<div class="flex flex-col items-end">
+<span class="font-medium text-brand-ink tabular-nums">₹6,499</span>
+<span class="text-[11px] text-brand-muted tabular-nums">9 Oct 2026</span>
+</div>
+</td>
+<td class="w-10 px-3 text-center text-brand-muted group-hover:text-brand-ink">
+<button class="h-6 w-6 rounded hover:bg-brand-canvas inline-flex items-center justify-center">
+<span class="material-symbols-outlined icon-16">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- ROW 10: Meera Pillai -->
+<tr class="h-[44px] hover:bg-brand-canvas transition-colors cursor-pointer group">
+<td class="w-10 px-4 text-center">
+<input class="rounded border-brand-hairline text-primary focus:ring-0 focus:ring-offset-0 h-3.5 w-3.5 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-1">
+<div class="flex flex-col">
+<span class="font-medium text-brand-ink text-[13px] leading-tight group-hover:text-primary">Meera Pillai</span>
+<span class="text-[11px] text-brand-muted leading-tight tabular-nums">MBR-7GV3N6ZR</span>
+</div>
+</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">+91 94480 35176</td>
+<td class="px-3 py-1 text-brand-ink font-normal whitespace-nowrap">Monthly Unlimited</td>
+<td class="px-3 py-1 text-brand-muted tabular-nums whitespace-nowrap">Ended 2 Oct 2026</td>
+<td class="px-3 py-1 whitespace-nowrap">
+<!-- Lapsed pill (red) -->
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border border-[#F3B3AE] bg-status-lapsed-dim text-status-lapsed">
+<span class="h-1.5 w-1.5 rounded-full bg-status-lapsed"></span>
+                    Lapsed 18 days
+                  </span>
+</td>
+<td class="px-3 py-1 text-right whitespace-nowrap">
+<div class="flex flex-col items-end">
+<span class="font-medium text-brand-ink tabular-nums">₹2,499</span>
+<span class="text-[11px] text-brand-muted tabular-nums">2 Sep 2026</span>
+</div>
+</td>
+<td class="w-10 px-3 text-center text-brand-muted group-hover:text-brand-ink">
+<button class="h-6 w-6 rounded hover:bg-brand-canvas inline-flex items-center justify-center">
+<span class="material-symbols-outlined icon-16">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="h-12 border-t border-brand-hairline bg-brand-surface px-6 flex items-center justify-between text-[13px] text-brand-muted">
+<div>
+            Showing <span class="font-medium text-brand-ink tabular-nums">1–10</span> of <span class="font-medium text-brand-ink tabular-nums">23</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-8 px-3 rounded border border-brand-hairline bg-brand-canvas text-brand-muted/60 text-[12px] font-medium cursor-not-allowed flex items-center gap-1" disabled="">
+<span class="material-symbols-outlined icon-16">chevron_left</span>
+              Previous
+            </button>
+<button class="h-8 px-3 rounded border border-brand-hairline bg-brand-surface text-brand-ink hover:bg-brand-canvas text-[12px] font-medium transition-colors flex items-center gap-1">
+              Next
+              <span class="material-symbols-outlined icon-16">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- SLIDE-OVER DETAIL DRAWER (Right 400px fixed panel)                        -->
+<!-- ========================================================================= -->
+<aside class="w-[400px] border-l border-brand-hairline bg-brand-surface flex flex-col justify-between h-full z-20 shadow-none">
+<!-- Drawer Header & Scrollable Body -->
+<div class="flex-1 overflow-y-auto">
+<!-- Drawer Top Navigation / Action Header -->
+<div class="p-5 border-b border-brand-hairline flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-[11px] font-semibold tracking-wider uppercase text-brand-muted">Member details</span>
+<button class="h-7 w-7 rounded hover:bg-brand-canvas text-brand-muted hover:text-brand-ink flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined icon-20">close</span>
+</button>
+</div>
+<!-- Member Title & Badges -->
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<h2 class="font-headline text-[18px] font-semibold text-brand-ink leading-snug">Rohan Mehta</h2>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="text-[12px] text-brand-muted tabular-nums font-mono">MBR-7K2Q9XLD</span>
+<button class="text-brand-muted hover:text-brand-ink inline-flex items-center" title="Copy ID">
+<span class="material-symbols-outlined icon-16">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Status Pill (amber) -->
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border border-[#E9C377] bg-status-due-dim text-[#8F5B12]">
+<span class="h-1.5 w-1.5 rounded-full bg-status-due"></span>
+                Due in 4 days
+              </span>
+</div>
+</div>
+<!-- Drawer Contact Info Strip -->
+<div class="p-5 border-b border-brand-hairline flex flex-col gap-2.5">
+<div class="flex items-center justify-between text-[13px]">
+<span class="text-brand-muted">Phone</span>
+<span class="font-medium text-brand-ink tabular-nums flex items-center gap-1">
+                +91 98450 12873
+                <a class="text-primary hover:text-primary-dim inline-flex" href="tel:+919845012873">
+<span class="material-symbols-outlined icon-16">call</span>
+</a>
+</span>
+</div>
+<div class="flex items-center justify-between text-[13px]">
+<span class="text-brand-muted">Email</span>
+<span class="font-medium text-brand-ink">rohan.mehta@example.com</span>
+</div>
+<div class="flex items-center justify-between text-[13px]">
+<span class="text-brand-muted">Member since</span>
+<span class="font-medium text-brand-ink tabular-nums">27 Apr 2026</span>
+</div>
+</div>
+<!-- Current Plan Card Block -->
+<div class="p-5 border-b border-brand-hairline">
+<div class="flex items-center justify-between mb-3">
+<span class="font-headline text-[14px] font-semibold text-brand-ink">Current plan</span>
+<span class="text-[11px] font-medium text-status-due bg-status-due-dim px-2 py-0.5 rounded border border-[#E9C377]">Expiring soon</span>
+</div>
+<!-- Plan card container -->
+<div class="border border-brand-hairline rounded-lg p-3.5 bg-brand-canvas/60">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-semibold text-brand-ink text-[14px]">Quarterly Strength</h3>
+<p class="text-[12px] text-brand-muted tabular-nums mt-0.5">26 Jul 2026 to 24 Oct 2026</p>
+</div>
+<span class="text-[14px] font-semibold text-brand-ink tabular-nums">₹6,499</span>
+</div>
+<!-- Thin countdown progress bar -->
+<div class="mt-4">
+<div class="flex items-center justify-between text-[12px] mb-1.5">
+<span class="text-brand-muted">Plan tenure</span>
+<span class="font-medium text-status-due tabular-nums">4 days left</span>
+</div>
+<div class="w-full bg-brand-hairline h-1.5 rounded-full overflow-hidden">
+<div class="bg-status-due h-full rounded-full" style="width: 95.5%;"></div>
+</div>
+</div>
+<!-- Action buttons in Plan card -->
+<div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-brand-hairline">
+<button class="h-8 rounded bg-primary text-on-primary text-[12px] font-medium hover:bg-primary-dim transition-colors flex items-center justify-center gap-1 active:scale-[0.98]">
+<span class="material-symbols-outlined icon-16">autorenew</span>
+<span>Renew plan</span>
+</button>
+<button class="h-8 rounded border border-brand-hairline bg-brand-surface text-brand-ink text-[12px] font-medium hover:bg-brand-canvas transition-colors flex items-center justify-center gap-1 active:scale-[0.98]">
+<span class="material-symbols-outlined icon-16 text-brand-muted">payments</span>
+<span>Record payment</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Payments History List -->
+<div class="p-5">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<span class="font-headline text-[14px] font-semibold text-brand-ink">Payments</span>
+<span class="text-[11px] font-medium px-1.5 py-0.2 rounded-full bg-brand-canvas text-brand-muted border border-brand-hairline tabular-nums">2</span>
+</div>
+<a class="text-[12px] text-primary hover:underline font-medium" href="#">View ledger</a>
+</div>
+<!-- List items -->
+<div class="space-y-2">
+<!-- Payment 1 -->
+<div class="p-3 border border-brand-hairline rounded bg-brand-surface flex items-center justify-between hover:border-brand-muted/40 transition-colors">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-brand-canvas border border-brand-hairline flex items-center justify-center text-brand-muted">
+<span class="material-symbols-outlined icon-16">receipt_long</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[13px] font-medium text-brand-ink tabular-nums">₹6,499</span>
+<span class="text-[11px] text-brand-muted tabular-nums">26 Jul 2026</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[11px] font-medium px-2 py-0.5 rounded bg-brand-canvas text-brand-muted border border-brand-hairline">Cash</span>
+<button class="text-brand-muted hover:text-brand-ink" title="Download receipt">
+<span class="material-symbols-outlined icon-16">download</span>
+</button>
+</div>
+</div>
+<!-- Payment 2 -->
+<div class="p-3 border border-brand-hairline rounded bg-brand-surface flex items-center justify-between hover:border-brand-muted/40 transition-colors">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-brand-canvas border border-brand-hairline flex items-center justify-center text-brand-muted">
+<span class="material-symbols-outlined icon-16">account_balance_wallet</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[13px] font-medium text-brand-ink tabular-nums">₹6,499</span>
+<span class="text-[11px] text-brand-muted tabular-nums">27 Apr 2026</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[11px] font-medium px-2 py-0.5 rounded bg-brand-canvas text-brand-muted border border-brand-hairline">UPI</span>
+<button class="text-brand-muted hover:text-brand-ink" title="Download receipt">
+<span class="material-symbols-outlined icon-16">download</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Drawer Footer Note -->
+<div class="p-4 border-t border-brand-hairline bg-brand-canvas/70 flex items-center justify-between text-[12px] text-brand-muted">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined icon-16 text-brand-muted">schedule</span>
+<span>Registered by Indiranagar Desk</span>
+</span>
+<span class="tabular-nums">MBR-7K2Q9XLD</span>
+</div>
+</aside>
+</main>
+</div>
+</body></html>

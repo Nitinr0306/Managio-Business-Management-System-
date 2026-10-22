@@ -1,5 +1,11 @@
+# Only what the image build needs: pom.xml, the Maven wrapper and src/main.
 target
 .idea
 .vscode
 .git
+*.iml
+# Local secrets never enter an image.
 .env
+.env.*
+!.env.example
+HELP.md

@@ -1,25 +1,25 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-export default [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
   {
-    ignores: [".next/**", "out/**", "build/**", "next-env.d.ts"],
     rules: {
-      // Project-wide relaxations for production velocity:
-      // - We still rely on TypeScript for safety; `any` is allowed in edge integration points.
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-empty-object-type": "off",
-      "react/no-unescaped-entities": "off",
-      "import/no-anonymous-default-export": "off",
+      // The React Compiler reads a closure's property paths while rendering to memoise it, so `value!.id` inside a
+      // callback crashes when value is null. Narrow with a check instead (docs/DECISIONS.md D-027).
+      "@typescript-eslint/no-non-null-assertion": "error",
     },
   },
-];
+  // Override default ignores of eslint-config-next.
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
+]);
+
+export default eslintConfig;

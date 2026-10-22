@@ -1,847 +1,537 @@
 # Managio
 
-**Multi-tenant gym & fitness studio management platform** — owners, staff, and members operate from dedicated portals backed by a production-grade Spring Boot API and a modern Next.js frontend.
+**Run every business you own from one place.** Managio is a multi-business operations platform for gyms, salons, coaching centres, schools, clinics and shops: customers and memberships, invoices and payments, expenses and payroll, the daily cash count, tasks and approvals, a customer portal, and one view across all your businesses.
 
 ![Java](https://img.shields.io/badge/Java-21-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-6DB33F?style=flat-square&logo=springboot&logoColor=white)
-![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=next.js&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-Minikube-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
-![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)
-![Version](https://img.shields.io/badge/Version-1.0.0-blue?style=flat-square)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-6DB33F?style=flat-square&logo=springboot&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-16.4-000000?style=flat-square&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Version](https://img.shields.io/badge/Version-2.0.0-blue?style=flat-square)
 
 ---
 
-## Table of Contents
+## Contents
 
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [Project Structure](#project-structure)
-- [Screenshots](#screenshots)
-- [Installation](#installation)
-- [Environment Variables](#environment-variables)
-- [Running Locally](#running-locally)
-- [API Documentation](#api-documentation)
-- [Database Design](#database-design)
-- [Deployment](#deployment)
-- [Performance Optimizations](#performance-optimizations)
-- [Security Considerations](#security-considerations)
-- [Challenges & Solutions](#challenges--solutions)
-- [Future Enhancements](#future-enhancements)
-- [Contributing](#contributing)
-- [License](#license)
-- [Author](#author)
+1. [Why Managio](#why-managio)
+2. [Who it is for](#who-it-is-for)
+3. [Use cases](#use-cases)
+4. [Features](#features)
+5. [Architecture](#architecture)
+6. [Key flows](#key-flows)
+7. [Data model](#data-model)
+8. [Security and privacy](#security-and-privacy)
+9. [Tech stack](#tech-stack)
+10. [Repository layout](#repository-layout)
+11. [Getting started](#getting-started)
+12. [Testing](#testing)
+13. [API at a glance](#api-at-a-glance)
+14. [Deployment](#deployment)
+15. [Documentation](#documentation)
+16. [Project status](#project-status)
+17. [License and author](#license-and-author)
 
 ---
 
-## Overview
+## Why Managio
 
-**Managio** is a full-stack SaaS product for membership-based businesses—gyms, fitness studios, yoga centers, and similar operators. A single **owner account** can manage **multiple businesses**, each with isolated members, staff, subscriptions, payments, tasks, and audit history.
+Small service businesses lose money in the same places. Managio is built around those leaks:
 
-The platform solves operational fragmentation: spreadsheets for members, ad-hoc payment tracking, unclear staff permissions, and missed subscription renewals. Managio centralizes these workflows with **role-based portals** (owner, staff, member), **JWT authentication**, **scheduled subscription lifecycle jobs**, and **exportable reporting**.
-
-| Actor | Portal | Primary goals |
-|--------|--------|----------------|
-| **Owner** | `/dashboard`, `/businesses/*` | Multi-business oversight, analytics, staff & plan configuration |
-| **Staff** | `/staff/*` | Day-to-day operations with granular permissions |
-| **Member** | `/member/*` | Self-service subscription & payment visibility |
-
----
-
-## Key Features
-
-### Authentication & identity
-- Stateless **JWT access tokens** (15 min default) + **refresh token rotation** stored in PostgreSQL
-- Separate auth flows: **owner/user**, **staff** (business-scoped JWT claims), **member** self-service
-- Email verification, password reset, account lockout, optional **OAuth2** client (disabled by default)
-- Token blacklist: in-memory (single node) or **Redis** (multi-replica)
-
-### Multi-business management
-- Create, update, and soft-delete businesses per owner
-- Business statistics and owner dashboard with revenue/member metrics
-
-### Member management
-- CRUD, search, status filters, profiles with subscription/payment history
-- Bulk **CSV import/export** and import template download
-- Member portal: login, dashboard, subscription & payments views
-
-### Subscriptions
-- Per-business subscription plans (price, duration)
-- Assign plans to members; automatic expiry via **daily scheduler**
-- Expiry reminder emails (7 / 3 / 1 days before end) — *email delivery requires mail provider configuration*
-
-### Payments
-- Manual payment recording with 12+ methods (Cash, UPI, cards, Razorpay, Stripe, etc.)
-- Revenue analytics, method breakdown, recent payments, CSV export
-
-### Staff & RBAC
-- Roles: `OWNER`, `MANAGER`, `RECEPTIONIST`, `TRAINER`, `ACCOUNTANT`, `SALES`
-- Per-staff permission overrides (grant/revoke)
-- Email invitations with token-based acceptance
-- Staff tasks module (priorities, due dates, assignment)
-- Staff salary payment tracking (mark paid / unpaid lists)
-
-### Dashboards & audit
-- Owner, staff, and member dashboards
-- Business-scoped audit logs with entity filtering
+| Problem | What Managio does |
+|---|---|
+| Cash leaks at the counter | Every payment gets a receipt number and the name of whoever took it. The day book compares expected and counted cash. |
+| Customers lapse unnoticed | Renewal lists, a 30-day renewal runway and automatic reminder emails show who ends soon and who has lapsed. |
+| Untracked dues | Invoices with due dates, part payments and instalments give every customer a balance. |
+| Approvals over WhatsApp | Requests (leave, expense claims, purchases, discounts) with an approver, a decision and an audit trail. Approved claims become expenses. |
+| No idea of profit | Expenses and payroll are recorded, so each business has a cash-basis profit and loss. |
+| Staff overstepping | Per-business roles with a fixed permission catalogue, enforced by the API, not just hidden buttons. |
 
 ---
 
-## Tech Stack
+## Who it is for
 
-| Category | Technology | Notes |
-|----------|------------|--------|
-| **Frontend** | Next.js 15, React 18, TypeScript | App Router, `output: 'standalone'` for Docker |
-| | Tailwind CSS, Radix UI, Framer Motion | Component library & animations |
-| | TanStack Query, Zustand, React Hook Form, Zod | Data fetching, state, forms |
-| | Recharts, Axios | Charts & HTTP client |
-| **Backend** | Java 21, Spring Boot 3.3.5 | Modular monolith |
-| | Spring Security, Spring Data JPA, Hibernate | Auth & persistence |
-| | Spring Mail, OkHttp | Email & HTTP integrations |
-| | spring-dotenv | `.env` loading in backend |
-| **Database** | PostgreSQL 16 | Primary datastore |
-| | Flyway | 16 versioned SQL migrations (`V1`–`V16`) |
-| | H2 | Runtime dependency (tests/local fallback) — *no dedicated test suite in repo* |
-| **Authentication** | JWT (JJWT 0.12.5), BCrypt(12) | Access + refresh, rotation, blacklist |
-| | OAuth2 Client | Present in dependencies; `app.oauth.google.enabled=false` by default |
-| **Caching** | Redis 7 | Token blacklist provider + Compose service |
-| **DevOps** | Docker, Docker Compose | Multi-stage Dockerfiles for FE/BE |
-| | Nginx (Alpine) | Reverse proxy: `/` → frontend, `/api/` → backend |
-| | Kubernetes (Minikube) | Evidenced in deployment screenshots; manifests **not in this repository** |
-| | Terraform | AWS security group provisioning (deployment artifact) |
-| | Prometheus + Grafana | Monitoring stack on cluster (deployment artifact) |
-| **Cloud services** | AWS EC2 | Ubuntu host (`ip-172-31-*` in deployment logs) |
-| | Resend API | Transactional email (`RESEND_API_KEY`) |
-| **APIs** | REST `/api/v1/*` | OpenAPI via SpringDoc |
-| **Libraries** | libphonenumber | Phone validation |
-| **Testing tools** | Not Found in Codebase | No `*Test.java` or frontend test scripts beyond `type-check` / `lint` |
+One engine, seven business templates. A template sets the words people see, the modules switched on, the starting roles and the expense categories.
+
+| Business type | Customers are | Groups are | Plans are | Modules on by default |
+|---|---|---|---|---|
+| Gym, yoga or dance studio | Members | Batches | Membership plans | Memberships, Attendance, Payroll |
+| Salon or spa | Clients | Groups | Packages | Products and services, Stock, Memberships, Payroll |
+| Coaching centre | Students | Batches | Courses | Memberships, Groups, Attendance, Payroll |
+| School or academy | Students | Classes | Fee plans | Memberships, Groups, Attendance, Payroll |
+| Clinic | Patients | Groups | Packages | Products and services, Memberships, Payroll |
+| Shop | Customers | Groups | Plans | Products and services, Stock, Payroll |
+| Other | Customers | Groups | Plans | Memberships, Products and services, Payroll |
+
+Always on: customers, billing, expenses, team, tasks, requests, day book, reports and the activity log.
+
+### The people who use it
+
+| Person | What they do in Managio |
+|---|---|
+| **Owner** | Sees every business at a glance, approves requests, decides who can do what, knows the profit of each business. |
+| **Manager, front desk, cashier** | Finds customers fast, collects payments, renews plans, records expenses, closes the day with a cash count. |
+| **Trainer, teacher, stylist** | Works their tasks, sees their customers, marks attendance, raises leave or expense requests. |
+| **Accountant** | Invoices, dues, payments, refunds, expenses, payroll and reports. |
+| **Customer** (member, student, client, patient) | Signs in to the portal to see their plan, what they owe and their receipts. |
+| **Platform administrator** (Managio's own team) | Watches growth, activity and adoption across all businesses, spots businesses that went quiet and people stuck at sign-up, and checks the service's health. |
+
+---
+
+## Use cases
+
+**A gym on a Monday morning.** The front desk searches "rav", opens Ravi's panel, sees his membership ends on Friday and renews it from the day after it ends. Managio issues invoice `INV-0042`; Ravi pays by UPI and gets receipt `RCT-0108`. The renewal drops off the runway. At 9 pm the desk counts the cash drawer and closes the day; from then on nobody can record or void cash for that date.
+
+**A coaching centre's batches.** Students are grouped into the "Morning JEE" batch; the teacher takes the roll call for the batch in one screen. Course fees run as three instalment invoices due a month apart, so each student has a clear balance and upcoming dues.
+
+**A salon's counter.** A walk-in client buys a hair-care product and a service in one sale; stock goes down by one and comes back if the invoice is voided.
+
+**Approvals without WhatsApp.** A trainer raises an expense claim for cleaning supplies with the amount and category. The owner approves it on their phone; Managio records the expense dated today, paid to the trainer, and notifies them.
+
+**An owner with three businesses.** Signing in shows the portfolio: this month's revenue, expenses and profit for each business, memberships ending this week, overdue dues and requests waiting, each figure shown only where the owner's role allows it.
+
+**A member at home.** She signs in to the portal with her gym's business code and her phone number, sees her plan runs until 18 November, her paid invoices and her receipts. Nothing of anyone else's.
+
+**Managio's own team.** The platform administrator opens the console and sees how many businesses signed up this month and how many recorded anything this week, what share of new businesses got as far as their first payment, which people signed up but never created a business, which businesses went quiet, and whether this server is really sending email.
+
+---
+
+## Features
+
+| Area | Highlights |
+|---|---|
+| **Accounts** | Email and password or Google sign-in; email verification; password reset; one message for unknown email and wrong password; lockout after 5 failures; 15-minute access tokens with rotating 30-day refresh sessions and reuse detection. |
+| **Businesses and team** | Create several businesses from templates; a business code for the portal; invitations by email with a role; custom roles from a permission catalogue; nobody can grant access they don't hold; suspend or remove people. |
+| **Customers** | Sequential customer numbers, duplicate-phone warning, search by name, email, phone digits or `#number`, archive instead of delete, CSV import with a per-row report and formula-safe CSV export. |
+| **Plans, services and products** | Plans with a duration and instalments, services and products with tax rates, stock tracking for products. |
+| **Memberships** | Start, renew early (continues from the end date) or late (starts today), cancel (voids unpaid future invoices); states Upcoming, Active, Ending soon, Expired, Cancelled; reminder emails three days before the end. |
+| **Billing** | Invoices with lines, discount and tax; part payments; instalments; refunds against payments; voiding with a reason; receipts; walk-in sales paid in full; overdue and balance worked out from dates and payments. |
+| **Expenses and payroll** | Categories per business; expenses voided, never deleted; monthly payroll entries paid in parts as Salaries expenses. |
+| **Day book** | Opening, cash in, cash out, expected and counted cash for each day; closing a day locks its cash records. |
+| **Tasks** | Assigned, prioritised, due-dated tasks with daily, weekly or monthly repeats. |
+| **Requests** | Expense claims, purchases, leave, discounts; approve or reject with a reason; notifications both ways. |
+| **Attendance and groups** | One check-in per customer per day; batches and classes with a roll call. |
+| **Reports** | Today view per role, renewal runway, cash-basis profit and loss, portfolio across businesses, activity log. |
+| **Customer portal** | Sign-in with business code and email or phone; invitation or (where the business allows it) self sign-up; own memberships, invoices and payments only. |
+| **Platform console** | For Managio's administrators: growth, activity, activation, business types, modules and feature use, a business directory, a people directory and system health. Read-only. Managio is free in v2, so there is no pricing or subscription billing. |
+
+Every rule has an ID (for example `MEM-3`, `BIL-7`) and, once built, the test that proves it: see [docs/PRODUCT.md](docs/PRODUCT.md).
 
 ---
 
 ## Architecture
 
-Managio uses a **modular monolith** backend and a **Next.js SPA/SSR hybrid** frontend, deployed behind **Nginx** with path-based routing.
+### System
 
-### System architecture
+```mermaid
+flowchart LR
+    browser["Browser<br/>owners, staff, customers, admins"]
+    subgraph vercel["Vercel"]
+        web["Next.js 16 web app<br/>pages + /api pass-through"]
+    end
+    subgraph render["Render"]
+        api["Spring Boot 4.1 API<br/>Java 21, Docker"]
+    end
+    db[("Neon PostgreSQL 17")]
+    resend["Resend<br/>email"]
+    google["Google Identity<br/>sign-in"]
+
+    browser -->|"HTTPS, one origin"| web
+    web -->|"/api/* rewrite"| api
+    api --> db
+    api --> resend
+    browser -.->|"ID token"| google
+    api -.->|"verifies ID token"| google
+```
+
+* The browser only ever talks to the web app's origin. `/api/*` is passed through to the API, so the refresh-token cookies are first-party and no CORS is needed.
+* One API deployable: a modular monolith. The data is tightly connected (a payment touches an invoice, a membership, the day book and reports), so separate services would only add network hops and distributed transactions.
+* Both apps ship as Docker images; `docker-compose.yml` runs the whole stack on one machine.
+
+### Backend modules
 
 ```mermaid
 flowchart TB
-    subgraph Client
-        Browser[Browser]
+    subgraph people["People and access"]
+        direction LR
+        auth ~~~ team ~~~ payroll
     end
-
-    subgraph Edge
-        Nginx[Nginx :80]
+    subgraph setup["Setting up"]
+        direction LR
+        business ~~~ catalog
     end
-
-    subgraph App
-        FE[Next.js Frontend :3000]
-        BE[Spring Boot API :8080]
+    subgraph serving["Serving customers"]
+        direction LR
+        customers ~~~ attendance ~~~ memberships ~~~ portal
     end
-
-    subgraph Data
-        PG[(PostgreSQL)]
-        Redis[(Redis)]
+    subgraph money["Money"]
+        direction LR
+        billing ~~~ expenses ~~~ daybook
     end
-
-    Browser --> Nginx
-    Nginx -->|"/"| FE
-    Nginx -->|"/api/*"| BE
-    FE -->|Axios same-origin /api| Nginx
-    BE --> PG
-    BE --> Redis
+    subgraph work["Daily work"]
+        direction LR
+        tasks ~~~ requests ~~~ notifications
+    end
+    subgraph insight["Insight"]
+        direction LR
+        reports ~~~ activity ~~~ admin
+    end
+    platform["com.managio.platform<br/>config · error · mail · observability · persistence<br/>security · tenancy · util · web"]
+    people & setup & serving & money & work & insight --> platform
 ```
 
-### Request flow (authenticated API call)
+All modules live under `com.managio.modules`; the platform package never depends on them.
+
+Each module has only the layers it needs, and an architecture test keeps them honest:
+
+```mermaid
+flowchart LR
+    controller["controller<br/>HTTP, validation,<br/>permission annotations"] --> service["service<br/>transactions,<br/>business rules"]
+    service --> repository["repository<br/>Spring Data +<br/>JdbcClient read models"]
+    controller --> dto["dto<br/>request and<br/>response records"]
+    service --> dto
+    service --> domain["domain<br/>entities, enums,<br/>value objects"]
+    repository --> domain
+```
+
+Controllers are used by nothing; services only by controllers and services; repositories only by services; domain classes depend on no other layer; platform code never depends on a feature (ArchUnit, `ArchitectureTest`).
+
+### Web app
+
+`src/app` holds routes only. Each page renders a component from `src/features/<area>`, which owns that area's typed API hooks (TanStack Query over a client generated from the OpenAPI document), pages and dialogs. Shared primitives live in `src/components/ui`, the signed-in frame in `src/components/shell`. Public pages are prerendered; signed-in screens render in the browser behind a session gate, because the access token never leaves browser memory.
+
+---
+
+## Key flows
+
+### 1. An owner gets started
 
 ```mermaid
 sequenceDiagram
-    participant U as User Browser
-    participant N as Nginx
-    participant F as Next.js
-    participant B as Spring Boot
+    actor Owner
+    participant Web as Web app
+    participant API
+    participant Mail as Resend
+
+    Owner->>Web: Sign up (name, email, password)
+    Web->>API: POST /auth/sign-up
+    API-->>Web: access token + refresh cookie
+    API->>Mail: verification link (48 hours)
+    Owner->>Web: Create business "Ironwood Fitness", type Gym
+    Web->>API: POST /businesses
+    Note over API: Owner role, default roles,<br/>expense categories, modules,<br/>business code 4821KXQT
+    Owner->>Web: Add a plan, then a member
+    Owner->>Web: Invite the front desk (needs a verified email)
+    API->>Mail: invitation link (7 days, single use)
+```
+
+### 2. Selling a membership, from invoice to cash count
+
+```mermaid
+sequenceDiagram
+    actor Desk as Front desk
+    participant API
     participant DB as PostgreSQL
 
-    U->>F: Navigate protected route
-    F->>F: Middleware checks access_token cookie
-    U->>N: API request + Bearer JWT
-    N->>B: Proxy /api/v1/...
-    B->>B: JwtAuthFilter validates token & blacklist
-    B->>B: RBAC / @PreAuthorize checks
-    B->>DB: JPA query
-    DB-->>B: Result
-    B-->>U: JSON response
-    Note over U,B: On 401, Axios refreshes via X-Refresh-Token
+    Desk->>API: Start membership (member, Monthly plan)
+    API->>DB: membership 20 Oct to 19 Nov + invoice INV-0042 (due today)
+    Desk->>API: Record payment 1,500 by UPI
+    API->>DB: payment RCT-0108 against INV-0042, taken by the desk
+    Note over API,DB: Invoice is now Paid.<br/>The member's balance is 0
+    Desk->>API: Close the day, counted cash 4,200
+    API->>DB: day close: opening + cash in − cash out = expected,<br/>difference recorded
+    Note over API: Cash payments, refunds and expenses<br/>for that date are now locked
 ```
 
-### Design decisions
+### 3. Every request to a business is checked
 
-| Decision | Rationale |
-|----------|-----------|
-| Modular monolith | Faster delivery for v1; clear domain packages (`auth`, `member`, `staff`, …) allow future extraction |
-| Flyway + `ddl-auto=validate` | Schema safety in production; migrations are source of truth |
-| Path-based API proxy (`/api/`) | Frontend uses `baseURL: "/"` — no CORS complexity in Docker/K8s |
-| Separate auth namespaces | `/api/v1/auth`, `/api/v1/members/auth`, staff JWT with `businessId` |
-| Redis optional blacklist | Supports horizontal scaling without sticky sessions |
-| `open-in-view=false` | Prevents lazy-loading leaks outside transactions |
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant API as API security
+    participant Tenancy as Tenancy interceptor
+    participant Service
 
-### Backend domain modules
-
-```
-auth · business · member · staff · subscription · payment · task · dashboard · audit · common
-```
-
-Each module follows: **Controller → Service → Repository → Entity/DTO**.
-
----
-
-## Project Structure
-
-```
-Mangaio/                          # Repository root (product name: Managio)
-├── README.md
-├── docker-compose.yml            # Postgres, Redis, backend, frontend, nginx
-├── nginx/
-│   └── nginx.conf                # Reverse proxy rules
-├── Deployment_images - Copy/     # Deployment & UI evidence screenshots
-├── DEVOPS_DEPLOYMENT_ENGINEERING_REPORT.md
-├── finalDevopsReport.pdf         # DevOps engineering report (PDF)
-│
-├── managio_frontend/             # Next.js 15 application
-│   ├── app/
-│   │   ├── (auth)/               # login, register, verify-email, reset-password
-│   │   ├── (dashboard)/          # owner: businesses, dashboard, settings
-│   │   ├── staff/                # staff portal
-│   │   ├── member/               # member portal
-│   │   └── page.tsx              # marketing landing page
-│   ├── components/               # UI + shared components
-│   ├── lib/
-│   │   ├── api/                  # Axios client + domain API modules
-│   │   ├── hooks/                # React Query hooks
-│   │   └── store/                # Zustand (auth, business)
-│   ├── middleware.ts             # Route protection by auth_type
-│   ├── Dockerfile                # Multi-stage standalone build
-│   └── package.json
-│
-└── managio_backend/              # Spring Boot API
-    ├── src/main/java/com/nitin/saas/
-    │   ├── auth/                 # Users, JWT, refresh tokens
-    │   ├── business/
-    │   ├── member/
-    │   ├── staff/
-    │   ├── subscription/         # Plans, assignments, schedulers
-    │   ├── payment/
-    │   ├── task/
-    │   ├── dashboard/
-    │   ├── audit/
-    │   └── common/               # security, config, export, email
-    ├── src/main/resources/
-    │   ├── application.properties
-    │   ├── application-dev.properties
-    │   ├── application-docker.yml
-    │   └── db/migration/         # Flyway V1–V16
-    ├── Dockerfile                # Maven build → JRE 21 Alpine
-    └── pom.xml
+    Browser->>API: GET /api/v1/businesses/7/invoices (Bearer token)
+    API->>API: Verify JWT signature, expiry, issuer
+    API->>Tenancy: user 12
+    Tenancy->>Tenancy: Active member of business 7?
+    alt not a member
+        Tenancy-->>Browser: 404 (the business's existence is not revealed)
+    else member without billing.view
+        Tenancy-->>Browser: 403
+    else allowed
+        Tenancy->>Service: BusinessContext(business 7, user 12, permissions)
+        Service-->>Browser: only business 7's invoices
+    end
 ```
 
-> **Note:** Kubernetes manifests (`~/k8s/*.yaml`), Jenkins pipelines, and Terraform `.tf` files appear in deployment screenshots but are **not present in this repository snapshot**.
+### 4. Sessions that stay safe
 
----
+```mermaid
+sequenceDiagram
+    participant Web as Web app
+    participant API
 
-## Screenshots
+    Web->>API: POST /auth/refresh (HttpOnly cookie, token A)
+    API-->>Web: new access token (15 min) + cookie with token B
+    Note over API: A is marked rotated, same session family
+    Web->>API: POST /auth/refresh with token A again, after the 30-second grace (stolen copy)
+    API-->>Web: 401, and the whole session family is signed out
+```
 
-### Product & user experience
+### 5. A request becomes an expense
 
-| | |
-|:---:|:---:|
-| ![Managio landing page](Deployment_images%20-%20Copy/Screenshot%202026-05-21%20230249.png) | **Landing page** — Multi-tenant positioning, feature highlights, and CTAs for owner onboarding. |
-| *Marketing hero: "One Platform. Every Business."* | *Deployed preview accessed via cloud host (see Deployment).* |
+```mermaid
+flowchart LR
+    raise["Trainer raises an expense claim<br/>amount, category"] --> pending{{"Pending"}}
+    pending -- "owner approves,<br/>chooses how it was paid" --> approved["Approved:<br/>expense recorded today,<br/>payee = trainer"]
+    pending -- "rejected with a reason" --> rejected["Rejected"]
+    pending -- "trainer cancels" --> cancelled["Cancelled"]
+    approved --> notify["Trainer notified"]
+    rejected --> notify
+```
 
-### Owner & operations UI
+### 6. The platform console
 
-The frontend implements dedicated surfaces for:
-
-- **Owner dashboard** — revenue charts, member counts, subscription health (`app/(dashboard)/dashboard/page.tsx`)
-- **Business management** — CRUD, statistics, audit logs
-- **Members / subscriptions / payments** — tables, filters, CSV tools
-- **Staff** — invitations, permissions, tasks, salary tracking
-- **Staff portal** — streamlined operational views under `/staff/*`
-- **Member portal** — dashboard, subscription, payments under `/member/*`
-
-> Additional in-app UI screenshots: **Not Found in Codebase** (only deployment/infrastructure images are bundled). Run locally and capture dashboards for portfolio polish.
-
-### Development & backend
-
-| | |
-|:---:|:---:|
-| ![Backend Docker build](Deployment_images%20-%20Copy/Screenshot%202026-05-18%20182734.png) | **Backend containerization** — Multi-stage Dockerfile (`maven:3.9.8-temurin-21` → `eclipse-temurin:21-jre-alpine`), non-root user, `app.jar` entrypoint. |
-| ![Spring Boot startup](Deployment_images%20-%20Copy/Screenshot%202026-05-18%20210136.png) | **Flyway migrations** — 16 schema versions applied; JWT startup validation; Tomcat on port 8080 inside container. |
-
-### Deployment & infrastructure
-
-<details>
-<summary><strong>Cloud, Docker, Kubernetes, monitoring (click to expand)</strong></summary>
-
-| Screenshot | Caption |
-|------------|---------|
-| ![Docker on EC2](Deployment_images%20-%20Copy/Screenshot%202026-05-20%20101401.png) | **AWS EC2 (Ubuntu)** — `systemctl enable/start docker`; Docker Engine active and ready for Compose/K8s workloads. |
-| ![Docker Compose up](Deployment_images%20-%20Copy/Screenshot%202026-05-19%20231031.png) | **Compose runtime** — `managio-nginx` + `managio-frontend` (Next.js 15) starting; Nginx entrypoint configures reverse proxy. |
-| ![kubectl + minikube install](Deployment_images%20-%20Copy/Screenshot%202026-05-20%20103258.png) | **Cluster tooling** — Docker verified; `kubectl` v1.30.1 and `minikube` v1.33.1 installed on Ubuntu host. |
-| ![K8s manifests directory](Deployment_images%20-%20Copy/Screenshot%202026-05-20%20220728.png) | **Kubernetes layout** — Separate deployments/services for frontend, backend, nginx, postgres, redis (`~/k8s`). |
-| ![kubectl get pods](Deployment_images%20-%20Copy/Screenshot%202026-05-20%20224603.png) | **Minikube cluster** — Core pods Running (frontend, backend, postgres, redis); nginx required troubleshooting in this snapshot. |
-| ![Pod self-healing](Deployment_images%20-%20Copy/Screenshot%202026-05-20%20230253.png) | **Resilience** — Deleted backend pod recreated automatically by Deployment controller. |
-| ![All namespaces pods](Deployment_images%20-%20Copy/Screenshot%202026-05-21%20015840.png) | **Scaled backend** — 3 backend replicas; kube-prometheus stack (Prometheus, Grafana, Alertmanager) in cluster. |
-| ![Terraform plan](Deployment_images%20-%20Copy/Screenshot%202026-05-21%20014403.png) | **Infrastructure as Code** — Terraform provisioning AWS security group (`devops_sg`) with ingress for SSH/HTTP. |
-| ![Grafana deploy](Deployment_images%20-%20Copy/Screenshot%202026-05-21%20213956.png) | **Observability** — `kubectl expose deployment grafana --type=NodePort --port=3000`. |
-| ![Grafana dashboard](Deployment_images%20-%20Copy/Screenshot%202026-05-21%20233928.png) | **Cloud Native Monitoring Dashboard** — Pod health, frontend status, backend API, and Nginx proxy metrics. |
-
-</details>
-
----
-
-## Installation
-
-### Prerequisites
-
-| Tool | Version (verified in repo/logs) |
-|------|----------------------------------|
-| **Java** | 21+ |
-| **Maven** | 3.9+ (or `./mvnw` in backend) |
-| **Node.js** | 20+ |
-| **PostgreSQL** | 16+ |
-| **Redis** | 7+ (optional for dev; used in Compose & multi-pod blacklist) |
-| **Docker & Docker Compose** | Latest stable (recommended) |
-
-Optional (deployment workflow from project artifacts):
-
-- AWS EC2 (Ubuntu), kubectl, minikube, Terraform, Prometheus/Grafana
-
-### Clone
-
-```bash
-git clone <your-repository-url>
-cd Mangaio
+```mermaid
+flowchart LR
+    signin["Signed-in account"] --> listed{"Email on<br/>PLATFORM_ADMIN_EMAILS?"}
+    listed -- no --> refused["403: nothing of the console is shown"]
+    listed -- yes --> verified{"Email verified<br/>and account active?"}
+    verified -- no --> refused
+    verified -- yes --> console["Overview, businesses,<br/>people, system health"]
+    console --> privacy["Business metadata and counts only:<br/>never a business's customers,<br/>invoices, payments or amounts"]
 ```
 
 ---
 
-## Environment Variables
+## Data model
 
-### Backend (`managio_backend`)
-
-| Variable | Required | Default (from `application.properties`) | Description |
-|----------|----------|----------------------------------------|-------------|
-| `SPRING_PROFILES_ACTIVE` | No | `dev` | Active profile (`dev`, `docker`, …) |
-| `DB_URL` | Yes* | `jdbc:postgresql://localhost:5432/managio` | JDBC URL |
-| `DB_USERNAME` | Yes* | `managio_user` | Database user |
-| `DB_PASSWORD` | Yes* | — | Database password |
-| `JWT_SECRET` | **Yes** | placeholder | Access token HMAC secret (≥32 chars) |
-| `JWT_REFRESH_SECRET` | **Yes** | placeholder | Refresh token secret (≥32 chars, distinct) |
-| `REDIS_HOST` | No | `localhost` | Redis host |
-| `REDIS_PORT` | No | `6379` | Redis port |
-| `REDIS_PASSWORD` | No | empty | Redis password |
-| `BLACKLIST_PROVIDER` | No | `memory` | `memory` or `redis` |
-| `PORT` | No | `8082` | Server port (Compose sets `8080`) |
-| `FRONTEND_URL` | Recommended | — | Links in emails (verification, reset) |
-| `RESEND_API_KEY` | For email | — | Resend transactional API key |
-| `MAIL_ENABLED` | No | — | Enable SMTP/Resend sending |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | If using SMTP | — | Spring Mail |
-| `OAUTH2_REDIRECT_URI` | If OAuth enabled | `http://localhost:3000/auth/callback` | OAuth callback |
-| `TRUST_PROXY_HEADERS` | Prod behind proxy | `false` | Honor `X-Forwarded-*` |
-
-\*Required for non-embedded PostgreSQL setups.
-
-### Docker Compose (`docker-compose.yml`)
-
-Compose injects `SPRING_DATASOURCE_*`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `REDIS_*`, `RESEND_API_KEY`, `app.frontend.url`. **Do not commit real secrets** — use a `.env` file and variable substitution in production.
-
-### Frontend (`managio_frontend`)
-
-| Variable | Required | Default in code | Description |
-|----------|----------|-----------------|-------------|
-| `NEXT_PUBLIC_API_BASE_URL` | No | Uses `"/"` via Axios | When not using Nginx proxy, set to backend origin (e.g. `http://localhost:8082`) |
-
-> **Not Found in Codebase:** `.env.example` for frontend. Create `.env.local` manually if running Next.js dev server without Nginx.
-
----
-
-## Running Locally
-
-### Option A — Docker Compose (recommended)
-
-```bash
-# From repository root
-docker compose up --build
-```
-
-| Service | URL |
-|---------|-----|
-| **Application (via Nginx)** | http://localhost |
-| **API (proxied)** | http://localhost/api/v1/... |
-| **PostgreSQL** | localhost:5432 |
-| **Redis** | localhost:6379 |
-
-Swagger UI (direct backend port if exposed): **Not exposed by default in Compose** (backend uses `expose: 8080` only). For API exploration, run backend locally on port 8082 or add a Compose port mapping.
-
-### Option B — Manual (development)
-
-**1. Database**
-
-```bash
-createdb managio
-# Run as managio_user or adjust application-dev.properties
-```
-
-**2. Redis** (optional unless `BLACKLIST_PROVIDER=redis`)
-
-```bash
-redis-server
-```
-
-**3. Backend**
-
-```bash
-cd managio_backend
-./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
-```
-
-Default API: `http://localhost:8082` (per `application.properties` `PORT` default).
-
-**4. Frontend**
-
-```bash
-cd managio_frontend
-npm install
-# If calling backend directly without Nginx:
-# echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:8082" > .env.local
-npm run dev
-```
-
-Frontend dev server: `http://localhost:3000`
-
-### Health & API docs
-
-| Endpoint | URL |
-|----------|-----|
-| Health | `GET /api/health` |
-| Info | `GET /api/info` |
-| Swagger UI | `/swagger-ui.html` |
-| OpenAPI JSON | `/api-docs` |
-
----
-
-## API Documentation
-
-Base path: **`/api/v1`**. Authenticated routes require:
-
-```http
-Authorization: Bearer <access_token>
-```
-
-Refresh:
-
-```http
-POST /api/v1/auth/refresh
-X-Refresh-Token: <refresh_token>
-```
-
-<details>
-<summary><strong>Authentication — <code>/api/v1/auth</code></strong></summary>
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/register` | Public | Register owner user |
-| POST | `/login` | Public | Owner login |
-| POST | `/staff/login` | Public | Staff login (business-scoped JWT) |
-| POST | `/refresh` | Public | Rotate tokens |
-| POST | `/logout` | Bearer + refresh | Revoke refresh; blacklist access |
-| POST | `/verify-email` | Public | Verify email token |
-| POST | `/resend-verification-email` | Public | Resend owner verification |
-| POST | `/forgot-password` | Public | Request reset |
-| POST | `/reset-password` | Public | Reset password (JSON body supported) |
-| POST | `/change-password` | Bearer | Change password |
-| GET | `/me` | Bearer | Current user profile |
-
-**Login example**
-
-```bash
-curl -X POST http://localhost:8082/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"owner@example.com","password":"SecurePass1!"}'
-```
-
-**Response shape (illustrative)**
-
-```json
-{
-  "accessToken": "eyJhbG...",
-  "refreshToken": "uuid-or-token",
-  "expiresIn": 900,
-  "user": { "id": 1, "email": "owner@example.com" }
-}
-```
-
-</details>
-
-<details>
-<summary><strong>Member auth — <code>/api/v1/members/auth</code></strong></summary>
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/register` | Public | Member self-registration |
-| POST | `/login` | Public | Member login |
-| POST | `/verify-email` | Public | Verify member email |
-| POST | `/resend-verification` | Public | Resend member verification |
-| POST | `/forgot-password` | Public | Member reset request |
-| POST | `/reset-password` | Public | Member reset (JSON supported) |
-| POST | `/change-password` | Bearer | Member password change |
-
-</details>
-
-<details>
-<summary><strong>Business, members, subscriptions, payments, staff, tasks, audit, dashboards</strong></summary>
-
-### Business — `/api/v1/businesses`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/` | Create business |
-| GET | `/my` | List owner's businesses |
-| GET | `/{id}` | Get business |
-| PUT | `/{id}` | Update business |
-| DELETE | `/{id}` | Soft-delete |
-| GET | `/{id}/statistics` | Aggregated stats |
-
-### Members — `/api/v1/businesses/{businessId}/members`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/` | Create member |
-| GET | `/` | Paginated list |
-| GET | `/with-subscriptions` | Members + subscription info |
-| GET | `/search?query=` | Search |
-| GET | `/status/{status}` | Filter by status |
-| GET | `/{id}/profile` | Full profile |
-| GET | `/{id}/subscription-history` | History |
-| GET | `/{id}/payment-history` | Payments |
-| GET | `/export` | CSV export |
-| GET | `/import-template` | CSV template |
-| POST | `/import` | Bulk CSV import |
-
-### Subscriptions — `/api/v1/businesses/{businessId}/subscriptions`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/plans` | Create plan |
-| GET | `/plans` | List plans |
-| POST | `/assign` | Assign to member |
-| POST | `/{subscriptionId}/cancel` | Cancel subscription |
-| GET | `/count` | Active count |
-
-### Payments — `/api/v1/businesses/{businessId}/payments`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/` | Record payment |
-| GET | `/` | List (paginated) |
-| GET | `/member/{memberId}` | Member history |
-| GET | `/stats` | Method breakdown |
-| GET | `/revenue/monthly` | Monthly revenue |
-| GET | `/recent?days=7` | Recent payments |
-| GET | `/export` | CSV export |
-
-### Staff — `/api/v1/businesses/{businessId}/staff`
-
-Includes CRUD, terminate/suspend/activate, permission grant/revoke, invitations, salary payment endpoints.
-
-### Staff invitations — `/api/v1/staff`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/accept-invitation` | Accept invite (public) |
-| GET | `/invitation?token=` | Get invitation details (public) |
-
-### Tasks — `/api/v1/businesses/{businessId}/tasks`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | List tasks |
-| GET | `/{taskId}` | Task detail |
-| POST | `/` | Create task |
-
-### Audit — `/api/v1/businesses/{businessId}/audit-logs`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Paginated logs |
-| GET | `/entity/{entityType}` | Filter by entity |
-| GET | `/recent?days=7` | Recent activity |
-
-### Dashboards
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/businesses/{businessId}/dashboard/owner` | Owner dashboard |
-| GET | `/api/v1/businesses/{businessId}/dashboard/staff` | Staff dashboard |
-| GET | `/api/v1/members/{memberId}/dashboard` | Member dashboard |
-
-</details>
-
----
-
-## Database Design
-
-Schema is managed by **Flyway** (`managio_backend/src/main/resources/db/migration/`). Hibernate `ddl-auto=validate`.
-
-### Entity relationship overview
+The main tables (26 in total; full list in [docs/DATA_MODEL.md](docs/DATA_MODEL.md)). Every business table carries `business_id`, and every query filters by it.
 
 ```mermaid
 erDiagram
-    users ||--o{ user_roles : has
-    users ||--o{ businesses : owns
-    businesses ||--o{ members : contains
-    businesses ||--o{ staff : employs
-    businesses ||--o{ subscription_plans : offers
-    members ||--o{ member_subscriptions : has
-    subscription_plans ||--o{ member_subscriptions : defines
-    members ||--o{ payments : makes
-    staff ||--o{ staff_permissions : overrides
-    staff ||--o{ staff_tasks : assigned
-    businesses ||--o{ audit_logs : tracks
-    users ||--o{ refresh_tokens : stores
+    USERS ||--o{ TEAM_MEMBERS : "works in"
+    BUSINESSES ||--o{ TEAM_MEMBERS : has
+    ROLES ||--o{ TEAM_MEMBERS : grants
+    BUSINESSES ||--o{ ROLES : defines
+    BUSINESSES ||--o{ CUSTOMERS : serves
+    BUSINESSES ||--o{ OFFERINGS : sells
+    CUSTOMERS ||--o{ MEMBERSHIPS : holds
+    OFFERINGS ||--o{ MEMBERSHIPS : "plan for"
+    CUSTOMERS ||--o{ INVOICES : owes
+    MEMBERSHIPS ||--o{ INVOICES : "billed by"
+    INVOICES ||--|{ INVOICE_LINES : contains
+    INVOICES ||--o{ PAYMENTS : "paid by"
+    PAYMENTS ||--o{ PAYMENTS : "refunded by"
+    BUSINESSES ||--o{ EXPENSES : spends
+    BUSINESSES ||--o{ DAY_CLOSES : "counts cash"
+    BUSINESSES ||--o{ TASKS : tracks
+    BUSINESSES ||--o{ REQUESTS : decides
+    BUSINESSES ||--o{ ACTIVITY_EVENTS : logs
 ```
 
-### Core tables
+* Money is `numeric(12,2)`, rounded half-up. Business dates are dates in the business's time zone (India by default).
+* Nothing with money or history attached is deleted: customers are archived; invoices, payments and expenses are voided with a reason.
+* Membership expiry and invoice status are worked out from dates and payments, never stored, so they can't go stale.
+* Schema changes are Flyway migrations that carry data forward.
 
-| Table | Purpose |
-|-------|---------|
-| `users`, `user_roles` | Platform owners/admins |
-| `refresh_tokens`, `email_verification_tokens`, `password_reset_tokens` | Auth tokens |
-| `auth_audit_logs` | Security events |
-| `businesses` | Tenant root entity |
-| `members` | Business members (+ `public_id` from V15) |
-| `subscription_plans`, `member_subscriptions` | Plans & assignments |
-| `payments` | Payment records (+ reference, `paid_at` from V13) |
-| `staff`, `staff_invitations`, `staff_permissions` | Workforce & RBAC |
-| `staff_tasks` | Operational task tracking (V16) |
-| `audit_logs` | Business audit trail (+ `entity_public_id`) |
-| `member_password_reset_tokens` | Member-specific resets (V11) |
+---
 
-### Migration versions
+## Security and privacy
 
-| Version | File | Highlights |
-|---------|------|------------|
-| V1 | `create_users_and_auth_tables` | Users, roles, tokens, auth audit |
-| V2–V3 | users/business/members | Business & member core |
-| V4 | subscriptions | Plans & member subscriptions |
-| V5 | payments | Payment ledger |
-| V6 | staff | Staff, invitations, permissions |
-| V7 | audit_logs | Audit module |
-| V8 | business extended fields | Additional business metadata |
-| V9, V12 | performance indexes | Query optimization |
-| V10 | refresh token subject type | Multi-subject refresh tokens |
-| V11 | member password reset | Member auth support |
-| V13 | payment reference | Payment metadata |
-| V14–V16 | public IDs, salary, tasks | IDs for external APIs, staff salary, tasks |
+* **Tenant isolation.** Every business-scoped request passes the tenancy interceptor; a record from another business answers 404. Tested for every role, and end to end with two real tenants.
+* **Tokens.** Access tokens live only in browser memory. Refresh tokens are random 256-bit values stored as SHA-256 hashes, sent as `HttpOnly; Secure; SameSite=Lax` cookies, rotated on every use with reuse detection.
+* **Accounts.** BCrypt passwords, lockout after 5 failures (for Google sign-in too), the same answer for unknown email and wrong password, single-use expiring links. Google ID tokens are checked for signature, issuer, audience and expiry; linking Google to an unverified account removes the password someone else may have set.
+* **Rate limits that can't be dodged.** `X-Forwarded-For` is ignored; only the web app, proven by a shared secret, may name the visitor's address. Limits per address (IPv6 per /64), per email recipient and per account.
+* **Money actions happen once.** Payments, refunds, sales, expenses, payroll and memberships accept an `Idempotency-Key`; retries and double submits replay the first result instead of recording twice.
+* **Permissions.** Enforced by the API; the UI only follows them. Nobody can grant a permission they don't hold or change their own role.
+* **Customer portal.** Customer and business always come from the customer's token, never from the request.
+* **Platform console.** Allowlist plus verified email, checked on every request; read-only; tenants appear as metadata and counts only.
+* **Privacy and search engines.** Plain-language [privacy policy](https://managio.me/privacy), [terms](https://managio.me/terms), [security](https://managio.me/security) and [contact](https://managio.me/contact) pages; only necessary cookies, no analytics or advertising. Private areas and the API are never indexed.
+* **Safe defaults.** API docs off in production; a Content Security Policy that allows only this site and Google sign-in, HSTS, `X-Frame-Options: DENY`, `nosniff`, referrer and permissions policies; cross-site requests refused by CORS; no stack traces in error responses, no secrets or query strings in logs, non-root containers, secrets only in environment variables. Shipped dependencies are checked against the OSV vulnerability database.
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| API | Java 21, Spring Boot 4.1, Spring Security (OAuth2 resource server, JWT), Spring Data JPA (Hibernate 7), JdbcClient read models, Flyway, springdoc OpenAPI 3.1, Caffeine, Resend |
+| Web | Next.js 16.4 (App Router, Cache Components, React Compiler), React 19, TypeScript, Tailwind CSS 4, TanStack Query 5, openapi-fetch with generated types, React Hook Form and Zod, Radix UI, lucide icons, Sonner |
+| Database | PostgreSQL 17 (Neon in production) |
+| Tests | JUnit 5, Testcontainers, MockMvc, ArchUnit, Vitest, Testing Library, Playwright, axe-core |
+| Delivery | Docker (multi-stage, non-root), Docker Compose, Jenkins, Vercel, Render |
+
+---
+
+## Repository layout
+
+```
+Mangaio/
+├── managio_backend/          Spring Boot API
+│   ├── src/main/java/com/managio/
+│   │   ├── platform/         shared infrastructure (security, tenancy, errors, mail, ...)
+│   │   └── modules/          one package per feature, split into layers
+│   ├── src/main/resources/   application.yml, Flyway migrations
+│   ├── src/test/java/        integration, contract and architecture tests
+│   ├── Dockerfile
+│   └── .env.example
+├── managio_frontend/         Next.js web app
+│   ├── src/app/              routes
+│   ├── src/features/         product areas (billing, customers, admin, ...)
+│   ├── src/components/       UI primitives and the signed-in shell
+│   ├── src/lib/              API client, sessions, formatting
+│   ├── e2e/                  Playwright specs
+│   ├── Dockerfile
+│   └── .env.example
+├── docs/                     the source of truth: product, architecture, decisions, status
+├── docker-compose.yml        PostgreSQL + API + web on one machine
+├── .env.example              settings for Docker Compose
+└── Jenkinsfile               test, build, push, release to Render and Vercel, smoke test
+```
+
+---
+
+## Getting started
+
+### Option A: everything in Docker
+
+Needs Docker with Compose.
+
+```bash
+cp .env.example .env            # set MANAGIO_DB_PASSWORD and MANAGIO_JWT_SECRET
+docker compose up --build -d
+docker compose ps               # wait until db, api and web are healthy
+```
+
+Open http://localhost:3000 and create an account. Emails (verification, reset, invitations) are written to the API's log until a Resend key is set: `docker compose logs api`. Set `MANAGIO_MAIL_LOG_CONTENT=true` to see their links.
+
+### Option B: develop locally
+
+Needs Java 21, Node 20.9 or newer (22 recommended) and Docker (for the database and the API's tests).
+
+```bash
+# 1. Database: a local PostgreSQL in Docker (never the production database)
+docker run -d --name managio-dev-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=managio -p 5433:5432 postgres:17
+
+# 2. API on http://localhost:8081
+cd managio_backend
+cp .env.example .env            # DB_URL=jdbc:postgresql://localhost:5433/managio, a JWT_SECRET,
+                                # SECURE_COOKIES=false, API_DOCS_ENABLED=true, MAIL_LOG_CONTENT=true
+./mvnw spring-boot:run          # port 8081 (8080 is left to Jenkins)
+
+# 3. Web app on http://localhost:3000
+cd ../managio_frontend
+cp .env.example .env.local      # API_ORIGIN=http://localhost:8081, NEXT_PUBLIC_GOOGLE_CLIENT_ID (optional)
+npm install
+npm run dev                     # restart after changing .env.local; the Google client ID is read at start-up
+```
+
+Swagger UI is at http://localhost:8081/swagger-ui.html when `API_DOCS_ENABLED=true`. After changing the API, regenerate the web app's types with `npm run api:types`. To open the platform console at `/admin`, put your account's email in the API's `PLATFORM_ADMIN_EMAILS` and verify it.
+
+Every setting, its default and whether it is secret: [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md).
+
+---
+
+## Testing
+
+| Suite | Command | Latest result (22 Oct 2026) |
+|---|---|---|
+| API: unit, integration (PostgreSQL in Testcontainers), contract, architecture, access sweep | `cd managio_backend && ./mvnw verify` | 172 passed |
+| Web: types | `npm run typecheck` | clean |
+| Web: lint | `npm run lint` | clean |
+| Web: unit and component | `npm test` | 52 passed |
+| End to end, desktop and phone, against a production build | `E2E_API_LOG=<api log> npx playwright test` | 57 pass, 1 skipped (phone-only test on the desktop project); includes SEO, legal pages and a sweep at desktop, tablet and phone sizes |
+| Docker images and Compose smoke test | `docker compose up --build` | images build, all services healthy, security, rate-limit, idempotency and isolation checks pass |
+| Shipped dependencies against the OSV database | see docs/STATUS.md | 0 known vulnerabilities |
+
+The end-to-end suite covers onboarding, payments and receipts, renewals, refunds and voids, attendance, payroll, team invitations and role limits, tasks, requests, the customer portal, isolation between two tenants, expired sessions, the platform console, and a sweep of every screen on desktop and phone that fails on console errors, failed API calls, sideways scrolling or serious accessibility violations (axe, WCAG 2.1 AA). How to run each: [docs/TESTING.md](docs/TESTING.md).
+
+---
+
+## API at a glance
+
+Base path `/api/v1`. JSON in and out, RFC 9457 problem details with a stable `code` for errors, lists as `{ items, page, size, totalItems, totalPages }`.
+
+| Area | Paths |
+|---|---|
+| Accounts | `/auth/sign-up`, `/auth/sign-in`, `/auth/google`, `/auth/refresh`, `/auth/sign-out`, `/auth/verify-email`, `/auth/password-reset`, `/me` |
+| Businesses and team | `/businesses`, `/businesses/{id}/settings`, `/businesses/{id}/roles`, `/businesses/{id}/team`, `/businesses/{id}/invitations`, `/invitations/accept` |
+| Customers | `/businesses/{id}/customers` (+ import, export, groups, attendance) |
+| Selling | `/businesses/{id}/offerings`, `/memberships`, `/invoices`, `/payments`, `/sales` |
+| Money out | `/businesses/{id}/expenses`, `/expense-categories`, `/payroll`, `/day-book` |
+| Work | `/businesses/{id}/tasks`, `/requests`, `/notifications`, `/activity` |
+| Reports | `/businesses/{id}/today`, `/reports/runway`, `/reports/profit-loss`, `/me/portfolio` |
+| Customer portal | `/portal/auth/...`, `/portal/me`, `/portal/memberships`, `/portal/invoices`, `/portal/payments` |
+| Platform console | `/admin/access`, `/admin/overview`, `/admin/businesses`, `/admin/people`, `/admin/health` |
+
+Full catalogue with permissions and error codes: [docs/API.md](docs/API.md).
 
 ---
 
 ## Deployment
 
-### Deployment architecture (as implemented & evidenced)
-
 ```mermaid
 flowchart LR
-    subgraph AWS["AWS EC2 (Ubuntu)"]
-        subgraph Orchestration
-            MK[Minikube / K8s]
-            DC[Docker Compose]
-        end
-        TF[Terraform SG]
-    end
-
-    MK --> Pods
-    DC --> Containers
-    Pods --> NginxP[Nginx Pod]
-    Pods --> FEP[Frontend Pod]
-    Pods --> BEP[Backend Pod x3]
-    Pods --> PGP[Postgres Pod]
-    Pods --> RP[Redis Pod]
-    Pods --> MON[Prometheus + Grafana]
-
-    Internet --> TF
-    Internet --> NginxP
+    dev["Push to master"] --> ci["Jenkins:<br/>API tests (./mvnw verify)<br/>web type check, lint, unit tests"]
+    ci --> images["Build images<br/>tagged commit-build"]
+    images --> hub["Docker Hub"]
+    hub --> render["Render runs that API image<br/>(deploy hook), wait until ready"]
+    render --> vercel["Vercel builds the web app<br/>(deploy hook)"]
+    vercel --> smoke["Smoke test managio.me"]
 ```
 
-### Hosting & tooling
-
-| Component | Evidence | In repository? |
-|-----------|----------|----------------|
-| **AWS EC2** | Ubuntu host `ip-172-31-40-6`, public IP in landing screenshot | Partial (`docker-compose.yml`) |
-| **Docker Compose** | `docker-compose.yml`, local Compose logs | **Yes** |
-| **Kubernetes (Minikube)** | `kubectl get pods`, `~/k8s` manifests | **No** (screenshots only) |
-| **Terraform** | `terraform plan` for `aws_security_group.devops_sg` | **No** |
-| **Prometheus + Grafana** | kube-prometheus pods, Grafana NodePort | **No** |
-| **Nginx** | `nginx/nginx.conf`, K8s nginx deployment | **Yes** (Compose config) |
-| **Jenkins CI/CD** | Mentioned in DevOps report | **Not Found in Codebase** |
-| **GitHub Actions** | Recommended in DevOps report | **Not Found in Codebase** |
-
-### Build process
-
-**Backend**
-
-```bash
-cd managio_backend
-docker build -t managio-backend:1.0 .
-# Multi-stage: Maven 3.9.8 + Temurin 21 → JRE Alpine, non-root user
-```
-
-**Frontend**
-
-```bash
-cd managio_frontend
-docker build -t managio-frontend:1.0 .
-# Multi-stage: npm ci → next build (standalone) → node:20-alpine runner
-```
-
-**Full stack**
-
-```bash
-docker compose up --build -d
-```
-
-### Recommended EC2 sizing (from DevOps engineering analysis)
-
-| Profile | Instance | Workloads |
-|---------|----------|-----------|
-| Minimum viable | `t3.medium` (2 vCPU, 4 GB) | FE + BE + Postgres |
-| Recommended demo | `t3.large` (2 vCPU, 8 GB) | + Redis + monitoring |
-| Full demo + CI | `t3.xlarge`+ | + Jenkins/heavier traffic |
-
-### CI/CD workflow
-
-**Not Found in Codebase.** Deployment screenshots document manual `kubectl` and Terraform steps. Recommended path from project DevOps report: **GitHub Actions** → build/test → push images → SSH/Compose or `kubectl rollout` deploy with health checks.
-
-### Environment configuration (production checklist)
-
-- [ ] Externalize all secrets (JWT, DB, Resend) via env/secret manager — never bake into images
-- [ ] Set `BLACKLIST_PROVIDER=redis` when running **>1 backend replica**
-- [ ] Configure `FRONTEND_URL` and HTTPS termination at Nginx/ALB
-- [ ] Restrict security group ingress (avoid `0.0.0.0/0` on SSH in production)
-- [ ] Enable mail (`app.mail.enabled`) for verification & subscription reminders
-- [ ] Add Prometheus scrape targets (`/actuator/prometheus` — **Not Found in Codebase**; only `health,info` exposed today)
+* **Production target:** web app on Vercel at `https://managio.me`, API on Render (the image Jenkins tested), database on Neon, email through Resend.
+* **One route to production:** Jenkins releases the API first and the web app second; pushes alone don't deploy production. Rollback: re-run with `ROLLBACK_TO_TAG`, and Vercel's Instant Rollback.
+* **Images:** `managio_backend/Dockerfile` and `managio_frontend/Dockerfile`, both multi-stage, non-root, with health checks.
+* **Checklist, smoke test and rollback:** [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ---
 
-## Performance Optimizations
+## Documentation
 
-Verified in codebase:
+`docs/` is the single source of truth. Every rule and decision carries a status label (`[VERIFIED]`, `[DECIDED]`, `[PLANNED]`, `[OPEN]`, ...).
 
-| Optimization | Location / behavior |
-|--------------|-------------------|
-| **DB indexes** | Flyway `V9`, `V12` — member, subscription, audit query paths |
-| **HikariCP pool tuning** | `maximum-pool-size=10`, leak detection, timeouts |
-| **`open-in-view=false`** | Prevents N+1 session issues in web layer |
-| **JWT iat jitter** | `JwtUtil` — avoids duplicate tokens on rapid re-login + blacklist |
-| **Next.js `optimizePackageImports`** | `lucide-react`, `recharts`, `framer-motion` bundle trimming |
-| **Standalone Docker output** | Smaller frontend runtime image |
-| **Container-aware JVM** | `-XX:MaxRAMPercentage=75.0`, `UseContainerSupport` in Dockerfile |
-| **Async thread pool** | `AsyncConfig` — core 10 / max 50 for `@Async` work |
-| **Scheduled jobs off-peak** | Subscription expiry midnight; reminders 09:00 |
-| **Redis token blacklist** | Optional distributed logout invalidation |
-
----
-
-## Security Considerations
-
-| Area | Implementation |
-|------|----------------|
-| **Authentication** | JWT access + refresh; BCrypt(12); refresh rotation & replay detection |
-| **Authorization** | Spring `@EnableMethodSecurity`, staff permission matrix, business-scoped APIs |
-| **Token revocation** | Logout blacklists access token; in-memory or Redis |
-| **Account protection** | Lockout after 5 failed attempts (configurable duration) |
-| **Rate limiting** | `RateLimitFilter` on sensitive auth endpoints |
-| **Transport** | HSTS-ready headers via `SecurityHeadersFilter`; frontend sets `X-Frame-Options`, `X-Content-Type-Options` |
-| **CORS** | Configurable allowed origins in `SecurityConfig` |
-| **Validation** | Jakarta Validation on DTOs; phone validation via libphonenumber |
-| **CSRF** | Disabled for stateless JWT API (documented Spring pattern) |
-| **Secrets in repo** | `docker-compose.yml` contains example secrets — **rotate and use `.env` for any real deployment** |
-
-**DevOps report findings (review before production):**
-
-- Restrict Terraform/AWS SG ingress to known IPs
-- Ensure password reset flows use **JSON bodies**, not query parameters, in all clients
-- Align member `resend-verification` frontend calls with backend route `/api/v1/members/auth/resend-verification`
+| Document | What it holds |
+|---|---|
+| [STATUS.md](docs/STATUS.md) | What is built and verified, open questions, next steps. Start here. |
+| [PRODUCT.md](docs/PRODUCT.md) | Users, business types, permissions, every business rule with its test. |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System shape, backend and frontend structure, security, testing approach. |
+| [DECISIONS.md](docs/DECISIONS.md) | Every significant decision with context and alternatives. |
+| [DATA_MODEL.md](docs/DATA_MODEL.md) | Tables, conventions and migrations. |
+| [API.md](docs/API.md) | Conventions, errors and the endpoint catalogue. |
+| [ENVIRONMENT.md](docs/ENVIRONMENT.md) | Every setting and which are secret. |
+| [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Images, the Compose stack, the production plan, smoke test, rollback. |
+| [LEGAL.md](docs/LEGAL.md) | What the legal pages say, the code behind each claim, and what needs confirming. |
+| [TESTING.md](docs/TESTING.md) | The test suites and how to run them. |
 
 ---
 
-## Challenges & Solutions
+## Project status
 
-| Challenge | Solution |
-|-----------|----------|
-| **Multi-tenant data isolation** | `business_id` on all tenant entities; APIs scoped by `{businessId}` path |
-| **Three user types, one platform** | Separate auth namespaces + Next.js middleware routing by `auth_type` cookie |
-| **Token reuse after logout** | Token blacklist with TTL; Redis provider for multi-pod consistency |
-| **Schema evolution without downtime** | Flyway versioned migrations with `validate` mode |
-| **Same-origin API in containers** | Nginx path proxy so frontend uses relative `/api` URLs |
-| **Subscription revenue leakage** | Scheduled expiry job + reminder emails before `end_date` |
-| **Operational accountability** | `audit_logs` + `auth_audit_logs` with indexed queries |
-| **K8s nginx pod errors (observed)** | Deployment screenshots show troubleshooting cycle; health probes & config maps recommended |
+Version 2 is a rebuild of the original gym-only app as a multi-business platform. The API, the web app, the customer portal and the platform console are built and tested, and the production images build and pass a smoke test. Still to do (details in [docs/STATUS.md](docs/STATUS.md)):
+
+* First production deployment to Vercel, Render and Neon, through the Jenkins pipeline (needs the owner's dashboards: docs/DEPLOYMENT.md).
+* A real Google sign-in and a real email from the verified `managio.me` domain in production.
+* Optional later: an authenticator-app step for platform administrators, a nonce-based Content Security Policy, and paid plans if Managio stops being free.
 
 ---
 
-## Future Enhancements
+## License and author
 
-| Priority | Enhancement |
-|----------|-------------|
-| High | Commit K8s manifests & Terraform to repo; GitHub Actions CI/CD |
-| High | Enable `/actuator/prometheus` + alerting rules (Grafana dashboards exist in deployment) |
-| High | HTTPS / domain (`app.managio.in` referenced on landing mockup) |
-| Medium | Payment gateway integration (Razorpay/Stripe enums exist; manual record today) |
-| Medium | OAuth2 Google login (`app.oauth.google.enabled`) |
-| Medium | Automated test suite (unit + integration + E2E) |
-| Medium | `.env.example` files for frontend & Compose |
-| Low | 2FA (`two_factor_enabled` on users table) |
-| Low | AI/OpenCV service mentioned in DevOps report — **Not Found in Codebase** |
+**Proprietary.** © 2026 Managio. All rights reserved.
 
----
-
-## Contributing
-
-1. Fork the repository and create a feature branch: `git checkout -b feature/your-feature`
-2. Follow existing conventions (domain packages on backend; `app/` routes on frontend)
-3. Run `npm run lint` / `npm run type-check` (frontend) and `./mvnw clean package` (backend)
-4. Ensure Flyway migrations are backward-compatible
-5. Open a pull request with description, screenshots, and test plan
-
-> Automated tests are not yet present — include manual verification steps in PRs.
-
----
-
-## License
-
-**Proprietary** — © 2026 Managio. All rights reserved.
-
-> A `LICENSE` file was **Not Found in Codebase**. Add `LICENSE` or `LICENSE.md` if you intend to open-source.
-
----
-
-## Author
-
-**Your Name**
+Built by **Nitin**.
 
 | | |
 |---|---|
-| LinkedIn | [linkedin.com/in/your-profile](https://linkedin.com/in/your-profile) |
-| GitHub | [github.com/your-username](https://github.com/your-username) |
-| Portfolio | [your-portfolio.com](https://your-portfolio.com) |
-| Email | your.email@example.com |
+| LinkedIn | [linkedin.com/in/nitinr0306](https://www.linkedin.com/in/nitinr0306/) |
+| GitHub | [github.com/Nitinr0306](https://github.com/Nitinr0306) |
+| Portfolio | [nitinr0306-portfolio-business.vercel.app](https://nitinr0306-portfolio-business.vercel.app/) |
+| Email | nitinr0306@gmail.com |
 
----
-
-<p align="center">
-  <sub>Built with Spring Boot & Next.js · Managio v1.0.0</sub>
-</p>
+<p align="center"><sub>Built with Spring Boot and Next.js · Managio 2.0</sub></p>

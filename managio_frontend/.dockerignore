@@ -1,12 +1,17 @@
+# The image is built from source with its own npm ci; local builds, tests and secrets stay out.
 node_modules
 .next
 out
 coverage
-
+test-results
+playwright-report
+blob-report
+e2e-results
+.playwright-mcp
+.git
+.vercel
+*.tsbuildinfo
+# Local secrets never enter an image.
 .env
-.env.local
-
-tsconfig.tsbuildinfo
-
-.idea
-.vscode
+.env.*
+!.env.example

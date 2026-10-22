@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" class="bg-[#12151C]">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Members — Managio (Portfolio)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@0.453.0/dist/umd/lucide.min.js"></script>
+  <script src="../data.js"></script>
+  <script src="shell.js"></script>
+  <style>body{font-feature-settings:'tnum' 1}</style>
+</head>
+<body class="bg-canvas text-ink antialiased">
+<div class="flex min-h-screen">
+  <div id="rail"></div>
+  <div class="flex-1 min-w-0 flex flex-col">
+    <div id="topbar"></div>
+    <main class="flex-1 px-5 sm:px-8 py-6">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-baseline gap-3">
+          <h1 class="text-[20px] leading-7 font-medium">Members</h1>
+          <span class="text-[13px] text-muted">1,046 active across 4 businesses</span>
+        </div>
+        <div class="flex gap-2">
+          <button class="h-8 px-3 rounded border border-line text-[13px] hover:bg-surface inline-flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5"></i>Export</button>
+          <button class="h-8 px-3 rounded bg-aqua text-canvas text-[13px] font-medium hover:bg-aqua-dark inline-flex items-center gap-1.5"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i>Add member</button>
+        </div>
+      </div>
+      <nav class="mt-4 flex gap-5 border-b border-line text-[13px]" aria-label="Saved views">
+        <a href="#" class="h-9 inline-flex items-center border-b-2 border-transparent text-muted hover:text-ink">All members</a>
+        <a href="#" aria-current="true" class="h-9 inline-flex items-center gap-1.5 border-b-2 border-aqua text-ink">Ending this week<span class="text-aqua">57</span></a>
+        <a href="#" class="h-9 inline-flex items-center border-b-2 border-transparent text-muted hover:text-ink">Lapsed, paid over ₹20,000</a>
+        <button class="h-9 inline-flex items-center gap-1 text-faint hover:text-ink"><i data-lucide="plus" class="w-3.5 h-3.5"></i>Save view</button>
+      </nav>
+
+      <div class="mt-4 grid lg:grid-cols-[200px_1fr] gap-6">
+        <aside id="facets" class="text-[13px] space-y-5" aria-label="Filters"></aside>
+        <div class="min-w-0">
+          <div class="bg-surface border border-line rounded overflow-x-auto">
+            <table class="w-full text-[13px] min-w-[860px]">
+              <thead class="text-faint text-left">
+                <tr class="h-9 border-b border-line">
+                  <th class="pl-3 w-8"><input type="checkbox" aria-label="Select all" class="accent-[#36C2B4]"></th>
+                  <th class="font-normal">Member</th><th class="font-normal">Business</th><th class="font-normal">Plan</th>
+                  <th class="font-normal">Ends</th><th class="font-normal text-right">Days left</th>
+                  <th class="font-normal text-right">Paid to date</th><th class="font-normal pr-4 text-right">Member since</th>
+                </tr>
+              </thead>
+              <tbody id="rows" class="divide-y divide-line"></tbody>
+            </table>
+          </div>
+          <div class="mt-3 flex flex-wrap items-center gap-3 rounded border border-line bg-raised px-4 h-12 text-[13px]">
+            <span class="font-medium">2 selected</span>
+            <span class="text-faint">Bulk actions apply to the selected members only</span>
+            <span class="ml-auto flex gap-2">
+              <button class="h-8 px-3 rounded border border-line hover:bg-surface">Export selected</button>
+              <button class="h-8 px-3 rounded bg-aqua text-canvas font-medium hover:bg-aqua-dark">Send renewal reminder</button>
+            </span>
+          </div>
+          <p class="mt-3 text-[12px] text-faint">1–8 of 57</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  const { inr } = MANAGIO;
+  document.getElementById('rail').outerHTML = C.rail('Members');
+  document.getElementById('topbar').outerHTML = C.topbar(
+    `<button class="h-8 px-3 rounded border border-line text-[13px] text-muted hover:text-ink inline-flex items-center gap-1.5"><i data-lucide="store" class="w-3.5 h-3.5"></i>All businesses<i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>`);
+
+  const facet = (title, opts) => `<fieldset><legend class="text-faint mb-2">${title}</legend>${opts.map(([l, n, on]) => `
+    <label class="flex items-center gap-2 h-7 cursor-pointer hover:text-ink ${on ? 'text-ink' : 'text-muted'}"><input type="checkbox" ${on ? 'checked' : ''} class="accent-[#36C2B4]">
+    <span class="flex-1">${l}</span>${n !== undefined ? `<span class="text-faint">${n}</span>` : ''}</label>`).join('')}</fieldset>`;
+  document.getElementById('facets').innerHTML =
+    facet('Business', [['Indiranagar', 23, true], ['HSR Layout', 21, true], ['Prana Yoga Studio', 9, true], ['Taal Dance Academy', 4, true]]) +
+    facet('Status', [['Active'], ['Due', 57, true], ['Lapsed'], ['No plan']]) +
+    facet('Plan', [['Monthly Unlimited'], ['Quarterly Strength'], ['Annual Unlimited'], ['Yoga 3x/week Monthly']]);
+
+  const rows = [
+    ['Kavya Iyer', 'MBR-2MN6R5WE', 'Indiranagar', 'Yoga 3x/week Monthly', '21 Oct', 1, 11994, 'Apr 2026', true],
+    ['Lakshmi Rao', 'MBR-8DK3P7QF', 'Prana Yoga Studio', 'Yoga 3x/week Monthly', '22 Oct', 2, 7996, 'Jun 2026'],
+    ['Dev Malhotra', 'MBR-3XT9W1GH', 'HSR Layout', 'Quarterly Strength', '23 Oct', 3, 25996, 'Jan 2025'],
+    ['Rohan Mehta', 'MBR-7K2Q9XLD', 'Indiranagar', 'Quarterly Strength', '24 Oct', 4, 19497, 'Apr 2026', true],
+    ['Farhan Ali', 'MBR-6NB2Y8RT', 'HSR Layout', 'Monthly Unlimited', '24 Oct', 4, 14994, 'Mar 2026'],
+    ['Tara Fernandes', 'MBR-1QM7C4VZ', 'Taal Dance Academy', 'Monthly Unlimited', '25 Oct', 5, 4998, 'Aug 2026'],
+    ['Neha Gupta', 'MBR-5TY7U2PS', 'Indiranagar', 'Quarterly Strength', '26 Oct', 6, 19497, 'Nov 2025'],
+    ['Karthik Reddy', 'MBR-9HJ4L6SA', 'HSR Layout', 'Annual Unlimited', '27 Oct', 7, 43998, 'Oct 2024'],
+  ];
+  document.getElementById('rows').innerHTML = rows.map(([name, id, biz, plan, ends, days, paid, since, sel]) => `
+    <tr class="h-10 ${sel ? 'bg-aqua-soft/40' : 'hover:bg-raised/60'}">
+      <td class="pl-3"><input type="checkbox" ${sel ? 'checked' : ''} aria-label="Select ${name}" class="accent-[#36C2B4]"></td>
+      <td><span class="font-medium">${name}</span> <span class="text-faint text-[12px]">${id}</span></td>
+      <td class="text-muted">${biz}</td><td class="text-muted">${plan}</td><td>${ends}</td>
+      <td class="text-right ${days <= 3 ? 'text-neg' : 'text-risk'} font-medium">${days}</td>
+      <td class="text-right">${inr(paid)}</td><td class="text-right pr-4 text-muted">${since}</td>
+    </tr>`).join('');
+  lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Managio Portfolio - Members</title>
+<!-- Google Fonts: IBM Plex Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed-dim": "#a8d9ef",
+            "on-primary-fixed-variant": "#00675f",
+            "on-secondary": "#2c4541",
+            "on-surface": "#dfe5f8",
+            "surface-container": "#151a24",
+            "surface-container-high": "#1a202b",
+            "on-tertiary-container": "#235669",
+            "error": "#fa746f",
+            "on-primary-container": "#00221f",
+            "secondary-fixed-dim": "#bedad5",
+            "on-primary": "#004943",
+            "on-tertiary-fixed": "#084356",
+            "tertiary-dim": "#a8d9ef",
+            "on-secondary-fixed": "#2b4440",
+            "surface-tint": "#56dacc",
+            "on-tertiary-fixed-variant": "#2e6073",
+            "on-error": "#490006",
+            "surface-container-highest": "#1f2634",
+            "on-secondary-container": "#a9c5c0",
+            "on-primary-fixed": "#004842",
+            "surface": "#0b0e15",
+            "surface-container-low": "#0f131c",
+            "primary-fixed-dim": "#66e9da",
+            "secondary-dim": "#a3beb9",
+            "error-container": "#871f21",
+            "outline-variant": "#414857",
+            "primary-container": "#09aea0",
+            "inverse-on-surface": "#52555d",
+            "on-surface-variant": "#a5abbd",
+            "on-tertiary": "#2d5e72",
+            "on-error-container": "#ff9993",
+            "primary": "#36C2B4",
+            "secondary-container": "#27403c",
+            "surface-bright": "#262c3a",
+            "inverse-surface": "#f9f9ff",
+            "tertiary": "#d8f2ff",
+            "primary-fixed": "#76f7e8",
+            "background": "#12151C",
+            "tertiary-fixed": "#b6e7fe",
+            "inverse-primary": "#006b62",
+            "primary-dim": "#44ccbe",
+            "error-dim": "#c54d4a",
+            "surface-container-lowest": "#000000",
+            "tertiary-container": "#b6e7fe",
+            "on-background": "#dfe5f8",
+            "on-secondary-fixed-variant": "#47605c",
+            "surface-dim": "#0b0e15",
+            "surface-variant": "#1f2634",
+            "secondary": "#b1ccc7",
+            "secondary-fixed": "#cce8e3",
+            "outline": "#6f7586"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "fontFamily": {
+            "headline": ["IBM Plex Sans", "sans-serif"],
+            "display": ["IBM Plex Sans", "sans-serif"],
+            "body": ["IBM Plex Sans", "sans-serif"],
+            "label": ["IBM Plex Sans", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background-color: #12151c;
+      color: #dfe5f8;
+      -webkit-font-smoothing: antialiased;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased overflow-hidden text-xs select-none">
+<!-- Left 64px Side Rail (SideNavBar) -->
+<aside class="fixed left-0 top-0 bottom-0 w-16 h-full bg-surface-container border-r border-outline-variant/30 flex flex-col justify-between items-center py-4 z-40">
+<!-- Rail Header -->
+<div class="flex flex-col items-center gap-6 w-full">
+<div class="w-9 h-9 rounded bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary font-semibold text-sm tracking-tight cursor-pointer" title="Managio Multi-branch">
+        M
+      </div>
+<!-- Navigation Tabs -->
+<nav class="flex flex-col items-center gap-1.5 w-full">
+<!-- Portfolio -->
+<a class="w-full h-11 flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150" href="#" title="Portfolio">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] mt-0.5 leading-none">Portfolio</span>
+</a>
+<!-- Branches -->
+<a class="w-full h-11 flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150" href="#" title="Branches">
+<span class="material-symbols-outlined text-[20px]" data-icon="storefront">storefront</span>
+<span class="text-[10px] mt-0.5 leading-none">Branches</span>
+</a>
+<!-- Analytics -->
+<a class="w-full h-11 flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150" href="#" title="Analytics">
+<span class="material-symbols-outlined text-[20px]" data-icon="monitoring">monitoring</span>
+<span class="text-[10px] mt-0.5 leading-none">Analytics</span>
+</a>
+<!-- Members (ACTIVE) -->
+<a class="w-full h-11 flex flex-col items-center justify-center text-primary bg-surface-container-high border-l-2 border-primary transition-colors duration-150" href="#" title="Members">
+<span class="material-symbols-outlined text-[20px]" data-icon="group" data-weight="fill" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="text-[10px] mt-0.5 leading-none font-medium">Members</span>
+</a>
+<!-- Operations -->
+<a class="w-full h-11 flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150" href="#" title="Operations">
+<span class="material-symbols-outlined text-[20px]" data-icon="tune">tune</span>
+<span class="text-[10px] mt-0.5 leading-none">Operations</span>
+</a>
+</nav>
+</div>
+<!-- Rail Footer Tabs -->
+<div class="flex flex-col items-center gap-1.5 w-full">
+<a class="w-full h-10 flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150" href="#" title="Help">
+<span class="material-symbols-outlined text-[19px]" data-icon="help">help</span>
+<span class="text-[9px] mt-0.5 leading-none">Help</span>
+</a>
+<a class="w-full h-10 flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150" href="#" title="Settings">
+<span class="material-symbols-outlined text-[19px]" data-icon="settings">settings</span>
+<span class="text-[9px] mt-0.5 leading-none">Settings</span>
+</a>
+</div>
+</aside>
+<!-- Top 56px Command Bar (TopNavBar) -->
+<header class="fixed top-0 left-16 right-0 h-14 bg-surface-container-low border-b border-outline-variant/30 flex items-center justify-between px-6 z-30">
+<!-- Left Command & Search Bar -->
+<div class="flex items-center gap-4 w-96">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full h-8 pl-8 pr-14 bg-surface-container-high border border-outline-variant/40 rounded text-xs text-on-surface placeholder:text-outline focus:outline-none focus:border-primary transition-colors" placeholder="Search members, plans, phone..." type="text"/>
+<span class="absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] text-on-surface-variant bg-surface-container rounded border border-outline-variant/40 font-mono">⌘K</span>
+</div>
+</div>
+<!-- Center/Right Action Cluster -->
+<div class="flex items-center gap-3">
+<!-- Branch Selector Dropdown -->
+<div class="flex items-center gap-1.5 px-2.5 h-8 bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/40 rounded text-xs text-on-surface cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="storefront">storefront</span>
+<span class="font-medium">All businesses (4)</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+<div class="h-4 w-px bg-outline-variant/30 mx-1"></div>
+<!-- Icon Actions -->
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" title="Notifications">
+<span class="material-symbols-outlined text-[18px]" data-icon="notifications">notifications</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" title="Operations Tuning">
+<span class="material-symbols-outlined text-[18px]" data-icon="tune">tune</span>
+</button>
+<div class="h-4 w-px bg-outline-variant/30 mx-1"></div>
+<!-- User Profile -->
+<div class="flex items-center gap-2 pl-1 cursor-pointer">
+<div class="w-7 h-7 rounded bg-surface-bright border border-outline-variant/50 flex items-center justify-center font-medium text-xs text-primary">
+          RO
+        </div>
+</div>
+</div>
+</header>
+<!-- Main View Canvas -->
+<main class="ml-16 pt-14 h-screen flex flex-col bg-background">
+<!-- Header Section -->
+<div class="px-6 pt-5 pb-3 border-b border-outline-variant/20 flex items-center justify-between shrink-0">
+<div>
+<div class="flex items-baseline gap-3">
+<h1 class="text-xl font-semibold tracking-tight text-white font-headline">Members</h1>
+<span class="text-xs text-on-surface-variant">1,046 active across 4 businesses</span>
+</div>
+</div>
+<!-- Primary Actions -->
+<div class="flex items-center gap-2">
+<button class="h-8 px-3 border border-outline-variant/50 hover:bg-surface-container-high text-on-surface font-medium text-xs rounded inline-flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+          Export
+        </button>
+<button class="h-8 px-3.5 bg-primary hover:bg-primary-container text-surface-container-lowest font-medium text-xs rounded inline-flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+          Add member
+        </button>
+</div>
+</div>
+<!-- Saved View Tabs Bar -->
+<div class="px-6 border-b border-outline-variant/20 flex items-center justify-between bg-surface-container-low shrink-0 h-10">
+<div class="flex items-center gap-1 h-full">
+<button class="h-full px-3 text-xs text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-1.5 border-b-2 border-transparent">
+          All members
+        </button>
+<!-- Active View -->
+<button class="h-full px-3 text-xs text-primary font-medium flex items-center gap-1.5 border-b-2 border-primary">
+          Ending this week
+          <span class="text-[10px] px-1.5 py-0.2 bg-primary/10 text-primary rounded-full font-mono font-normal">57</span>
+</button>
+<button class="h-full px-3 text-xs text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-1.5 border-b-2 border-transparent">
+          Lapsed, high value
+        </button>
+<button class="h-6 px-2 text-[11px] text-outline hover:text-on-surface-variant border border-dashed border-outline-variant/50 rounded flex items-center gap-1 ml-2 transition-colors">
+<span class="material-symbols-outlined text-[13px]">bookmark_add</span>
+          + Save view
+        </button>
+</div>
+<div class="flex items-center text-xs text-on-surface-variant gap-2">
+<span>Sort: <strong class="text-on-surface font-normal">Days left (Ascending)</strong></span>
+</div>
+</div>
+<!-- Two-Column Main Analytical Body -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Filters Column (Fixed 220px) -->
+<aside class="w-[220px] shrink-0 border-r border-outline-variant/20 bg-surface-container-low/50 p-4 flex flex-col gap-5 overflow-y-auto">
+<!-- Business Filter Group -->
+<div class="flex flex-col gap-2">
+<span class="text-[11px] uppercase tracking-wider font-semibold text-outline">Business</span>
+<div class="flex flex-col gap-1.5">
+<label class="flex items-center justify-between group cursor-pointer text-xs text-on-surface">
+<div class="flex items-center gap-2">
+<input checked="" class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="truncate max-w-[130px]" title="Ironwood Fitness Indiranagar">Ironwood Indiranagar</span>
+</div>
+<span class="text-[10px] tabular-nums text-on-surface-variant font-mono">23</span>
+</label>
+<label class="flex items-center justify-between group cursor-pointer text-xs text-on-surface">
+<div class="flex items-center gap-2">
+<input checked="" class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="truncate max-w-[130px]" title="Ironwood Fitness HSR Layout">Ironwood HSR</span>
+</div>
+<span class="text-[10px] tabular-nums text-on-surface-variant font-mono">21</span>
+</label>
+<label class="flex items-center justify-between group cursor-pointer text-xs text-on-surface">
+<div class="flex items-center gap-2">
+<input checked="" class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="truncate max-w-[130px]" title="Prana Yoga Studio">Prana Yoga Studio</span>
+</div>
+<span class="text-[10px] tabular-nums text-on-surface-variant font-mono">9</span>
+</label>
+<label class="flex items-center justify-between group cursor-pointer text-xs text-on-surface">
+<div class="flex items-center gap-2">
+<input checked="" class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="truncate max-w-[130px]" title="Taal Dance Academy">Taal Dance Academy</span>
+</div>
+<span class="text-[10px] tabular-nums text-on-surface-variant font-mono">4</span>
+</label>
+</div>
+</div>
+<div class="w-full h-px bg-outline-variant/20"></div>
+<!-- Status Filter Group -->
+<div class="flex flex-col gap-2">
+<span class="text-[11px] uppercase tracking-wider font-semibold text-outline">Status</span>
+<div class="flex flex-col gap-1.5">
+<label class="flex items-center gap-2 cursor-pointer text-xs text-on-surface-variant hover:text-on-surface">
+<input class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span>Active</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer text-xs text-primary font-medium">
+<input checked="" class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span>Due</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer text-xs text-on-surface-variant hover:text-on-surface">
+<input class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span>Lapsed</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer text-xs text-on-surface-variant hover:text-on-surface">
+<input class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span>No plan</span>
+</label>
+</div>
+</div>
+<div class="w-full h-px bg-outline-variant/20"></div>
+<!-- Plan Filter Group -->
+<div class="flex flex-col gap-2">
+<span class="text-[11px] uppercase tracking-wider font-semibold text-outline">Plan</span>
+<div class="flex flex-col gap-1.5">
+<label class="flex items-center gap-2 cursor-pointer text-xs text-on-surface-variant hover:text-on-surface">
+<input class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="truncate">Monthly Unlimited</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer text-xs text-on-surface-variant hover:text-on-surface">
+<input class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="truncate">Quarterly Strength</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer text-xs text-on-surface-variant hover:text-on-surface">
+<input class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="truncate">Annual Unlimited</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer text-xs text-on-surface-variant hover:text-on-surface">
+<input class="w-3.5 h-3.5 rounded bg-surface-container border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="truncate">Yoga 3x/week Monthly</span>
+</label>
+</div>
+</div>
+</aside>
+<!-- Right Main Table Area -->
+<section class="flex-1 flex flex-col relative overflow-hidden bg-background">
+<div class="flex-1 overflow-x-auto overflow-y-auto">
+<table class="w-full text-left border-collapse text-xs">
+<thead>
+<tr class="h-9 border-b border-outline-variant/30 bg-surface-container text-on-surface-variant font-medium">
+<th class="w-10 px-4 text-center">
+<input checked="" class="w-3.5 h-3.5 rounded bg-surface border-outline-variant text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+</th>
+<th class="px-3 py-2 font-normal text-on-surface-variant">Member</th>
+<th class="px-3 py-2 font-normal text-on-surface-variant">Business</th>
+<th class="px-3 py-2 font-normal text-on-surface-variant">Plan</th>
+<th class="px-3 py-2 font-normal text-on-surface-variant">Ends</th>
+<th class="px-3 py-2 font-normal text-on-surface-variant text-right">Days left</th>
+<th class="px-3 py-2 font-normal text-on-surface-variant text-center">Status</th>
+<th class="px-3 py-2 font-normal text-on-surface-variant text-right">Paid to date</th>
+<th class="px-3 py-2 font-normal text-on-surface-variant">Member since</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/15 font-body">
+<!-- Row 1 (Checked) -->
+<tr class="h-10 bg-surface-container-high/60 border-l-2 border-primary hover:bg-surface-container-high transition-colors">
+<td class="w-10 px-4 text-center">
+<input checked="" class="w-3.5 h-3.5 rounded bg-surface border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="px-3 py-2">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white">Kavya Iyer</span>
+<span class="text-[11px] text-outline font-mono">MID-8821</span>
+</div>
+</td>
+<td class="px-3 py-2 text-on-surface-variant">Ironwood Fitness Indiranagar</td>
+<td class="px-3 py-2 text-on-surface-variant">Yoga 3x/week Monthly</td>
+<td class="px-3 py-2 text-on-surface">21 Oct</td>
+<td class="px-3 py-2 text-right">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-medium bg-[#E3A93B]/10 text-[#E3A93B]">1 day left</span>
+</td>
+<td class="px-3 py-2 text-center">
+<span class="inline-block px-1.5 py-0.2 rounded text-[11px] font-medium text-[#E3A93B]">Due</span>
+</td>
+<td class="px-3 py-2 text-right tabular-nums font-mono text-on-surface">₹11,994</td>
+<td class="px-3 py-2 text-on-surface-variant">Apr 2026</td>
+</tr>
+<!-- Row 2 (Checked) -->
+<tr class="h-10 bg-surface-container-high/60 border-l-2 border-primary hover:bg-surface-container-high transition-colors">
+<td class="w-10 px-4 text-center">
+<input checked="" class="w-3.5 h-3.5 rounded bg-surface border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="px-3 py-2">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white">Rohan Mehta</span>
+<span class="text-[11px] text-outline font-mono">MID-7104</span>
+</div>
+</td>
+<td class="px-3 py-2 text-on-surface-variant">Indiranagar</td>
+<td class="px-3 py-2 text-on-surface-variant">Quarterly Strength</td>
+<td class="px-3 py-2 text-on-surface">24 Oct</td>
+<td class="px-3 py-2 text-right">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-medium bg-[#E3A93B]/10 text-[#E3A93B]">4 days left</span>
+</td>
+<td class="px-3 py-2 text-center">
+<span class="inline-block px-1.5 py-0.2 rounded text-[11px] font-medium text-[#E3A93B]">Due</span>
+</td>
+<td class="px-3 py-2 text-right tabular-nums font-mono text-on-surface">₹12,998</td>
+<td class="px-3 py-2 text-on-surface-variant">Apr 2026</td>
+</tr>
+<!-- Row 3 -->
+<tr class="h-10 hover:bg-surface-container-high/40 transition-colors">
+<td class="w-10 px-4 text-center">
+<input class="w-3.5 h-3.5 rounded bg-surface border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="px-3 py-2">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white">Farhan Ali</span>
+<span class="text-[11px] text-outline font-mono">MID-6520</span>
+</div>
+</td>
+<td class="px-3 py-2 text-on-surface-variant">HSR Layout</td>
+<td class="px-3 py-2 text-on-surface-variant">Monthly Unlimited</td>
+<td class="px-3 py-2 text-on-surface">24 Oct</td>
+<td class="px-3 py-2 text-right">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-medium bg-[#E3A93B]/10 text-[#E3A93B]">4 days left</span>
+</td>
+<td class="px-3 py-2 text-center">
+<span class="inline-block px-1.5 py-0.2 rounded text-[11px] font-medium text-[#E3A93B]">Due</span>
+</td>
+<td class="px-3 py-2 text-right tabular-nums font-mono text-on-surface">₹14,994</td>
+<td class="px-3 py-2 text-on-surface-variant">Mar 2026</td>
+</tr>
+<!-- Row 4 -->
+<tr class="h-10 hover:bg-surface-container-high/40 transition-colors">
+<td class="w-10 px-4 text-center">
+<input class="w-3.5 h-3.5 rounded bg-surface border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="px-3 py-2">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white">Neha Gupta</span>
+<span class="text-[11px] text-outline font-mono">MID-5192</span>
+</div>
+</td>
+<td class="px-3 py-2 text-on-surface-variant">Indiranagar</td>
+<td class="px-3 py-2 text-on-surface-variant">Quarterly Strength</td>
+<td class="px-3 py-2 text-on-surface">26 Oct</td>
+<td class="px-3 py-2 text-right">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-medium bg-[#E3A93B]/10 text-[#E3A93B]">6 days left</span>
+</td>
+<td class="px-3 py-2 text-center">
+<span class="inline-block px-1.5 py-0.2 rounded text-[11px] font-medium text-[#E3A93B]">Due</span>
+</td>
+<td class="px-3 py-2 text-right tabular-nums font-mono text-on-surface">₹19,497</td>
+<td class="px-3 py-2 text-on-surface-variant">Nov 2025</td>
+</tr>
+<!-- Row 5 -->
+<tr class="h-10 hover:bg-surface-container-high/40 transition-colors">
+<td class="w-10 px-4 text-center">
+<input class="w-3.5 h-3.5 rounded bg-surface border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="px-3 py-2">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white">Lakshmi Rao</span>
+<span class="text-[11px] text-outline font-mono">MID-9341</span>
+</div>
+</td>
+<td class="px-3 py-2 text-on-surface-variant">Prana Yoga Studio</td>
+<td class="px-3 py-2 text-on-surface-variant">Yoga 3x/week Monthly</td>
+<td class="px-3 py-2 text-on-surface">22 Oct</td>
+<td class="px-3 py-2 text-right">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-medium bg-[#E3A93B]/10 text-[#E3A93B]">2 days left</span>
+</td>
+<td class="px-3 py-2 text-center">
+<span class="inline-block px-1.5 py-0.2 rounded text-[11px] font-medium text-[#E3A93B]">Due</span>
+</td>
+<td class="px-3 py-2 text-right tabular-nums font-mono text-on-surface">₹7,996</td>
+<td class="px-3 py-2 text-on-surface-variant">Jun 2026</td>
+</tr>
+<!-- Row 6 -->
+<tr class="h-10 hover:bg-surface-container-high/40 transition-colors">
+<td class="w-10 px-4 text-center">
+<input class="w-3.5 h-3.5 rounded bg-surface border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="px-3 py-2">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white">Dev Malhotra</span>
+<span class="text-[11px] text-outline font-mono">MID-4481</span>
+</div>
+</td>
+<td class="px-3 py-2 text-on-surface-variant">HSR Layout</td>
+<td class="px-3 py-2 text-on-surface-variant">Quarterly Strength</td>
+<td class="px-3 py-2 text-on-surface">23 Oct</td>
+<td class="px-3 py-2 text-right">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-medium bg-[#E3A93B]/10 text-[#E3A93B]">3 days left</span>
+</td>
+<td class="px-3 py-2 text-center">
+<span class="inline-block px-1.5 py-0.2 rounded text-[11px] font-medium text-[#E3A93B]">Due</span>
+</td>
+<td class="px-3 py-2 text-right tabular-nums font-mono text-on-surface">₹25,996</td>
+<td class="px-3 py-2 text-on-surface-variant">Jan 2025</td>
+</tr>
+<!-- Row 7 -->
+<tr class="h-10 hover:bg-surface-container-high/40 transition-colors">
+<td class="w-10 px-4 text-center">
+<input class="w-3.5 h-3.5 rounded bg-surface border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="px-3 py-2">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white">Tara Fernandes</span>
+<span class="text-[11px] text-outline font-mono">MID-3912</span>
+</div>
+</td>
+<td class="px-3 py-2 text-on-surface-variant">Taal Dance Academy</td>
+<td class="px-3 py-2 text-on-surface-variant">Monthly Unlimited</td>
+<td class="px-3 py-2 text-on-surface">25 Oct</td>
+<td class="px-3 py-2 text-right">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-medium bg-[#E3A93B]/10 text-[#E3A93B]">5 days left</span>
+</td>
+<td class="px-3 py-2 text-center">
+<span class="inline-block px-1.5 py-0.2 rounded text-[11px] font-medium text-[#E3A93B]">Due</span>
+</td>
+<td class="px-3 py-2 text-right tabular-nums font-mono text-on-surface">₹4,998</td>
+<td class="px-3 py-2 text-on-surface-variant">Aug 2026</td>
+</tr>
+<!-- Row 8 -->
+<tr class="h-10 hover:bg-surface-container-high/40 transition-colors">
+<td class="w-10 px-4 text-center">
+<input class="w-3.5 h-3.5 rounded bg-surface border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+</td>
+<td class="px-3 py-2">
+<div class="flex items-center gap-2">
+<span class="font-medium text-white">Karthik Reddy</span>
+<span class="text-[11px] text-outline font-mono">MID-2041</span>
+</div>
+</td>
+<td class="px-3 py-2 text-on-surface-variant">HSR Layout</td>
+<td class="px-3 py-2 text-on-surface-variant">Annual Unlimited</td>
+<td class="px-3 py-2 text-on-surface">27 Oct</td>
+<td class="px-3 py-2 text-right">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-medium bg-[#E3A93B]/10 text-[#E3A93B]">7 days left</span>
+</td>
+<td class="px-3 py-2 text-center">
+<span class="inline-block px-1.5 py-0.2 rounded text-[11px] font-medium text-[#E3A93B]">Due</span>
+</td>
+<td class="px-3 py-2 text-right tabular-nums font-mono text-on-surface">₹43,998</td>
+<td class="px-3 py-2 text-on-surface-variant">Oct 2024</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Floating Bulk Action Docked Bar -->
+<div class="absolute bottom-12 left-6 right-6 h-12 bg-surface-container-highest border border-outline-variant/50 rounded flex items-center justify-between px-4 z-20">
+<div class="flex items-center gap-3">
+<span class="text-xs font-semibold text-white">2 selected</span>
+<button class="text-on-surface-variant hover:text-white flex items-center justify-center p-0.5 rounded" title="Clear selection">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+<div class="h-4 w-px bg-outline-variant/40 mx-1"></div>
+<span class="text-[11px] text-on-surface-variant">Batch renewal actions available</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-7 px-3 bg-primary hover:bg-primary-container text-surface-container-lowest font-medium text-xs rounded inline-flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[15px]">mail</span>
+              Send renewal reminder
+            </button>
+<button class="h-7 px-3 border border-outline-variant/60 hover:bg-surface-container-high text-on-surface font-medium text-xs rounded inline-flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[15px]">download</span>
+              Export selected
+            </button>
+</div>
+</div>
+<!-- Table Pagination Footer -->
+<div class="h-10 border-t border-outline-variant/20 bg-surface-container-low px-4 flex items-center justify-between shrink-0">
+<div class="text-xs text-on-surface-variant">
+            Showing <span class="text-on-surface font-medium">1–8</span> of <span class="text-on-surface font-medium">57</span> members ending this week
+          </div>
+<div class="flex items-center gap-2">
+<span class="text-xs text-on-surface-variant tabular-nums mr-2">Page 1 of 8</span>
+<button class="w-6 h-6 flex items-center justify-center text-outline hover:text-on-surface bg-surface-container rounded border border-outline-variant/30 disabled:opacity-40" disabled="">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="w-6 h-6 flex items-center justify-center text-on-surface hover:text-white bg-surface-container hover:bg-surface-container-high rounded border border-outline-variant/30">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

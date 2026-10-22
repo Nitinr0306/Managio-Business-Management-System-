@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Managio - Runway Overview</title>
+<!-- Google Fonts: Public Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-high": "#dee8ff",
+            "tertiary-fixed": "#e9ddff",
+            "primary": "#2b54ce",
+            "on-secondary": "#fbf8fc",
+            "inverse-primary": "#6889ff",
+            "error-dim": "#4f0116",
+            "surface-container-lowest": "#ffffff",
+            "on-primary-fixed": "#0033a2",
+            "inverse-surface": "#060e1c",
+            "surface-container-low": "#f0f3ff",
+            "error-container": "#ff8b9a",
+            "on-error": "#fff7f7",
+            "on-background": "#11335b",
+            "surface-bright": "#f9f9ff",
+            "secondary": "#5f5f62",
+            "on-tertiary-fixed": "#433b56",
+            "on-secondary-container": "#525155",
+            "on-primary": "#f8f7ff",
+            "background": "#f9f9ff",
+            "on-primary-container": "#1746c0",
+            "outline": "#5f7ca8",
+            "tertiary-fixed-dim": "#dacff0",
+            "surface-dim": "#c7dbff",
+            "secondary-fixed-dim": "#d6d3d8",
+            "inverse-on-surface": "#949daf",
+            "tertiary-dim": "#574f6a",
+            "on-tertiary-fixed-variant": "#5f5773",
+            "on-surface-variant": "#43608b",
+            "error": "#9e3f4e",
+            "surface-container": "#e7eeff",
+            "tertiary-container": "#e9ddff",
+            "outline-variant": "#96b3e3",
+            "surface-variant": "#d5e3ff",
+            "primary-dim": "#1946c1",
+            "secondary-fixed": "#e4e1e6",
+            "primary-container": "#dce1ff",
+            "on-secondary-fixed-variant": "#5b5b5f",
+            "tertiary": "#635b77",
+            "on-secondary-fixed": "#3f3f43",
+            "secondary-dim": "#535356",
+            "surface-container-highest": "#d5e3ff",
+            "primary-fixed-dim": "#c9d2ff",
+            "surface": "#f9f9ff",
+            "on-surface": "#11335b",
+            "on-primary-fixed-variant": "#2751cb",
+            "secondary-container": "#e4e1e6",
+            "on-tertiary-container": "#554e69",
+            "surface-tint": "#2b54ce",
+            "primary-fixed": "#dce1ff",
+            "on-error-container": "#782232",
+            "on-tertiary": "#fdf7ff"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            headline: ["Public Sans", "sans-serif"],
+            display: ["Public Sans", "sans-serif"],
+            body: ["Public Sans", "sans-serif"],
+            label: ["Public Sans", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      font-family: 'Public Sans', sans-serif;
+      background-color: #F5F6F8;
+      color: #17202E;
+      -webkit-font-smoothing: antialiased;
+    }
+    .tnum {
+      font-variant-numeric: tabular-nums;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 18px;
+      line-height: 1;
+    }
+    /* Runway custom tokens */
+    .hairline-b { border-bottom: 1px solid #E3E6EB; }
+    .hairline-r { border-right: 1px solid #E3E6EB; }
+    .hairline-t { border-top: 1px solid #E3E6EB; }
+    .hairline-all { border: 1px solid #E3E6EB; }
+  </style>
+</head>
+<body class="h-full flex overflow-hidden bg-[#F5F6F8] text-[#17202E]">
+<!-- SIDEBAR (Quiet left sidebar 232px wide on canvas background) -->
+<aside class="w-[232px] h-screen bg-[#F5F6F8] hairline-r flex flex-col justify-between shrink-0 select-none">
+<div class="flex flex-col">
+<!-- Business Switcher -->
+<div class="p-3.5 hairline-b flex items-center justify-between hover:bg-slate-200/50 transition-colors cursor-pointer">
+<div class="flex flex-col min-w-0 pr-1">
+<span class="text-[13px] font-semibold text-[#17202E] truncate leading-tight">Ironwood Fitness Indiranagar</span>
+<span class="text-[11px] font-mono text-[#5B6577] tracking-tight mt-0.5">4821IRWD</span>
+</div>
+<span class="material-symbols-outlined text-[#5B6577] text-[18px]">unfold_more</span>
+</div>
+<!-- Navigation List -->
+<nav class="p-2 space-y-0.5">
+<!-- 1. Overview (Active) -->
+<a class="relative flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg bg-[#EAEFFD] text-[#2952CC] font-semibold text-[13px] leading-5 transition-colors" href="#">
+<div class="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-[#2952CC] rounded-r"></div>
+<span class="material-symbols-outlined text-[#2952CC] text-[18px]">dashboard</span>
+<span>Overview</span>
+</a>
+<!-- 2. Members -->
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[#5B6577] hover:text-[#17202E] hover:bg-slate-200/40 text-[13px] leading-5 font-normal transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span>Members</span>
+</a>
+<!-- 3. Plans -->
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[#5B6577] hover:text-[#17202E] hover:bg-slate-200/40 text-[13px] leading-5 font-normal transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">card_membership</span>
+<span>Plans</span>
+</a>
+<!-- 4. Payments -->
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[#5B6577] hover:text-[#17202E] hover:bg-slate-200/40 text-[13px] leading-5 font-normal transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span>Payments</span>
+</a>
+<!-- 5. Staff -->
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[#5B6577] hover:text-[#17202E] hover:bg-slate-200/40 text-[13px] leading-5 font-normal transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">badge</span>
+<span>Staff</span>
+</a>
+<!-- 6. Tasks -->
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[#5B6577] hover:text-[#17202E] hover:bg-slate-200/40 text-[13px] leading-5 font-normal transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">checklist</span>
+<span>Tasks</span>
+</a>
+<!-- 7. Salaries -->
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[#5B6577] hover:text-[#17202E] hover:bg-slate-200/40 text-[13px] leading-5 font-normal transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+<span>Salaries</span>
+</a>
+<!-- 8. Activity log -->
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[#5B6577] hover:text-[#17202E] hover:bg-slate-200/40 text-[13px] leading-5 font-normal transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span>Activity log</span>
+</a>
+<!-- 9. Settings -->
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[#5B6577] hover:text-[#17202E] hover:bg-slate-200/40 text-[13px] leading-5 font-normal transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+</div>
+<!-- Signed-in user footer row -->
+<div class="p-3 hairline-t flex items-center justify-between">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-full bg-[#E3E6EB] text-[#17202E] text-xs font-semibold flex items-center justify-center shrink-0">
+          AR
+        </div>
+<div class="flex flex-col min-w-0">
+<span class="text-[13px] font-medium text-[#17202E] leading-tight truncate">Ananya Rao</span>
+<span class="text-[11px] text-[#5B6577] leading-tight">Owner</span>
+</div>
+</div>
+<button class="text-[#5B6577] hover:text-[#17202E] p-1">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</aside>
+<!-- MAIN AREA (Scrollable) -->
+<main class="flex-1 flex flex-col h-screen overflow-y-auto bg-[#F5F6F8]">
+<!-- Content Container -->
+<div class="p-8 max-w-[1208px] w-full mx-auto space-y-6">
+<!-- Header row -->
+<div class="flex items-center justify-between">
+<div>
+<h1 class="text-[22px] leading-7 font-semibold text-[#17202E]">Overview</h1>
+<p class="text-[14px] leading-5 text-[#5B6577] mt-0.5">Tuesday, 20 October 2026</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="h-9 px-4 py-2 bg-white hairline-all rounded-lg text-[13px] font-medium text-[#17202E] hover:bg-slate-50 transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-[#5B6577]">person_add</span>
+            Add member
+          </button>
+<button class="h-9 px-4 py-2 bg-[#2952CC] rounded-lg text-[13px] font-medium text-white hover:bg-[#2042A6] transition-colors flex items-center gap-1.5 shadow-none">
+<span class="material-symbols-outlined text-[16px]">receipt_long</span>
+            Record payment
+          </button>
+</div>
+</div>
+<!-- SECTION 1: Single Continuous White KPI Strip -->
+<div class="bg-white rounded-lg hairline-all flex items-stretch">
+<!-- 1. Active members -->
+<div class="flex-1 px-5 py-4 min-w-0">
+<span class="text-[13px] font-normal text-[#5B6577] block leading-tight">Active members</span>
+<div class="mt-1 flex items-baseline gap-2">
+<span class="text-[26px] leading-8 font-semibold text-[#17202E] tnum tracking-tight">412</span>
+<span class="text-[12px] font-medium text-[#1E8E5A]">+38 this month</span>
+</div>
+</div>
+<div class="w-[1px] bg-[#E3E6EB] my-3"></div>
+<!-- 2. Collected in October -->
+<div class="flex-1 px-5 py-4 min-w-0">
+<span class="text-[13px] font-normal text-[#5B6577] block leading-tight">Collected in October</span>
+<div class="mt-1 flex items-baseline gap-2">
+<span class="text-[26px] leading-8 font-semibold text-[#17202E] tnum tracking-tight">₹6,84,200</span>
+<span class="text-[12px] font-medium text-[#1E8E5A]">+12% vs September</span>
+</div>
+</div>
+<div class="w-[1px] bg-[#E3E6EB] my-3"></div>
+<!-- 3. Collected today -->
+<div class="flex-1 px-5 py-4 min-w-0">
+<span class="text-[13px] font-normal text-[#5B6577] block leading-tight">Collected today</span>
+<div class="mt-1">
+<span class="text-[26px] leading-8 font-semibold text-[#17202E] tnum tracking-tight">₹41,500</span>
+</div>
+</div>
+<div class="w-[1px] bg-[#E3E6EB] my-3"></div>
+<!-- 4. Ending in 7 days -->
+<div class="flex-1 px-5 py-4 min-w-0">
+<span class="text-[13px] font-normal text-[#5B6577] block leading-tight">Ending in 7 days</span>
+<div class="mt-1 flex items-baseline gap-2">
+<span class="text-[26px] leading-8 font-semibold text-[#B7791F] tnum tracking-tight">23</span>
+<span class="text-[12px] font-medium text-[#B7791F]">Action needed</span>
+</div>
+</div>
+<div class="w-[1px] bg-[#E3E6EB] my-3"></div>
+<!-- 5. Lapsed in last 30 days -->
+<div class="flex-1 px-5 py-4 min-w-0">
+<span class="text-[13px] font-normal text-[#5B6577] block leading-tight">Lapsed in last 30 days</span>
+<div class="mt-1 flex items-baseline gap-2">
+<span class="text-[26px] leading-8 font-semibold text-[#C8382E] tnum tracking-tight">17</span>
+<span class="text-[12px] font-medium text-[#C8382E]">Unrecovered</span>
+</div>
+</div>
+</div>
+<!-- SECTION 2: Full Width Signature Panel 'Renewal runway' -->
+<section class="bg-white rounded-lg hairline-all p-5">
+<div class="flex items-start justify-between pb-4">
+<div>
+<h2 class="text-[15px] leading-5 font-semibold text-[#17202E]">Renewal runway</h2>
+<p class="text-[13px] leading-5 text-[#5B6577]">Memberships ending each day, next 30 days</p>
+</div>
+<!-- Legend -->
+<div class="flex items-center gap-4 text-[12px] text-[#5B6577]">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-sm bg-[#D97706]"></span>
+<span>Next 7 days (urgent)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-sm bg-[#94A3B8]"></span>
+<span>Later (8–30 days)</span>
+</div>
+</div>
+</div>
+<!-- Chart Grid with 30 bars (20 Oct to 18 Nov) -->
+<div class="relative pt-8 pb-2">
+<!-- Background Grid lines (subtle) -->
+<div class="absolute inset-x-0 top-8 bottom-6 flex flex-col justify-between pointer-events-none opacity-40">
+<div class="w-full hairline-b"></div>
+<div class="w-full hairline-b"></div>
+<div class="w-full hairline-b"></div>
+</div>
+<!-- Pinned Tooltip on 24 Oct (Index 4: bar width 14px, distributed across 30 flex cols) -->
+<!-- Absolute positioned relative to 24 Oct bar -->
+<div class="absolute top-1 left-[13.33%] -translate-x-1/2 z-10 flex flex-col items-center pointer-events-none">
+<div class="bg-[#17202E] text-white text-[11px] font-medium py-1 px-2 rounded shadow-sm whitespace-nowrap">
+              24 Oct: 6 memberships end
+            </div>
+<div class="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-[#17202E]"></div>
+</div>
+<!-- Bars container: 30 columns -->
+<div class="relative h-32 flex items-end justify-between gap-[6px] px-1">
+<!-- Day 1: 20 Oct (Today) - Urgent amber: 3 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+<div class="absolute -left-[3px] top-0 bottom-0 w-[1px] border-r border-dashed border-[#5B6577]/60"></div>
+<div class="w-full max-w-[14px] bg-[#D97706] rounded-t-sm" style="height: 35%;"></div>
+</div>
+<!-- Day 2: 21 Oct - Urgent amber: 4 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center">
+<div class="w-full max-w-[14px] bg-[#D97706] rounded-t-sm" style="height: 50%;"></div>
+</div>
+<!-- Day 3: 22 Oct - Urgent amber: 2 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center">
+<div class="w-full max-w-[14px] bg-[#D97706] rounded-t-sm" style="height: 25%;"></div>
+</div>
+<!-- Day 4: 23 Oct - Urgent amber: 3 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center">
+<div class="w-full max-w-[14px] bg-[#D97706] rounded-t-sm" style="height: 40%;"></div>
+</div>
+<!-- Day 5: 24 Oct - Urgent amber: 6 (Pinned Tooltip) -->
+<div class="flex-1 h-full flex flex-col justify-end items-center">
+<div class="w-full max-w-[14px] bg-[#B45309] rounded-t-sm ring-2 ring-[#B45309]/30" style="height: 75%;"></div>
+</div>
+<!-- Day 6: 25 Oct - Urgent amber: 2 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center">
+<div class="w-full max-w-[14px] bg-[#D97706] rounded-t-sm" style="height: 28%;"></div>
+</div>
+<!-- Day 7: 26 Oct - Urgent amber: 3 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center">
+<div class="w-full max-w-[14px] bg-[#D97706] rounded-t-sm" style="height: 38%;"></div>
+</div>
+<!-- Day 8: 27 Oct - Later slate: 1 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 15%;"></div></div>
+<!-- Day 9: 28 Oct - 2 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 26%;"></div></div>
+<!-- Day 10: 29 Oct - 1 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 18%;"></div></div>
+<!-- Day 11: 30 Oct - 4 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 48%;"></div></div>
+<!-- Day 12: 31 Oct - 7 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#64748B] rounded-t-sm" style="height: 85%;"></div></div>
+<!-- Day 13: 1 Nov - 2 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 25%;"></div></div>
+<!-- Day 14: 2 Nov - 3 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 35%;"></div></div>
+<!-- Day 15: 3 Nov - 1 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 15%;"></div></div>
+<!-- Day 16: 4 Nov - 2 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 22%;"></div></div>
+<!-- Day 17: 5 Nov - 3 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 38%;"></div></div>
+<!-- Day 18: 6 Nov - 2 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 24%;"></div></div>
+<!-- Day 19: 7 Nov - 4 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 52%;"></div></div>
+<!-- Day 20: 8 Nov - 1 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 16%;"></div></div>
+<!-- Day 21: 9 Nov - 2 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 25%;"></div></div>
+<!-- Day 22: 10 Nov - 3 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 35%;"></div></div>
+<!-- Day 23: 11 Nov - 2 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 28%;"></div></div>
+<!-- Day 24: 12 Nov - 1 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 14%;"></div></div>
+<!-- Day 25: 13 Nov - 2 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 25%;"></div></div>
+<!-- Day 26: 14 Nov - 5 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 62%;"></div></div>
+<!-- Day 27: 15 Nov - 1 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 15%;"></div></div>
+<!-- Day 28: 16 Nov - 2 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 25%;"></div></div>
+<!-- Day 29: 17 Nov - 3 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 36%;"></div></div>
+<!-- Day 30: 18 Nov - 2 -->
+<div class="flex-1 h-full flex flex-col justify-end items-center"><div class="w-full max-w-[14px] bg-[#94A3B8] rounded-t-sm" style="height: 24%;"></div></div>
+</div>
+<!-- Bottom axis line -->
+<div class="w-full hairline-t mt-1"></div>
+<!-- X-Axis Labels -->
+<div class="flex justify-between text-[11px] text-[#5B6577] pt-1.5 px-0.5">
+<span class="font-medium text-[#17202E]">20 Oct (Today)</span>
+<span>24 Oct</span>
+<span>31 Oct</span>
+<span>7 Nov</span>
+<span>14 Nov</span>
+<span>18 Nov</span>
+</div>
+</div>
+<!-- Bottom Summary Sentence -->
+<div class="hairline-t mt-3 pt-3 flex items-center gap-1.5 text-[13px] text-[#5B6577]">
+<span class="material-symbols-outlined text-[16px] text-[#5B6577]">info</span>
+<span><strong class="font-medium text-[#17202E]">23 end this week</strong>, 61 in the next 30 days</span>
+</div>
+</section>
+<!-- SECTION 3: Two Columns (Needs action & Collections / Payment mix) -->
+<div class="grid grid-cols-12 gap-6 items-start">
+<!-- LEFT COLUMN (60% ~ 7 cols): 'Needs action' panel -->
+<div class="col-span-7 bg-white rounded-lg hairline-all flex flex-col">
+<div class="p-4 hairline-b">
+<h2 class="text-[15px] leading-5 font-semibold text-[#17202E]">Needs action</h2>
+<p class="text-[13px] leading-5 text-[#5B6577]">Members with urgent renewals or recent lapses</p>
+</div>
+<!-- Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left text-[13px] border-collapse">
+<thead>
+<tr class="hairline-b text-[#5B6577] bg-slate-50/50">
+<th class="py-2.5 px-4 font-medium text-[12px]">Member</th>
+<th class="py-2.5 px-4 font-medium text-[12px]">Plan</th>
+<th class="py-2.5 px-3 font-medium text-[12px]">Ends</th>
+<th class="py-2.5 px-3 font-medium text-[12px]">Status</th>
+<th class="py-2.5 px-4 font-medium text-[12px] text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#E3E6EB]">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50/70 transition-colors h-11">
+<td class="py-2 px-4 font-medium text-[#17202E] whitespace-nowrap">Kavya Iyer</td>
+<td class="py-2 px-4 text-[#5B6577] whitespace-nowrap">Yoga 3x/week Monthly</td>
+<td class="py-2 px-3 text-[#17202E] whitespace-nowrap tnum">21 Oct</td>
+<td class="py-2 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium text-[#B7791F] border border-[#B7791F]/40 bg-white">
+<span class="w-1.5 h-1.5 rounded-full bg-[#B7791F]"></span>
+                      Due tomorrow
+                    </span>
+</td>
+<td class="py-2 px-4 text-right whitespace-nowrap">
+<button class="text-[#2952CC] font-semibold text-[13px] hover:underline focus:outline-none">Renew</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50/70 transition-colors h-11">
+<td class="py-2 px-4 font-medium text-[#17202E] whitespace-nowrap">Rohan Mehta</td>
+<td class="py-2 px-4 text-[#5B6577] whitespace-nowrap">Quarterly Strength</td>
+<td class="py-2 px-3 text-[#17202E] whitespace-nowrap tnum">24 Oct</td>
+<td class="py-2 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium text-[#B7791F] border border-[#B7791F]/40 bg-white">
+<span class="w-1.5 h-1.5 rounded-full bg-[#B7791F]"></span>
+                      Due in 4 days
+                    </span>
+</td>
+<td class="py-2 px-4 text-right whitespace-nowrap">
+<button class="text-[#2952CC] font-semibold text-[13px] hover:underline focus:outline-none">Renew</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50/70 transition-colors h-11">
+<td class="py-2 px-4 font-medium text-[#17202E] whitespace-nowrap">Neha Gupta</td>
+<td class="py-2 px-4 text-[#5B6577] whitespace-nowrap">Quarterly Strength</td>
+<td class="py-2 px-3 text-[#17202E] whitespace-nowrap tnum">26 Oct</td>
+<td class="py-2 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium text-[#B7791F] border border-[#B7791F]/40 bg-white">
+<span class="w-1.5 h-1.5 rounded-full bg-[#B7791F]"></span>
+                      Due in 6 days
+                    </span>
+</td>
+<td class="py-2 px-4 text-right whitespace-nowrap">
+<button class="text-[#2952CC] font-semibold text-[13px] hover:underline focus:outline-none">Renew</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-50/70 transition-colors h-11">
+<td class="py-2 px-4 font-medium text-[#17202E] whitespace-nowrap">Arjun Shetty</td>
+<td class="py-2 px-4 text-[#5B6577] whitespace-nowrap">Monthly Unlimited</td>
+<td class="py-2 px-3 text-[#17202E] whitespace-nowrap tnum">15 Oct</td>
+<td class="py-2 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium text-[#C8382E] border border-[#C8382E]/40 bg-white">
+<span class="w-1.5 h-1.5 rounded-full bg-[#C8382E]"></span>
+                      Lapsed 5 days
+                    </span>
+</td>
+<td class="py-2 px-4 text-right whitespace-nowrap">
+<button class="text-[#2952CC] font-semibold text-[13px] hover:underline focus:outline-none">Renew</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-slate-50/70 transition-colors h-11">
+<td class="py-2 px-4 font-medium text-[#17202E] whitespace-nowrap">Meera Pillai</td>
+<td class="py-2 px-4 text-[#5B6577] whitespace-nowrap">Monthly Unlimited</td>
+<td class="py-2 px-3 text-[#17202E] whitespace-nowrap tnum">2 Oct</td>
+<td class="py-2 px-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium text-[#C8382E] border border-[#C8382E]/40 bg-white">
+<span class="w-1.5 h-1.5 rounded-full bg-[#C8382E]"></span>
+                      Lapsed 18 days
+                    </span>
+</td>
+<td class="py-2 px-4 text-right whitespace-nowrap">
+<button class="text-[#2952CC] font-semibold text-[13px] hover:underline focus:outline-none">Renew</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Bottom card footer note -->
+<div class="px-4 py-2.5 hairline-t bg-slate-50/40 text-right">
+<a class="text-[12px] font-medium text-[#2952CC] hover:underline" href="#">View all 40 attention items →</a>
+</div>
+</div>
+<!-- RIGHT COLUMN (40% ~ 5 cols): Collections & Payment Mix -->
+<div class="col-span-5 bg-white rounded-lg hairline-all flex flex-col">
+<!-- Top part: Today's collections -->
+<div class="p-4">
+<div class="flex items-center justify-between pb-3 hairline-b">
+<div>
+<h2 class="text-[15px] leading-5 font-semibold text-[#17202E]">Today's collections</h2>
+<span class="text-[12px] text-[#5B6577]">4 receipts recorded</span>
+</div>
+<span class="text-[18px] leading-6 font-bold text-[#17202E] tnum">₹41,500</span>
+</div>
+<!-- List items -->
+<div class="divide-y divide-[#E3E6EB] text-[13px]">
+<!-- Item 1 -->
+<div class="py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="text-[12px] text-[#5B6577] font-mono w-10 shrink-0">10:42</span>
+<span class="font-medium text-[#17202E] truncate">Priya Nair</span>
+<span class="text-[10px] uppercase font-mono px-1.5 py-0.2 bg-slate-100 text-[#5B6577] rounded">UPI</span>
+</div>
+<span class="font-medium text-[#17202E] tnum shrink-0">₹21,999</span>
+</div>
+<!-- Item 2 -->
+<div class="py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="text-[12px] text-[#5B6577] font-mono w-10 shrink-0">10:15</span>
+<span class="font-medium text-[#17202E] truncate">Rohan Mehta</span>
+<span class="text-[10px] uppercase font-mono px-1.5 py-0.2 bg-slate-100 text-[#5B6577] rounded">Cash</span>
+</div>
+<span class="font-medium text-[#17202E] tnum shrink-0">₹6,499</span>
+</div>
+<!-- Item 3 -->
+<div class="py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="text-[12px] text-[#5B6577] font-mono w-10 shrink-0">09:30</span>
+<span class="font-medium text-[#17202E] truncate">Vikram Joshi</span>
+<span class="text-[10px] uppercase font-mono px-1.5 py-0.2 bg-slate-100 text-[#5B6577] rounded">UPI</span>
+</div>
+<span class="font-medium text-[#17202E] tnum shrink-0">₹2,499</span>
+</div>
+<!-- Item 4 -->
+<div class="py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="text-[12px] text-[#5B6577] font-mono w-10 shrink-0">08:05</span>
+<span class="font-medium text-[#17202E] truncate">Sana Qureshi</span>
+<span class="text-[10px] uppercase font-mono px-1.5 py-0.2 bg-slate-100 text-[#5B6577] rounded">Card</span>
+</div>
+<span class="font-medium text-[#17202E] tnum shrink-0">₹10,503</span>
+</div>
+</div>
+</div>
+<!-- Subtle Divider line -->
+<div class="hairline-b w-full"></div>
+<!-- Bottom part: Payment mix this month -->
+<div class="p-4">
+<h3 class="text-[14px] leading-5 font-semibold text-[#17202E] mb-2.5">Payment mix this month</h3>
+<!-- Horizontal Stacked Progress Bar (flat, clean segments) -->
+<div class="h-3 w-full rounded-sm flex overflow-hidden bg-slate-100 mb-3">
+<!-- UPI 58% -->
+<div class="bg-[#2952CC] h-full" style="width: 58%;" title="UPI: 58%"></div>
+<!-- Cash 24% -->
+<div class="bg-[#10B981] h-full" style="width: 24%;" title="Cash: 24%"></div>
+<!-- Card 15% -->
+<div class="bg-[#F59E0B] h-full" style="width: 15%;" title="Card: 15%"></div>
+<!-- Bank transfer 3% -->
+<div class="bg-[#64748B] h-full" style="width: 3%;" title="Bank transfer: 3%"></div>
+</div>
+<!-- Legend below -->
+<div class="grid grid-cols-2 gap-y-1.5 gap-x-3 text-[12px] text-[#5B6577]">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#2952CC]"></span>
+<span class="text-[#17202E] font-medium">UPI</span>
+<span class="tnum text-[#5B6577]">58%</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#10B981]"></span>
+<span class="text-[#17202E] font-medium">Cash</span>
+<span class="tnum text-[#5B6577]">24%</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#F59E0B]"></span>
+<span class="text-[#17202E] font-medium">Card</span>
+<span class="tnum text-[#5B6577]">15%</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#64748B]"></span>
+<span class="text-[#17202E] font-medium">Bank transfer</span>
+<span class="tnum text-[#5B6577]">3%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>
