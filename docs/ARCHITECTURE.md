@@ -5,12 +5,13 @@ How Managio v2 is built. Product behaviour lives in [PRODUCT.md](PRODUCT.md), th
 ## System shape `[DECIDED]`
 
 ```
-Browser ──> Vercel: Next.js app ──(/api/* rewrite)──> Render: Spring Boot API ──> Neon PostgreSQL
+Browser ──> Vercel: Next.js app ──(/api/* rewrite)──> Render: Spring Boot API ──> Supabase PostgreSQL (session pooler)
                                                               └──> Resend (email)
 ```
 
 * The browser only talks to the Vercel origin (`https://managio.me`). Vercel rewrites `/api/*` to the API, so auth cookies are first-party (D-009). On the way, `src/proxy.ts` vouches for the visitor's address with a shared secret (D-032).
-* Releases go through one Jenkins pipeline: tests, immutable images on Docker Hub, the API image deployed to Render, then the Vercel build (D-031, [DEPLOYMENT.md](DEPLOYMENT.md)).
+* Releases go through one Jenkins pipeline: tests, immutable images on Docker Hub, the API image deployed to Render through its deploy hook, then the Vercel build (D-031, [DEPLOYMENT.md](DEPLOYMENT.md)).
+* Production costs ₹0 a month on free plans: Vercel, Render and Supabase (D-037). Render Free sleeps when idle, so a working-hours keep-alive and start-up JVM flags limit cold starts.
 * One API deployable, a modular monolith packaged by feature and split into layers (D-004, D-029).
 * Both apps ship as Docker images; `docker-compose.yml` runs the whole stack locally (D-030).
 
@@ -86,7 +87,7 @@ Each module has only the layer packages it needs (D-029):
 
 ## Cross-cutting behaviour `[DECIDED]`
 
-* **Errors.** RFC 9457 problem details with a stable `code` (see [API.md](API.md#errors)). Unexpected errors are logged once with the request ID and returned without internal detail.
+* **Errors.** RFC 9457 problem details with a stable `code` (see [API.md](API.md#errors-decided)). Unexpected errors are logged once with the request ID and returned without internal detail.
 * **Logging.** Structured console logs with request ID (from `X-Request-Id` or generated) in the MDC. No tokens, passwords or full card/bank details in logs. Request duration is logged per request. The one blanket interception is `SlowCallAspect`, which warns when a service method takes longer than 500 ms and never logs arguments (D-026).
 * **Activity log.** Services record activity events explicitly for money, permission and lifecycle changes. Explicit calls are used instead of AOP so each event has a meaningful summary.
 * **Email.** `Mailer` interface; `ResendMailer` in production, `LoggingMailer` when no API key is set. Emails are sent after the transaction commits (D-017).

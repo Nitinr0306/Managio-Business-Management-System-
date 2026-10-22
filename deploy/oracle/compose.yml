@@ -1,0 +1,77 @@
+# Managio on one always-on VM (Oracle Cloud Always Free, D-036; docs/DEPLOYMENT_RUNBOOK.md, section 5):
+# PostgreSQL, the API and Caddy. Caddy is the only published service: it obtains and renews the HTTPS certificate
+# for API_HOST and passes requests to the API on the private Compose network. The database is never published.
+# The web app (Vercel) reaches the API through its /api rewrite.
+#
+# On the VM, in /opt/managio: this file, Caddyfile, deploy.sh, backup.sh, .env (API_TAG, API_HOST, DB_PASSWORD)
+# and api.env (the API's other settings and secrets); both env files chmod 600.
+# Deploy or roll back with ./deploy.sh <image tag>; back up with ./backup.sh (cron, nightly).
+name: managio
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: managio
+      POSTGRES_USER: managio
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U managio -d managio"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  api:
+    image: docker.io/nitinr1103/managio-backend:${API_TAG:?Set API_TAG in .env}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: api.env
+    environment:
+      PORT: "8080"
+      DB_URL: jdbc:postgresql://db:5432/managio
+      DB_USERNAME: managio
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    # The JVM takes 75% of this limit for its heap (Dockerfile). Measured peak: 455 MiB under a 512 MiB limit.
+    mem_limit: 768m
+    expose:
+      - "8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      API_HOST: ${API_HOST:?Set API_HOST in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

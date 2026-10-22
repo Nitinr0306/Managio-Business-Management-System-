@@ -111,7 +111,7 @@ export default function Page() {
         <ul>
           <li><strong>Vercel</strong> delivers the website and app pages.</li>
           <li><strong>Render</strong> runs Managio&apos;s application servers.</li>
-          <li><strong>Neon</strong> hosts the PostgreSQL database where account and business data are stored.</li>
+          <li><strong>Supabase</strong> hosts the PostgreSQL database where account and business data are stored.</li>
           <li><strong>Resend</strong> sends Managio&apos;s emails.</li>
           <li><strong>Google</strong> signs you in, only if you choose Google sign-in.</li>
         </ul>

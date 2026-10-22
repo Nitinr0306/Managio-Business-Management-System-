@@ -2,7 +2,9 @@
 # Configuration comes only from environment variables (docs/ENVIRONMENT.md); nothing secret is baked in.
 
 # ── Build ─────────────────────────────────────────────────────────────────────
-FROM eclipse-temurin:21-jdk-alpine AS build
+# The jar is the same on every CPU, so it is built on the builder's own platform. Building for another one
+# (docker buildx build --platform linux/arm64 for an Arm server) then only emulates the small runtime stage.
+FROM --platform=$BUILDPLATFORM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /src
 
 # Dependencies first, so source changes don't re-download them.

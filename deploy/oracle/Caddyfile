@@ -1,0 +1,6 @@
+# HTTPS in front of the Managio API (D-036). API_HOST comes from .env, for example api.managio.me.
+# Caddy gets a Let's Encrypt certificate for it automatically (ports 80 and 443 must be open) and renews it.
+{$API_HOST} {
+	encode zstd gzip
+	reverse_proxy api:8080
+}

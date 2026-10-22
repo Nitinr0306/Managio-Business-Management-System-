@@ -134,7 +134,7 @@ flowchart LR
     subgraph render["Render"]
         api["Spring Boot 4.1 API<br/>Java 21, Docker"]
     end
-    db[("Neon PostgreSQL 17")]
+    db[("Supabase PostgreSQL")]
     resend["Resend<br/>email"]
     google["Google Identity<br/>sign-in"]
 
@@ -362,9 +362,9 @@ erDiagram
 |---|---|
 | API | Java 21, Spring Boot 4.1, Spring Security (OAuth2 resource server, JWT), Spring Data JPA (Hibernate 7), JdbcClient read models, Flyway, springdoc OpenAPI 3.1, Caffeine, Resend |
 | Web | Next.js 16.4 (App Router, Cache Components, React Compiler), React 19, TypeScript, Tailwind CSS 4, TanStack Query 5, openapi-fetch with generated types, React Hook Form and Zod, Radix UI, lucide icons, Sonner |
-| Database | PostgreSQL 17 (Neon in production) |
+| Database | PostgreSQL (Supabase in production, PostgreSQL 17 locally and in tests) |
 | Tests | JUnit 5, Testcontainers, MockMvc, ArchUnit, Vitest, Testing Library, Playwright, axe-core |
-| Delivery | Docker (multi-stage, non-root), Docker Compose, Jenkins, Vercel, Render |
+| Delivery | Docker (multi-stage, non-root), Docker Compose, Jenkins, Vercel, Render, Supabase |
 
 ---
 
@@ -388,6 +388,7 @@ Mangaio/
 │   ├── e2e/                  Playwright specs
 │   ├── Dockerfile
 │   └── .env.example
+├── deploy/oracle/            an always-on VM setup (PostgreSQL + API + Caddy), kept for later; not used now
 ├── docs/                     the source of truth: product, architecture, decisions, status
 ├── docker-compose.yml        PostgreSQL + API + web on one machine
 ├── .env.example              settings for Docker Compose
@@ -485,10 +486,10 @@ flowchart LR
     vercel --> smoke["Smoke test managio.me"]
 ```
 
-* **Production target:** web app on Vercel at `https://managio.me`, API on Render (the image Jenkins tested), database on Neon, email through Resend.
-* **One route to production:** Jenkins releases the API first and the web app second; pushes alone don't deploy production. Rollback: re-run with `ROLLBACK_TO_TAG`, and Vercel's Instant Rollback.
+* **Production (₹0 a month, D-037):** web app on Vercel at `https://managio.me`, API on Render Free (the image Jenkins tested), database on Supabase Free, email through Resend. Render Free sleeps after 15 idle minutes and starts slowly on its tenth of a CPU, so a working-hours keep-alive and start-up JVM flags keep cold starts down.
+* **One route to production:** Jenkins releases the API first and the web app second; pushes alone don't deploy production. Rollback: re-run with `ROLLBACK_TO_TAG` (or set the earlier tag in Render), and Vercel's Instant Rollback.
 * **Images:** `managio_backend/Dockerfile` and `managio_frontend/Dockerfile`, both multi-stage, non-root, with health checks.
-* **Checklist, smoke test and rollback:** [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+* **Step-by-step setup, measurements, backups, smoke test and rollback:** [docs/DEPLOYMENT_RUNBOOK.md](docs/DEPLOYMENT_RUNBOOK.md); short checklist in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ---
 
@@ -515,7 +516,7 @@ flowchart LR
 
 Version 2 is a rebuild of the original gym-only app as a multi-business platform. The API, the web app, the customer portal and the platform console are built and tested, and the production images build and pass a smoke test. Still to do (details in [docs/STATUS.md](docs/STATUS.md)):
 
-* First production deployment to Vercel, Render and Neon, through the Jenkins pipeline (needs the owner's dashboards: docs/DEPLOYMENT.md).
+* First production deployment to Render, Supabase and Vercel, step by step in docs/DEPLOYMENT_RUNBOOK.md (the owner performs it).
 * A real Google sign-in and a real email from the verified `managio.me` domain in production.
 * Optional later: an authenticator-app step for platform administrators, a nonce-based Content Security Policy, and paid plans if Managio stops being free.
 

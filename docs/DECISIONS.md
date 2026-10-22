@@ -121,7 +121,7 @@ Status labels are defined in [README.md](README.md).
 ## D-013 Migrate v1 data forward in one Flyway migration
 **Status:** Superseded by D-021 on 2026-10-20. Was `[DECIDED]`; the migration was written and passed its data-preservation test before the owner chose a fresh start.
 
-**Decision:** `V17__managio_v2_schema.sql` moves the v1 tables into a temporary `legacy` schema, creates the v2 tables, copies all meaningful rows keeping their primary keys, and drops the legacy schema, all in one transaction. Refresh, verification and reset tokens are not carried over. Details and mapping in [DATA_MODEL.md](DATA_MODEL.md#migration-from-v1).
+**Decision:** `V17__managio_v2_schema.sql` moves the v1 tables into a temporary `legacy` schema, creates the v2 tables, copies all meaningful rows keeping their primary keys, and drops the legacy schema, all in one transaction. Refresh, verification and reset tokens are not carried over. Details and mapping in [DATA_MODEL.md](DATA_MODEL.md#migrations-verified-migrationtest-admintest).
 
 ---
 
@@ -350,3 +350,46 @@ Status labels are defined in [README.md](README.md).
 
 **Consequence:** Someone who can guess a person's email can keep them out for 15 minutes at a time by failing password sign-ins, now including Google sign-in; per-address rate limits slow that down, and the owner asked for lockout to apply to every sign-in method.
 
+---
+
+## D-036 ₹0 hosting: the API and PostgreSQL on one Oracle Cloud Always Free VM
+**Status:** superseded by D-037 on 2026-10-22 (the owner chose Render, Supabase and Vercel). Originally `[DECIDED]` 2026-10-22, on the owner's instructions: a ₹0 monthly budget, continuous availability and few cold starts first, and "change neon db also". Replaces the Render part of D-031 and Neon as the production database. Nothing has been created yet: executing it needs the owner's approval for Oracle's sign-up card check, for the `api.managio.me` DNS record (or the no-DNS fallback), and for replacing the live v1 site on Vercel.
+
+**Context:** Measured on 2026-10-22 with the production API image on this PC, under a 512 MB limit like Render's: ready in 18 s with 2 CPUs, 60 s with 0.5 CPU (Render's cheapest paid plan, about $7 a month), 338 s with 0.1 CPU (Render Free) and 218 s with 0.1 CPU and start-up JVM flags; peak memory 406–455 MiB. Render Free sleeps after 15 minutes without traffic, Vercel stops waiting for the API after 120 s, and Render asks that free services not be kept awake artificially, so on Render Free the first visits after every quiet spell would fail for minutes and the 09:00 renewal reminders would run only when the service happened to be awake. Neon Free gives 100 CU-hours a month (400 hours at 0.25 CU) and suspends the database for the rest of the month when they run out; the API's pool keeps one connection open (`minimum-idle: 1`), which would keep Neon awake around the clock (about 186 CU-hours) behind an always-on API.
+
+**Decision:**
+* One VM, `VM.Standard.A1.Flex` (Arm), 2 OCPUs and 3 GB, Ubuntu 24.04, in the owner's existing tenancy's home region, **Mumbai** (`ap-mumbai-1`), on the Always Free allowance (2 OCPUs and 12 GB in total). It never sleeps. Oracle allows Always Free compute only in the home region, and the home region can't be changed (checked 2026-10-22); Singapore, first planned to sit next to Neon, no longer matters now that the database is on the VM, and Mumbai is closer to Indian users. Mumbai has one availability domain and its Arm capacity is often exhausted: the owner's attempt failed, and the fallbacks are in runbook section 5.
+* Docker Compose runs PostgreSQL 17, the API image and Caddy (`deploy/oracle/`). Caddy is the only published service and gets the HTTPS certificate for `api.managio.me` (one new A record) or, without a DNS change, `<ip-with-dashes>.nip.io`. The database is never published.
+* Backups: `deploy/oracle/backup.sh` nightly (`pg_dump`, checked by reading it back, 14 days kept on the VM), Oracle's block volume backups (5 included in Always Free) for a copy off the VM, and a periodic copy to the owner's PC for a copy outside Oracle.
+* The web app stays on Vercel (Hobby); `API_ORIGIN` becomes `https://api.managio.me`. Resend, Google sign-in, Docker Hub and Jenkins stay.
+* The Dockerfile builds the jar on the builder's own platform, so one `docker buildx build --platform linux/amd64,linux/arm64` tag runs on the PC and on the Arm VM. Jenkins keeps testing and building; its Render stage is to be replaced by a call to `deploy.sh` over SSH once the VM exists. Until then, `deploy.sh <tag>` is run by hand.
+* Neon is left untouched (nothing is deleted). If it is ever used again, the API needs `SPRING_DATASOURCE_HIKARI_MINIMUMIDLE=0` so Neon can suspend (verified: zero connections about 3 minutes after the last request, and health checks open none).
+
+**Alternatives:** Render Free (no card, but sleeps, 0.1 CPU, start-up measured at 218–338 s). Render Starter (no sleep, 60 s start-up, but about $7 a month). Google Cloud Run (needs a billing account; its free allowance applies in North American regions, far from India; scales to zero, so the 09:00 job wouldn't run). Fly.io (no free tier for new organisations; a card after a short trial). Koyeb (no free web services). Hugging Face Spaces (new Docker Spaces need a paid plan). The owner's PC behind a tunnel (only up while the PC is on, which has little free memory). Keeping Neon behind the VM (managed storage and restore, but the 100 CU-hour cap and a cold database after 5 idle minutes). Supabase Free (500 MB, paused after a week of inactivity, no backups). Aiven's free PostgreSQL (no card, but may be powered off after inactivity). Oracle's `VM.Standard.E2.1.Micro` (AMD, 1/8 OCPU, 1 GB) is the fallback if Arm capacity isn't available.
+
+**Consequence:** One VM is a single point of failure with no SLA: an Oracle outage, maintenance reboot or hardware fault takes Managio down until the VM is back, and data written after the last backup could be lost if the VM's disk were lost. The owner maintains the VM (security updates, Docker, disk space). Oracle needs a card at sign-up to verify identity and says it isn't charged unless the account is upgraded; the account must stay on Free Tier. Oracle may reclaim an Always Free VM that is idle by its definition (95th-percentile CPU, network and, on Arm, memory all under 20% for 7 days); the 3 GB size keeps memory use above 20%. A deploy restarts the API, so the API is unavailable for roughly its start-up time. Vercel's Hobby plan is for personal, non-commercial use. The privacy policy's provider list now names Oracle Cloud Infrastructure instead of Render and Neon.
+
+---
+
+## D-037 Final stack: Vercel Free, Render Free and Supabase Free
+**Status:** `[APPROVED]` 2026-10-22. The owner: "The final deployment stack for Managio is: Backend: Render Free; Database: Supabase; Frontend: Vercel." Supersedes D-036, and Neon as the database. Restores D-031's Render deploy, which the Jenkinsfile already implements.
+
+**Context:** The Oracle Always Free VM (D-036) could not be created: the owner's tenancy is in Mumbai, which had no Arm capacity. Always Free compute is home-region only, and a second free account isn't allowed. Neon Free's 100 CU-hours a month could run out for an app used all day. Supabase Free has no compute-hour cap and pauses only after a week of inactivity.
+
+**Decision:**
+* **Web app:** Vercel Hobby (the existing `managio.me` project, root directory `managio_frontend`). `API_ORIGIN` is the Render URL.
+* **API:** a Render Free web service from the existing image `docker.io/nitinr1103/managio-backend:<tag>`, in Singapore, with health check `/actuator/health/readiness`. It uses a read-only Docker Hub credential, no pre-deploy command, and `JAVA_TOOL_OPTIONS=-XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Xss512k`, which cut the measured start-up at 0.1 CPU from 338 s to 218 s.
+* **Database:** a Supabase Free project in Singapore, reached through the **session pooler**: port 5432, user `postgres.<project-ref>`, `sslmode=require`. Session mode supports Flyway and prepared statements; the direct connection is IPv6-only on Free. **The Data API is turned off**, because Supabase exposes tables in `public` to it by default. Flyway creates the schema on the first start; production starts empty (D-021).
+* **Keep-alive:** a free external scheduler calls `/actuator/health/liveness` every 10 minutes from 08:00 to 22:00 India time (about 434 of the 750 free hours a month). That endpoint doesn't touch the database. This was the owner's explicit choice, after being told that Render's guidance calls keeping a free service awake artificially abuse of the free tier.
+* **Backups:** weekly `pg_dump` from the owner's PC (Supabase Free has no backups).
+* **Unused:** Neon is left untouched. `deploy/oracle/` and the Dockerfile's multi-platform build stay for a possible later move.
+
+**Alternatives:** the Oracle VM (D-036: blocked by capacity in the home region); Neon (compute-hour cap); Render Starter or other paid plans (not ₹0); no keep-alive (the first visit after every 15 quiet minutes could fail).
+
+**Consequence:**
+* Render Free may restart the service at any time.
+* Outside the pinged hours, the first request after a sleep can fail behind Vercel's 120 s limit, and the 03:30 clean-up job may not run.
+* Render may act against the keep-alive pings; if the free hours run out, every free Render service is suspended until the next month.
+* Supabase Free: 500 MB of database, 5 GB egress, no backups; a paused project must be restored by hand.
+* Vercel Hobby is for personal, non-commercial use.
+* The privacy policy now names Render and Supabase.

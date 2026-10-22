@@ -30,14 +30,14 @@ The public pages `/privacy`, `/terms`, `/contact` and `/security` (`managio_fron
 | Customer CSV export; profile name and phone editable | `CustomerController` export, `PATCH /api/v1/me` |
 | No self-service account deletion; deletion by email | No delete-account endpoint exists |
 | Security page controls (lockout 5 / 15 min, rate limits, token checks, rotation, tenant isolation, idempotency) | D-032, D-033, D-034; `AuthFlowTest`, `ClientAddressTest`, `AccessSweepTest`, `IdempotencyTest` |
-| Service providers: Vercel, Render, Neon, Resend, Google | DEPLOYMENT.md target architecture |
+| Service providers: Vercel, Render (application servers), Supabase (database), Resend, Google | D-037 (hosting settled on 2026-10-22, before any production deployment) |
 
 ## Needs the owner's confirmation `[OPEN]`
 
 1. **Contact address.** The pages publish `nitinr0306@gmail.com`. If a `managio.me` mailbox is set up later, change `SITE.supportEmail` in one place.
-2. **Hosting regions.** The privacy policy says providers may process data outside the user's country. Once the Neon and Render regions are chosen, consider naming them.
+2. **Hosting regions.** The privacy policy says providers may process data outside the user's country. Render and Supabase both run in Singapore (D-037); once deployed, consider naming the region.
 3. **Deletion timeline.** The policy promises deletion "after confirming the request" without a number of days. Decide on a period you can keep, then state it.
-4. **Backups.** Neon keeps point-in-time history for a plan-dependent window; deleted data can persist in backups until that window passes. Consider saying so once the plan is known.
+4. **Backups.** Supabase Free keeps no backups; the owner keeps weekly `pg_dump` copies on their own PC, where deleted data can persist until the copies are deleted. Consider saying so once the plan is known.
 
 ## For a qualified lawyer's review `[OPEN]`
 

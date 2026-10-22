@@ -2,3 +2,5 @@
 *.cmd text eol=crlf
 Dockerfile text eol=lf
 .dockerignore text eol=lf
+# Copied to a Linux server as they are: a CR would end up inside shell commands and secret values.
+deploy/** text eol=lf

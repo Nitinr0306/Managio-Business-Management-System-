@@ -7,6 +7,9 @@
 # Examples hold placeholders only and are committed.
 !.env.example
 application-local.properties
+# Database dumps made by deploy/oracle/backup.sh hold customer data.
+deploy/oracle/backups/
+*.dump
 
 # =====================================================
 # BACKEND - SPRING BOOT / MAVEN
@@ -91,3 +94,13 @@ pnpm-debug.log*
 # =====================================================
 # Browser automation snapshots and screenshots
 .playwright-mcp/
+
+# =====================================================
+# PRIVATE LEARNING NOTES (local only, never pushed)
+# =====================================================
+# Personal study notes, scratch files and session logs stay on this machine.
+# The project's learning documents, docs/DEPLOYMENT_RUNBOOK.md and
+# docs/FULL_STACK_LEARNING_GUIDE.md, are NOT ignored: they are version-controlled
+# with the code they describe. Never ignore docs/ or Markdown in general.
+private-learning/
+*.private.md

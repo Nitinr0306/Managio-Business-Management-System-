@@ -10,8 +10,9 @@ Last updated: 2026-10-22. Read this first when resuming work.
 | 2. Rebuild (backend, frontend, tests) | Done. |
 | 2b. Deployment readiness | Done locally: production images build and pass a smoke test together (D-030). |
 | 2c. Security and production-readiness remediation | Done on 2026-10-22 (below). Full regression green. |
-| 2d. Release polish: legal pages, SEO, brand | Done on 2026-10-22 (below). Final runs after the footer change wait on free memory on the development machine. |
-| 3. Deployment (Render, Neon, Vercel, Google sign-in, Resend) | Not started. The pipeline and runbook are ready (D-031, DEPLOYMENT.md); needs the owner's dashboards and approval to commit and push. |
+| 2d. Release polish: legal pages, SEO, brand | Done on 2026-10-22 (below), final regression green. |
+| 2e. Version control | Done on 2026-10-22: v2 committed (`c65ddbe`) and merged with GitHub's history (`6783a7d`); the owner pushed it (`origin/master` = `6783a7d`). |
+| 3. Deployment (Vercel Free, Render Free, Supabase Free, Google sign-in, Resend) | Final stack chosen by the owner (D-037, below); [DEPLOYMENT_RUNBOOK.md](DEPLOYMENT_RUNBOOK.md) sections 5–6 have every step, which the owner performs. No cloud service changed yet. |
 
 Both v1 apps have been removed (still in git history). `managio_frontend/` is the v2 app (D-027).
 
@@ -82,6 +83,65 @@ Both v1 apps have been removed (still in git history). `managio_frontend/` is th
 | Clean-checkout type check | Failed before (`Cannot find name 'LayoutProps'`: route types live in `.next/`); `typecheck` now runs `next typegen` first and passes with no `.next`. |
 | Not rerun | Docker images and the Compose smoke test (last passed earlier on 2026-10-22, before the public-site changes; Dockerfiles unchanged). Lighthouse after the landmark fix (landmarks checked directly instead). |
 
+## Final production stack (2026-10-22, latest)
+
+**Decision (D-037, the owner's):** Vercel Free for the web app, Render Free for the API image (Singapore), Supabase Free for PostgreSQL (Singapore, session pooler on port 5432, Data API turned off). Everything is ₹0. Neon is left untouched and unused. The Oracle VM plan (D-036, below) is superseded; its tested files stay in `deploy/oracle/` for a possible later move.
+
+**Limits that matter** (providers' documentation, runbook section 2):
+* Render Free has 0.1 CPU and 512 MB, sleeps after 15 idle minutes, has 750 free hours a month per workspace, and "might restart … at any time".
+* Vercel waits at most 120 s for the API.
+* Supabase Free has 500 MB and 5 GB egress, pauses after a week of inactivity, and has no backups.
+
+**Measured locally at 0.1 CPU:** Spring started in 338 s, or 218 s with the `JAVA_TOOL_OPTIONS` start-up flags (set on Render). After a sleep, the first request can therefore fail behind Vercel's limit.
+
+**Keep-alive:** by the owner's decision, a free external scheduler calls `/actuator/health/liveness` every 10 minutes from 08:00 to 22:00 India time (about 434 of the 750 hours). Render's guidance calls this abuse of the free tier; the owner accepted the risk (Render may restart, throttle or suspend the service).
+
+**Changed for D-037:** the runbook, DEPLOYMENT.md, ARCHITECTURE.md, ENVIRONMENT.md, LEGAL.md, README, the learning guide, `managio_backend/.env.example`, and the privacy policy's provider list (now Render and Supabase).
+
+## Oracle VM plan (2026-10-22, superseded by D-037) `[VERIFIED]` unless noted
+
+**Decision (D-036, superseded):** the web app stays on Vercel (Hobby). The API, PostgreSQL 17 and Caddy (HTTPS) run with Docker Compose on one Oracle Cloud Always Free VM (`VM.Standard.A1.Flex`, Arm, 2 OCPUs, 3 GB) in the owner's existing tenancy, home region **Mumbai**, which never sleeps. Always Free compute exists only in the home region, so Singapore isn't an option for this tenancy. Mumbai had no Arm capacity when the owner tried (2026-10-22); see open question 11. Render and Neon are no longer used and are left untouched; production starts with an empty database (D-021). The owner asked for the ₹0 budget and for Neon to be replaced.
+
+**Why, measured** with the production API image on this PC under a 512 MB limit:
+* With 2 CPUs the API was ready in 18 s.
+* With 0.5 CPU (Render Starter, paid) it took 60 s.
+* With 0.1 CPU (Render Free) Spring started in 338 s, or 218 s with start-up JVM flags.
+* Peak memory was 406–455 MiB.
+
+Vercel waits at most 120 s for the API, and Render Free sleeps after 15 idle minutes, so Render Free would fail the first visits after every quiet spell. Neon Free's 100 CU-hours a month (400 hours at 0.25 CU) could run out for a business app used all day. Other free options were compared and rejected; the comparison is in runbook section 2.
+
+**Built and tested locally:**
+* `deploy/oracle/` holds `compose.yml` (PostgreSQL, API, Caddy), `Caddyfile`, `deploy.sh <tag>`, `backup.sh`, `.env.example` and `api.env.example`.
+* The Dockerfile now builds the jar on the builder's platform, so one `buildx` tag serves `amd64` and `arm64`. Both builds pass.
+* The `amd64` stack was healthy in 12 s. The `arm64` stack, emulated, was healthy in 160 s.
+* Through Caddy: HTTPS, the HTTP→HTTPS redirect, 401 on `/api/v1/me`, 404 on `/v3/api-docs`, and client-address trust all behave as expected. PostgreSQL isn't published.
+* Backup and restore drill: after a backup, a second account was added; the restore brought back exactly the backup's state.
+* `SPRING_DATASOURCE_HIKARI_MINIMUMIDLE=0` lets the pool drop to 0 connections after about 3 idle minutes. It's kept only for the case of a sleeping database such as Neon.
+* `.gitattributes` keeps `deploy/**` LF; `.gitignore` ignores `*.dump` and `deploy/oracle/backups/`.
+* The privacy policy's provider list named Oracle Cloud Infrastructure for a few hours; since D-037 it names Render and Supabase.
+
+**Not done** (superseded): `deploy.sh` end to end, a real certificate, the real VM.
+
+**Facts gathered:**
+* The Render workspace is on the Hobby plan with 750 free hours, 500 pipeline minutes, 1 existing service and no card (owner's report).
+* Docker Hub `nitinr1103/managio-backend` and `managio-frontend` exist and are public (v1 images).
+* This PC's Jenkins service (LocalSystem) can use Docker; Java 21.0.8 and Node 20.20.2 are on the system PATH.
+
+## Deployment preparation (2026-10-22) `[VERIFIED]`
+
+**Production as it is today** (public HTTP requests and DNS lookups only; no dashboard access, nothing changed):
+* `https://managio.me` is served by **Vercel and runs the v1 frontend** (title "Managio — Multi-Tenant Business Management Platform"; `/privacy` and `/api/v1/me` answer 404). `http://` redirects to `https://`. Deploying v2 replaces this live site.
+* DNS is at Namecheap: apex A record → Vercel (`76.76.21.21`); `www` CNAME → `cname.vercel-dns.com`, but Vercel presents **no valid certificate for `www`**, so it is probably not added to the Vercel project. Resend's sending records (`send` MX and SPF, `resend._domainkey` DKIM) and `_dmarc` (`p=none`) are present. There is no MX record on the apex, so no mailbox receives mail at `@managio.me`.
+* No Render service configuration exists in the repository (the service is created by hand, D-037); `managio_frontend/vercel.json` turns off push-triggered production deploys.
+* Jenkins: no job for this repository; the installed plugins cover the Jenkinsfile (Pipeline, Git, GitHub, Credentials Binding, JUnit, Timestamper, Mailer, Email Extension, Workspace Cleanup).
+
+**Documents added**
+* [DEPLOYMENT_RUNBOOK.md](DEPLOYMENT_RUNBOOK.md): architecture, every setting and where it belongs, database, API, web app, Docker, Jenkins, domain, secrets, release and rollback, troubleshooting, deployment history and a new-machine guide. Its section 13 is the deployment log from now on.
+* [FULL_STACK_LEARNING_GUIDE.md](FULL_STACK_LEARNING_GUIDE.md): the codebase explained module by module from the real source, with a traced request (recording a payment), concepts in context, a testing handbook and a progress tracker (all *Not started*). Its file maps and endpoint tables were generated from the source: 2,137 relative links to 375 files, every target checked to exist, and all 1,423 line anchors checked to land on the named class or method (commit `6783a7d`).
+* `.gitignore` has a "private learning notes" section (`private-learning/`, `*.private.md`). `git check-ignore` confirms those are ignored and the two documents above, `docs/STATUS.md` and `README.md` are not.
+
+**Corrected:** earlier docs said Neon's direct host is needed because Flyway takes a *session* advisory lock. Flyway's PostgreSQL lock is transaction-level by default (`postgresql.transactional.lock` = `true`); the reason for the direct host is Neon's guidance to use direct connections for schema migrations. (Neon is no longer used since D-036.)
+
 ## Why the Google button didn't show `[VERIFIED]`
 
 The client ID was set correctly and identically in all three files, but the last web build (2026-10-21 19:13) predated `managio_frontend/.env.local` (2026-10-22 10:20). `NEXT_PUBLIC_*` values are compiled in when the app is built or `npm run dev` starts, so that build had none and hid the button. Rebuilding fixed it. Restart `npm run dev` after changing `.env.local`; rebuild Docker images after changing `MANAGIO_GOOGLE_CLIENT_ID`.
@@ -89,15 +149,18 @@ The client ID was set correctly and identically in all three files, but the last
 ## Known risks and follow-ups `[PLANNED]` unless noted
 
 1. **Exposed credentials, provider side** `[OPEN]`: the old Docker Hub token and Resend key in public git history must be revoked in those dashboards; local files no longer use them. Rewriting history is not planned (values are already public; rotation is the fix).
-2. ~~Local API `.env` pointed at Neon~~ Fixed 2026-10-22: local PostgreSQL on 5433. For Render, use Neon's direct host (Flyway's lock doesn't work through the pooler).
+2. ~~Local API `.env` pointed at Neon~~ Fixed 2026-10-22: local PostgreSQL on 5433.
 3. ~~`MAIL_FROM` typo~~ Fixed 2026-10-22 in both local `.env` files.
 4. **CSP keeps `'unsafe-inline'` for scripts** (Next.js inline data); a nonce-based policy would end prerendering of public pages.
-5. **Rate-limit counters are in memory**: correct for one Render instance; a second instance needs a shared store. Restarts reset counters (lockout is persistent).
+5. **Rate-limit counters are in memory**: correct for the one API container; a second instance needs a shared store. Restarts and deploys reset counters (lockout is persistent).
 6. **Platform console sign-in strength.** Read-only; add an authenticator-app step before it gains actions that change data (D-028).
 7. **Node 20 locally is past end of life.** The images use Node 22.
 8. **Dev-only npm advisories** in the lint chain; the offered fix downgrades `eslint-config-next`, so not applied.
 9. **Local Docker leftovers**: a stopped `jenkins` container publishes host port 8081 and a stopped `agrinex-dev-agrinex-db-1` publishes 5433; starting either would collide with the API or the dev database.
 10. **Lockout as a denial of service**: anyone who knows an email can lock that account for 15 minutes (now for Google too, by the owner's rule); rate limits slow it down.
+11. **Free-tier hosting** (D-037): Render Free sleeps, may restart at any time, and wakes slower than Vercel waits; the keep-alive pings go against Render's guidance (the owner's accepted risk). If the 750 hours run out, all free Render services are suspended until the next month.
+12. **No managed backups:** Supabase Free has none; the owner runs `pg_dump` weekly (runbook section 4). A paused Supabase project (a week without activity) must be restored from its dashboard.
+13. **The daily 03:30 token clean-up** only runs if the API is awake then; the 09:00 reminders fall inside the pinged hours.
 
 ## Environment facts `[VERIFIED]` 2026-10-22
 
@@ -113,17 +176,20 @@ The client ID was set correctly and identically in all three files, but the last
 ## Open questions `[OPEN]`
 
 1. **Google production origin.** Add `https://managio.me` to the OAuth client's JavaScript origins (localhost is confirmed working); publish the consent screen.
-2. **Production access.** Render, Neon, Vercel and Docker Hub dashboards (DEPLOYMENT.md, "First production deployment").
-3. **Production reset.** Resetting the Neon database gets a final confirmation from the owner at the moment it happens (D-021).
+2. **First deployment** (D-037): the owner creates the Supabase project, the Render service and the keep-alive job, and switches Vercel to v2 (runbook sections 5–6).
+3. **Production data.** Production starts with an empty Supabase database (D-021). The Neon project is left as it is; deleting it, or anything in it, is the owner's decision.
 4. **Email domain.** `managio.me` is verified for sending (Resend accepted a test email on 2026-10-22). The public contact is `nitinr0306@gmail.com`.
 5. **Credential revocation.** Confirm the old Docker Hub token and Resend key are revoked (risk 1).
 6. **Legal pages.** Written (D-035); items for the owner and for a lawyer are in LEGAL.md. Enter the URLs in Google's consent screen only after they answer 200 in production.
 7. **Portal sign-up squatting.** Self sign-up does not verify the email or phone (D-022). Decide whether to require email verification at sign-up.
-8. **Commit and push.** Local `master` is 1 ahead and 5 behind GitHub (owner's README edits and screenshots from June); nothing from v2 is committed. Merge plan in the final report of 2026-10-22.
-9. **Context7 key.** Replace it if library docs through MCP are wanted.
+8. **Replacing the live v1 site.** The existing Vercel project serves v1 at `managio.me`. Pointing it at v2 (root directory `managio_frontend`, new environment variables) replaces the live site: needs the owner's approval, after checking the project's current settings.
+9. **Context7 key.** Replace it if library docs through MCP are wanted (still rejected on 2026-10-22; the official Neon and Flyway documentation was read directly instead).
+10. **`www.managio.me`.** Add it to the Vercel project as a redirect to the apex so Vercel issues its certificate (no DNS change needed).
+11. **Later, a host that doesn't sleep.** If cold starts or Render's keep-alive stance become a problem: Render Starter (paid) or an Oracle Always Free VM. The owner's tenancy is in Mumbai, which had no Arm capacity on 2026-10-22; Always Free compute is home-region only; `deploy/oracle/` is ready.
 
 ## Next steps
 
-1. Owner: approve the commit and merge; revoke the old credentials; fix the local `.env` items (risks 2–3).
-2. Owner: dashboards per DEPLOYMENT.md (Neon direct host, Docker Hub, Render image service, Vercel project and deploy hook, Google origins, Resend domain), then the Jenkins job.
-3. Run the pipeline on master and the manual smoke test, including a real Google sign-in and a real email.
+1. Owner: review, commit and push the changes (runbook section 13 lists them); revoke the old Docker Hub token and Resend key (risk 1).
+2. Owner: Docker Hub tokens and the first image, the Supabase project (Data API off), the Render service and the keep-alive job ([DEPLOYMENT_RUNBOOK.md](DEPLOYMENT_RUNBOOK.md) section 5, steps 2–5).
+3. Owner: switch Vercel to v2 and add Google's production origin (section 6); run the smoke test (section 11), including a real Google sign-in, a real email and the wake-up time after 20 idle minutes; record the results in section 13.
+4. Then the Jenkins job (section 8) and the first Supabase backup (section 4).

@@ -15,10 +15,10 @@ Read from environment variables; locally also from the untracked `managio_backen
 
 | Variable | Required | Default | Secret | Purpose |
 |---|---|---|---|---|
-| `DB_URL` | Yes | `jdbc:postgresql://localhost:5432/managio` | No | JDBC URL. Locally the PostgreSQL container on 5433 (TESTING.md). Neon: the **direct** host, `jdbc:postgresql://<host>/<db>?sslmode=require`; not the `-pooler` host, because Flyway's session lock doesn't work through Neon's pooler. |
+| `DB_URL` | Yes | `jdbc:postgresql://localhost:5432/managio` | No | JDBC URL. Locally the PostgreSQL container on 5433 (TESTING.md). Production (D-037): Supabase's **session pooler**, `jdbc:postgresql://aws-<n>-<region>.pooler.supabase.com:5432/postgres?sslmode=require`, with `DB_USERNAME=postgres.<project-ref>`. If Neon is ever used: the **direct** host, `jdbc:postgresql://<host>/<db>?sslmode=require`; not the `-pooler` host, because Neon advises direct connections for schema migrations, which Flyway runs when the API starts. |
 | `DB_USERNAME` | Yes | `managio_user` | No | Database user. |
 | `DB_PASSWORD` | Yes | empty | **Yes** | Database password. |
-| `DB_POOL_SIZE` | No | `5` | No | Connection pool size; keep small on Neon and Render free tiers. |
+| `DB_POOL_SIZE` | No | `5` | No | Connection pool size. One connection stays open (`minimum-idle: 1`); with a database that sleeps when idle (Neon), set `SPRING_DATASOURCE_HIKARI_MINIMUMIDLE=0` so it can sleep (verified 2026-10-22). |
 | `JWT_SECRET` | Yes | none: start-up fails | **Yes** | Signs access tokens (HS256). At least 32 random characters. Changing it signs everyone out. |
 | `SECURE_COOKIES` | No | `true` | No | Refresh cookies are `Secure`. Only plain-http local setups set `false`. |
 | `CORS_ALLOWED_ORIGINS` | No | `http://localhost:3000` | No | Comma-separated origins allowed to call the API from a browser. The web app proxies `/api`, so normally only its own URL. |
@@ -42,7 +42,7 @@ Locally in the untracked `managio_frontend/.env.local`; on Vercel in the project
 
 | Variable | Required | Default | Secret | When it is read | Purpose |
 |---|---|---|---|---|---|
-| `API_ORIGIN` | Yes in production | `http://localhost:8081` | No | **Build time** | Where `/api/*` is passed through to. On Vercel the Render URL; in Docker `http://api:8080`. Changing it needs a rebuild. |
+| `API_ORIGIN` | Yes in production | `http://localhost:8081` | No | **Build time** | Where `/api/*` is passed through to. On Vercel the Render URL (`https://<service>.onrender.com`); in Docker `http://api:8080`. Changing it needs a rebuild. |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | No | empty | No (public by design) | Build time | Google Identity Services client ID; empty hides the Google button. Changing it needs a new build or a restart of `npm run dev`: a build made before it was set has no button. |
 | `API_PROXY_SECRET` | Yes in production | empty | **Yes** (server only) | Run time | The API's `API_PROXY_SECRET`. The `/api` pass-through sends it with the visitor's address. Never use a `NEXT_PUBLIC_` name for it. |
 | `CLIENT_IP_HEADER` | No | `x-forwarded-for` on Vercel, otherwise none | No | Run time | Which request header holds the visitor's address. Vercel overwrites `x-forwarded-for`, so it is trusted there. Self-hosted: name only a header your front proxy overwrites; with none, no address is vouched for. |

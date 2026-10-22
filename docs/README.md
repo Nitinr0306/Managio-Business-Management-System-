@@ -14,6 +14,8 @@ This folder is the single source of truth for Managio: what the product does, wh
 | [API.md](API.md) | API conventions, error format, authentication and the endpoint catalogue. |
 | [ENVIRONMENT.md](ENVIRONMENT.md) | Every setting the API, web app, Docker Compose and CI read, with defaults and which are secret. |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | Docker images, the local production-like stack, the production plan, smoke test and rollback. |
+| [DEPLOYMENT_RUNBOOK.md](DEPLOYMENT_RUNBOOK.md) | The full deployment handbook: what runs where and why, every setting and where it belongs, Jenkins, domain, secrets, release, rollback, troubleshooting, and the deployment history (updated after every deployment step). |
+| [FULL_STACK_LEARNING_GUIDE.md](FULL_STACK_LEARNING_GUIDE.md) | How the code works, module by module: file maps, endpoints, a traced request from the browser to the database, concepts in context, exercises and a progress tracker. Update a module's section when the module changes. |
 | [TESTING.md](TESTING.md) | The test suites and how to run them. |
 | [LEGAL.md](LEGAL.md) | The privacy, terms, contact and security pages: the code behind each claim, and what needs the owner's confirmation or a lawyer's review. |
 | [LEGACY_AUDIT.md](LEGACY_AUDIT.md) | Findings from the audit of the v1 codebase (October 2026) that motivated the rebuild. |
